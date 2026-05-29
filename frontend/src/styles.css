@@ -1,0 +1,348 @@
+:root {
+  font-family: "Aptos", "Segoe UI Variable", "Segoe UI", sans-serif;
+  color: #1b241d;
+  background:
+    radial-gradient(circle at top left, rgba(142, 171, 139, 0.28), transparent 32%),
+    linear-gradient(180deg, #f4f2e8 0%, #ece7d8 100%);
+  line-height: 1.45;
+  font-weight: 400;
+  color-scheme: light;
+  --forest-900: #163328;
+  --forest-700: #315641;
+  --forest-500: #6b8b6f;
+  --paper-100: #fcfaf4;
+  --paper-200: #f3efe4;
+  --paper-300: #e3dbc9;
+  --ink-700: #364237;
+  --ink-500: #55615b;
+  --shadow-soft: 0 18px 45px rgba(31, 50, 34, 0.12);
+  --radius-xl: 26px;
+  --radius-lg: 18px;
+  --radius-md: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 320px;
+  min-height: 100vh;
+  padding-bottom: 150px;
+}
+
+.left-rail {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  padding: 26px 22px;
+  background: linear-gradient(180deg, rgba(22, 51, 40, 0.96), rgba(34, 60, 48, 0.93));
+  color: #eef1e9;
+}
+
+.brand-block h1,
+.hero-panel h2,
+.panel-card h3,
+.module-card h3 {
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+}
+
+.brand-kicker,
+.section-tag,
+.topbar-label,
+.dock-label,
+.timeline-pill {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+.brand-block p,
+.rail-note,
+.nav-link,
+.dock-panel p,
+.state-copy {
+  color: rgba(238, 241, 233, 0.78);
+}
+
+.nav-stack {
+  display: grid;
+  gap: 8px;
+  margin: 28px 0;
+}
+
+.nav-link {
+  padding: 12px 14px;
+  border-radius: 999px;
+  color: inherit;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.nav-link.is-active {
+  background: rgba(252, 250, 244, 0.12);
+  border-color: rgba(252, 250, 244, 0.2);
+}
+
+.rail-note {
+  margin-top: 24px;
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  background: rgba(252, 250, 244, 0.08);
+}
+
+.workspace {
+  padding: 24px;
+}
+
+.workspace-topbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 0 20px;
+}
+
+.workspace-content {
+  display: grid;
+  gap: 20px;
+}
+
+.right-dock {
+  padding: 24px 24px 24px 0;
+}
+
+.dock-panel {
+  position: sticky;
+  top: 24px;
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border-radius: var(--radius-xl);
+  background: rgba(252, 250, 244, 0.72);
+  border: 1px solid rgba(49, 86, 65, 0.12);
+  box-shadow: var(--shadow-soft);
+}
+
+.dock-section h2,
+.dock-section h3 {
+  margin: 0 0 8px;
+}
+
+.dock-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink-700);
+}
+
+.page-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.hero-panel {
+  padding: 28px;
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(135deg, rgba(252, 250, 244, 0.95), rgba(235, 228, 208, 0.95)),
+    linear-gradient(180deg, rgba(107, 139, 111, 0.1), transparent);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(49, 86, 65, 0.12);
+}
+
+.compact-hero {
+  padding: 22px 28px;
+}
+
+.hero-panel p,
+.panel-card p,
+.module-card p,
+.timeline-item p,
+.ledger-item p {
+  color: var(--ink-500);
+}
+
+.two-column-grid,
+.card-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.two-column-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.panel-card,
+.module-card,
+.qibit-card {
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  background: rgba(252, 250, 244, 0.86);
+  border: 1px solid rgba(49, 86, 65, 0.1);
+  box-shadow: var(--shadow-soft);
+}
+
+.timeline-list,
+.panel-card {
+  display: grid;
+  gap: 12px;
+}
+
+.timeline-item,
+.ledger-item,
+.qibit-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: start;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(49, 86, 65, 0.09);
+}
+
+.timeline-item:last-child,
+.ledger-item:last-child,
+.qibit-card:last-child {
+  border-bottom: 0;
+}
+
+.timeline-pill {
+  display: inline-flex;
+  margin-bottom: 8px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(49, 86, 65, 0.1);
+  color: var(--forest-700);
+}
+
+.filter-row {
+  display: flex;
+}
+
+.text-input,
+.quick-capture-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(49, 86, 65, 0.16);
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--ink-700);
+}
+
+.quick-capture-bar {
+  position: fixed;
+  left: 280px;
+  right: 24px;
+  bottom: 18px;
+  z-index: 20;
+}
+
+.quick-capture {
+  padding: 18px;
+  border-radius: var(--radius-xl);
+  background: rgba(22, 51, 40, 0.95);
+  color: #f7f7f1;
+  box-shadow: 0 28px 60px rgba(20, 35, 27, 0.28);
+}
+
+.quick-capture-label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.quick-capture-input {
+  min-height: 84px;
+  resize: vertical;
+  background: rgba(250, 248, 242, 0.95);
+}
+
+.quick-capture-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.quick-capture-status {
+  color: rgba(247, 247, 241, 0.8);
+}
+
+.primary-button {
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #d9e1b2, #9ebb78);
+  color: #143025;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.state-copy {
+  margin: 0;
+  color: var(--ink-500);
+}
+
+.error-copy {
+  color: #9c3e2d;
+}
+
+@media (max-width: 1080px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .left-rail,
+  .right-dock {
+    position: static;
+    height: auto;
+    padding: 20px 24px 0;
+  }
+
+  .quick-capture-bar {
+    left: 16px;
+    right: 16px;
+  }
+}
+
+@media (max-width: 720px) {
+  .workspace,
+  .right-dock,
+  .left-rail {
+    padding: 16px;
+  }
+
+  .two-column-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-capture-actions,
+  .timeline-item,
+  .ledger-item,
+  .qibit-card {
+    flex-direction: column;
+  }
+}
