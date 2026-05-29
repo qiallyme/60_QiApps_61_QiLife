@@ -1,3 +1,13 @@
+export type Bucket = {
+  code: string;
+  name: string;
+  slug: string;
+  folder_path: string;
+  sort_order: number;
+  description: string;
+  is_system: boolean;
+};
+
 export type Qibit = {
   id: string;
   title: string;
@@ -14,6 +24,8 @@ export type Qibit = {
   action_required: boolean;
   suggested_action: string | null;
   captured_at: string;
+  happened_at: string | null;
+  tags_json: string[];
 };
 
 export type Thread = {
@@ -24,6 +36,10 @@ export type Thread = {
   status: string;
   priority: string;
   next_action: string | null;
+  due_date: string | null;
+  started_at: string;
+  closed_at: string | null;
+  tags_json: string[];
 };
 
 export type Action = {
@@ -32,9 +48,25 @@ export type Action = {
   description: string;
   bucket_code: string;
   thread_id: string | null;
+  source_qibit_id: string | null;
   status: string;
   priority: string;
+  energy: string;
+  context: string;
   scheduled_for: string | null;
+  due_date: string | null;
+  completed_at: string | null;
+  resolution_note: string | null;
+  tags_json: string[];
+};
+
+export type ActionStep = {
+  id: string;
+  action_id: string;
+  title: string;
+  description: string | null;
+  status: string;
+  sort_order: number;
   completed_at: string | null;
 };
 
@@ -44,6 +76,9 @@ export type Person = {
   legal_name: string;
   relationship: string;
   type: string;
+  email: string | null;
+  phone: string | null;
+  notes: string | null;
 };
 
 export type TimelineRow = {

@@ -141,3 +141,18 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# SQLite WAL / journal files (should not be committed)
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# Probe / test databases in backend dir (keep only data/db/qilife.sqlite)
+backend/*.sqlite
+backend/*.sqlite-journal
+backend/*.sqlite-wal
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/

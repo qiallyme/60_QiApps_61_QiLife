@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.router import api_router
-from app.db.session import create_db_and_tables
+from app.db.seed import seed_database
 
 app = FastAPI(title="QiLife API", version="0.1.0")
 
@@ -19,7 +19,7 @@ app.add_middleware(
 
 @app.on_event("startup")
 def on_startup() -> None:
-    create_db_and_tables()
+    seed_database()
 
 
 @app.get("/")

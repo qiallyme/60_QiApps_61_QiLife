@@ -2,17 +2,17 @@ import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 
 const navItems = [
-  ["Today", "/"],
-  ["Timeline", "/timeline"],
-  ["Inbox", "/inbox"],
-  ["Threads", "/threads"],
-  ["Actions", "/actions"],
-  ["Calendar", "/calendar"],
-  ["People", "/people"],
-  ["Money", "/money"],
-  ["Knowledge", "/knowledge"],
-  ["Documents", "/documents"],
-  ["Ask QiLife", "/ask"],
+  { label: "Today", href: "/", icon: "⊙" },
+  { label: "Timeline", href: "/timeline", icon: "◈" },
+  { label: "Inbox", href: "/inbox", icon: "⊡" },
+  { label: "Threads", href: "/threads", icon: "◎" },
+  { label: "Actions", href: "/actions", icon: "◷" },
+  { label: "Calendar", href: "/calendar", icon: "◻" },
+  { label: "People", href: "/people", icon: "◈" },
+  { label: "Money", href: "/money", icon: "◉" },
+  { label: "Knowledge", href: "/knowledge", icon: "◆" },
+  { label: "Documents", href: "/documents", icon: "◧" },
+  { label: "Ask QiLife", href: "/ask", icon: "◐" },
 ] as const;
 
 type AppShellProps = {
@@ -25,45 +25,56 @@ export function AppShell({ children, contextDock, quickCapture }: AppShellProps)
   return (
     <div className="shell">
       <aside className="left-rail">
-        <div className="brand-block">
-          <span className="brand-kicker">QiLife</span>
-          <h1>Personal LifeDesk</h1>
-          <p>QiBits, timeline, threads, actions, and context in one local-first desk.</p>
+        <div className="rail-logo">
+          <div className="rail-logo-kicker">Personal LifeDesk</div>
+          <h1>QiLife</h1>
+          <p>Capture, triage, act, resolve, retrieve.</p>
         </div>
 
-        <nav className="nav-stack" aria-label="Primary">
-          {navItems.map(([label, href]) => (
+        <nav className="rail-nav" aria-label="Primary navigation">
+          <div className="rail-section-label">Core</div>
+          {navItems.slice(0, 5).map(({ label, href, icon }) => (
             <NavLink
               key={href}
-              className={({ isActive }) => `nav-link${isActive ? " is-active" : ""}`}
               to={href}
+              end={href === "/"}
+              className={({ isActive }) => `nav-link${isActive ? " is-active" : ""}`}
             >
+              <span style={{ fontSize: 15, opacity: 0.8 }}>{icon}</span>
+              {label}
+            </NavLink>
+          ))}
+
+          <div className="rail-section-label" style={{ marginTop: 16 }}>Modules</div>
+          {navItems.slice(5).map(({ label, href, icon }) => (
+            <NavLink
+              key={href}
+              to={href}
+              className={({ isActive }) => `nav-link${isActive ? " is-active" : ""}`}
+            >
+              <span style={{ fontSize: 15, opacity: 0.8 }}>{icon}</span>
               {label}
             </NavLink>
           ))}
         </nav>
 
-        <div className="rail-note">
-          <h2>Doctrine</h2>
-          <ul>
-            <li>QiBit is atomic.</li>
-            <li>Timeline is the spine.</li>
-            <li>Context Dock embeds knowledge.</li>
-          </ul>
+        <div className="rail-footer">
+          QiLife v1 · Local-first build
         </div>
       </aside>
 
       <main className="workspace">
-        <header className="workspace-topbar">
-          <div>
-            <span className="topbar-label">QiLife v1 Spine</span>
-            <strong>Local-first build in progress</strong>
-          </div>
+        <header className="workspace-header">
+          <span className="workspace-breadcrumb">QiLife v1 Spine</span>
+          <span className="workspace-status-dot">
+            <span className="status-dot" />
+            API connected
+          </span>
         </header>
-        <section className="workspace-content">{children}</section>
+        {children}
       </main>
 
-      <aside className="right-dock">{contextDock}</aside>
+      <aside className="right-dock-wrap">{contextDock}</aside>
 
       <div className="quick-capture-bar">{quickCapture}</div>
     </div>

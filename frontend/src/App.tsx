@@ -16,7 +16,7 @@ export default function App() {
   const [refreshToken, setRefreshToken] = useState(0);
 
   function handleCaptured() {
-    setRefreshToken((current) => current + 1);
+    setRefreshToken((n) => n + 1);
   }
 
   return (
@@ -30,23 +30,53 @@ export default function App() {
         <Route path="/people" element={<PeoplePage refreshToken={refreshToken} />} />
         <Route
           path="/calendar"
-          element={<PlaceholderPage title="Calendar" description="Events and scheduled actions will land here next, driven by the canonical timeline and event model." />}
+          element={
+            <PlaceholderPage
+              title="Calendar"
+              description="Events and scheduled actions driven by the canonical timeline and event model. Linked to QiBits and threads by source_qibit_id."
+              phase="Phase 2"
+            />
+          }
         />
         <Route
           path="/money"
-          element={<PlaceholderPage title="Money" description="Transactions and obligations will expand into a dedicated ledger once the money layer is wired on top of the spine." />}
+          element={
+            <PlaceholderPage
+              title="Money"
+              description="Transactions stored in cents (no float errors). Obligations track who owes what. All linked back to QiBits for full provenance."
+              phase="Phase 4"
+            />
+          }
         />
         <Route
           path="/knowledge"
-          element={<PlaceholderPage title="Knowledge" description="Repo docs and durable in-app knowledge will converge here through the importer and Context Dock." />}
+          element={
+            <PlaceholderPage
+              title="Knowledge"
+              description="Write once in Markdown, index everywhere. Repo docs are imported as read-only system items. Knowledge links to buckets, threads, and people."
+              phase="Phase 3"
+            />
+          }
         />
         <Route
           path="/documents"
-          element={<PlaceholderPage title="Documents" description="Document metadata and local file references will be attached to QiBits, Threads, and Money records here." />}
+          element={
+            <PlaceholderPage
+              title="Documents"
+              description="File metadata attached to QiBits and threads. file_hash ensures integrity. Local paths only in v1 — no cloud sync."
+              phase="Phase 3"
+            />
+          }
         />
         <Route
           path="/ask"
-          element={<PlaceholderPage title="Ask QiLife" description="The AI layer will query the ledger with cited supporting records after the staged AI review flow is fully wired." />}
+          element={
+            <PlaceholderPage
+              title="Ask QiLife"
+              description="Queries the full ledger with cited supporting records. AI suggestions staged via ai_outputs until approved. No silent writes to primary tables."
+              phase="Phase 5"
+            />
+          }
         />
       </Routes>
     </AppShell>

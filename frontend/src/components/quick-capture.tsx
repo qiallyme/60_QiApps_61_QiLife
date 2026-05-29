@@ -1,26 +1,23 @@
-import { FormEvent, startTransition, useState } from "react";
-
+import { FormEvent, useState } from "react";
 import { apiFetch } from "../api/client";
 import type { Qibit } from "../types";
 
-type QuickCaptureProps = {
-  onCaptured: () => void;
-};
+type QuickCaptureProps = { onCaptured: () => void };
+
+type StatusKind = "idle" | "saving" | "ok" | "error";
 
 export function QuickCapture({ onCaptured }: QuickCaptureProps) {
   const [value, setValue] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState("Capture what happened.");
+  const [status, setStatus] = useState<StatusKind>("idle");
+  const [message, setMessage] = useState("");
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     const trimmed = value.trim();
-    if (!trimmed || submitting) {
-      return;
-    }
+    if (!trimmed || status === "saving") return;
 
-    setSubmitting(true);
-    setMessage("Saving QiBit...");
+    setStatus("saving");
+    setMessage("");
 
     try {
       await apiFetch<Qibit>("/api/qibits/capture", {
@@ -28,34 +25,54 @@ export function QuickCapture({ onCaptured }: QuickCaptureProps) {
         body: JSON.stringify({ raw_capture: trimmed }),
       });
       setValue("");
-      setMessage("QiBit captured into Inbox.");
-      startTransition(() => {
-        onCaptured();
-      });
-    } catch (caught) {
-      setMessage(caught instanceof Error ? caught.message : "Capture failed.");
-    } finally {
-      setSubmitting(false);
+      setStatus("ok");
+      setMessage("QiBit dropped into Inbox ✓");
+      onCaptured();
+      setTimeout(() => setStatus("idle"), 3000);
+    } catch (err) {
+      setStatus("error");
+      setMessage(err instanceof Error ? err.message : "Capture failed.");
     }
   }
 
+  const statusClass =
+    status === "ok" ? "success" : status === "error" ? "error" : "";
+
   return (
     <form className="quick-capture" onSubmit={handleSubmit}>
-      <label className="quick-capture-label" htmlFor="quick-capture-input">
-        What happened?
-      </label>
+      <div className="qc-label">What happened?</div>
       <textarea
         id="quick-capture-input"
-        className="quick-capture-input"
+        className="qc-input"
         value={value}
-        onChange={(event) => setValue(event.target.value)}
-        placeholder="Zai owes me $40 for gas. Need to follow up."
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="Zai owes me $40 for gas. Need to follow up…"
         rows={2}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+            e.currentTarget.form?.requestSubmit();
+          }
+        }}
       />
-      <div className="quick-capture-actions">
-        <span className="quick-capture-status">{message}</span>
-        <button className="primary-button" disabled={submitting || !value.trim()} type="submit">
-          {submitting ? "Capturing..." : "Capture QiBit"}
+      <div className="qc-row">
+        <span className={`qc-status ${statusClass}`}>
+          {status === "saving"
+            ? "Saving…"
+            : message || "Capture what happened. ⌘↵ to send."}
+        </span>
+        <button
+          className="btn btn-accent btn-sm"
+          type="submit"
+          disabled={status === "saving" || !value.trim()}
+        >
+          {status === "saving" ? (
+            <>
+              <span className="spinner" style={{ borderTopColor: "#0d2612" }} />
+              Capturing…
+            </>
+          ) : (
+            "Capture QiBit"
+          )}
         </button>
       </div>
     </form>

@@ -1,0 +1,106 @@
+flowchart TD
+    %% === PROJECT GOALS ===
+    %% Ultimate Goal: QiLife — Cody's private Personal LifeDesk
+    %% Current Goal: Phase 1 Spine complete, move to Phase 2 Daily Command Layer
+
+    %% === START ===
+    %% @project_start [start, closed, 2026-05-29, cody]
+    project_start("QiLife Project Start<br/><sub>Local-first Personal LifeDesk.<br/>QiBit as atomic unit, Timeline<br/>as spine. SQLite v1, FastAPI<br/>backend + React frontend.</sub>")
+
+    %% @ultimate_goal [end, opened, 2026-05-29, cody]
+    ultimate_goal("QiLife Personal LifeDesk<br/><sub>Private life operations system:<br/>capture → triage → thread → act<br/>→ resolve → reflect → retrieve,<br/>all connected to AI layer.</sub>")
+
+    %% === PHASE 0 — DOCS ===
+    %% @phase0_docs [ai-task, closed, 2026-05-29, cody]
+    phase0_docs("Phase 0: Docs Complete<br/><sub>Product canvas, master build spec,<br/>data model, architecture, module<br/>specs, AI layer blueprint, and<br/>build phases all authored.</sub>")
+
+    %% === PHASE 1 — SPINE ===
+    %% @phase1_schema [ai-task, closed, 2026-05-29, codex]
+    phase1_schema("Phase 1: DB Schema Built<br/><sub>15 canonical tables: qibits,<br/>buckets, threads, actions, steps,<br/>people, transactions, obligations,<br/>knowledge, documents, events, links.</sub>")
+
+    %% @phase1_seed [ai-task, closed, 2026-05-29, codex]
+    phase1_seed("Seed Data Wired<br/><sub>Buckets + realistic sample data<br/>(Zai gas reimbursement, surplus<br/>check thread, Lyft sprint).<br/>Idempotent — safe to restart.</sub>")
+
+    %% @phase1_api [ai-task, closed, 2026-05-29, codex]
+    phase1_api("Phase 1: REST API Complete<br/><sub>QiBits (capture/triage), Threads<br/>(CRUD), Actions (CRUD/complete),<br/>People (CRUD), Buckets (list),<br/>Timeline (projected feed).</sub>")
+
+    %% @phase1_frontend [ai-task, closed, 2026-05-29, antigravity]
+    phase1_frontend("Phase 1: Frontend Spine<br/><sub>3-pane shell, Context Dock,<br/>Quick Capture (⌘↵), all 6 live<br/>pages with modals (triage, create<br/>thread, action, person).</sub>")
+
+    %% @phase1_design [ai-task, closed, 2026-05-29, antigravity]
+    phase1_design("Premium Design System<br/><sub>Inter + DM Serif Display fonts,<br/>forest/paper palette, cards, badges,<br/>modals, spinner, animated status<br/>dot, full responsive layout.</sub>")
+
+    %% === PHASE 2 — DAILY COMMAND ===
+    %% @phase2_today [ai-task, opened, 2026-05-29, antigravity]
+    phase2_today("Phase 2: Today Dashboard<br/><sub>Filter QiBits by today's date,<br/>daily summary panel, end-of-day<br/>review flow, reflection capture,<br/>action rescheduling controls.</sub>")
+
+    %% @phase2_calendar [ai-task, opened, 2026-05-29, cody]
+    phase2_calendar("Phase 2: Calendar Module<br/><sub>Events API routes, calendar<br/>view wired to events table,<br/>linked to QiBits and threads<br/>via source_qibit_id.</sub>")
+
+    %% === PHASE 3 — CONTEXT LAYER ===
+    %% @phase3_knowledge [ai-task, opened, 2026-05-29, cody]
+    phase3_knowledge("Phase 3: Knowledge + Docs<br/><sub>Knowledge CRUD, Markdown<br/>renderer, Context Dock enrichment<br/>from real knowledge_items,<br/>Documents page wired.</sub>")
+
+    %% @phase3_repo_import [ai-task, opened, 2026-05-29, cody]
+    phase3_repo_import("Phase 3: Repo Docs Import<br/><sub>Walk docs/ dir, upsert into<br/>knowledge_items with source_type<br/>=repo_doc. Read-only in-app.<br/>Write once, index everywhere.</sub>")
+
+    %% === PHASE 4 — MONEY ===
+    %% @phase4_money [ai-task, opened, 2026-05-29, cody]
+    phase4_money("Phase 4: Money Layer<br/><sub>Transactions + obligations pages,<br/>amount_cents display, who owes<br/>me / who I owe, linked back<br/>to QiBits for provenance.</sub>")
+
+    %% === PHASE 5 — AI LAYER ===
+    %% @phase5_ai [ai-task, opened, 2026-05-29, cody]
+    phase5_ai("Phase 5: AI Layer<br/><sub>Mock AI service, ai_outputs<br/>staging, accept/reject UI,<br/>Ask QiLife query surface<br/>with cited supporting records.</sub>")
+
+    %% === PHASE 1 REMAINING ===
+    %% @phase1_detail_views [ai-task, opened, 2026-05-29, antigravity]
+    phase1_detail_views("Phase 1 Remaining: Detail Views<br/><sub>QiBit detail, Thread detail,<br/>Action steps UI, QiBit edit<br/>(PUT endpoint + frontend form),<br/>soft-delete filter on all lists.</sub>")
+
+    %% === CONNECTIONS ===
+    project_start --> phase0_docs
+    phase0_docs --> phase1_schema
+    phase1_schema --> phase1_seed
+    phase1_seed --> phase1_api
+    phase1_api --> phase1_frontend
+    phase1_frontend --> phase1_design
+    phase1_design --> phase1_detail_views
+
+    phase1_detail_views --> phase2_today
+    phase2_today --> phase2_calendar
+
+    phase1_detail_views --> phase3_knowledge
+    phase3_knowledge --> phase3_repo_import
+
+    phase2_calendar --> phase4_money
+    phase3_repo_import --> phase4_money
+
+    phase4_money --> phase5_ai
+    phase5_ai -.-> ultimate_goal
+
+    %% === RECENT ===
+    subgraph recent [RECENT]
+        phase1_design
+    end
+
+    %% === STYLES ===
+    %% Closed (soft purple)
+    style project_start fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style phase0_docs fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style phase1_schema fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style phase1_seed fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style phase1_api fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+    style phase1_frontend fill:#1a1a2e,stroke:#a78bfa,color:#c4b5fd,stroke-width:1px
+
+    %% Recent (bright purple)
+    style phase1_design fill:#2d1f4e,stroke:#c084fc,color:#e9d5ff,stroke-width:2px
+    style recent fill:transparent,stroke:#c084fc,color:#c084fc,stroke-width:2px,stroke-dasharray:5 5
+
+    %% Open (soft green)
+    style ultimate_goal fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style phase1_detail_views fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style phase2_today fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style phase2_calendar fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style phase3_knowledge fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style phase3_repo_import fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style phase4_money fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
+    style phase5_ai fill:#1a1a2e,stroke:#4ade80,color:#86efac,stroke-width:1px
