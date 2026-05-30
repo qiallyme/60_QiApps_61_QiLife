@@ -11,8 +11,8 @@ type Props = {
 export function EntryModal({ entry, onClose, onSaved }: Props) {
   const [title, setTitle] = useState(entry.title);
   const [bucket, setBucket] = useState(entry.bucket_code);
-  const [summary, setSummary] = useState(entry.payload?.summary || "");
-  const [rawText, setRawText] = useState(entry.payload?.raw_text || "");
+  const [summary, setSummary] = useState<string>(entry.payload?.summary || "");
+  const [rawText, setRawText] = useState<string>(entry.payload?.raw_text || "");
 
   function handleSave(e: React.FormEvent) {
     e.preventDefault();
