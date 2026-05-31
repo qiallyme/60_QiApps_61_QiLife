@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { checkBackendHealth } from "./api/client";
 
 import { AppShell } from "./components/app-shell";
 import { ContextDock } from "./components/context-dock";
@@ -14,6 +15,7 @@ import { TodayPage } from "./pages/today-page";
 import { CapturePage } from "./pages/capture-page";
 import { ReviewPage } from "./pages/review-page";
 
+export default function App() {
   const [refreshToken, setRefreshToken] = useState(0);
   const [backendStatus, setBackendStatus] = useState<"checking" | "online" | "offline">("checking");
 
