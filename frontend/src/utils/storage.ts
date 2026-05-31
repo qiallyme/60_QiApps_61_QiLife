@@ -39,3 +39,29 @@ export function deleteTimelineItem(id: string) {
   const items = getTimelineItems().filter(i => i.id !== id);
   localStorage.setItem(TIMELINE_KEY, JSON.stringify(items));
 }
+
+export const ACTIONS_KEY = "qilife_actions";
+
+export function getActions(): import("../types").Action[] {
+  const data = localStorage.getItem(ACTIONS_KEY);
+  return data ? JSON.parse(data) : [];
+}
+
+export function saveActions(actions: import("../types").Action[]) {
+  const existing = getActions();
+  localStorage.setItem(ACTIONS_KEY, JSON.stringify([...actions, ...existing]));
+}
+
+export function updateAction(id: string, updates: Partial<import("../types").Action>) {
+  const actions = getActions();
+  const idx = actions.findIndex(a => a.id === id);
+  if (idx !== -1) {
+    actions[idx] = { ...actions[idx], ...updates };
+    localStorage.setItem(ACTIONS_KEY, JSON.stringify(actions));
+  }
+}
+
+export function deleteAction(id: string) {
+  const actions = getActions().filter(a => a.id !== id);
+  localStorage.setItem(ACTIONS_KEY, JSON.stringify(actions));
+}

@@ -20,7 +20,7 @@ export function CapturePage() {
     
     // Simulate ingestion delay
     setTimeout(() => {
-      const draft = mockIngestion(title, rawText, sourceType);
+      const draft = mockIngestion(rawText, sourceType);
       savePendingDraft(draft);
       setStatus("idle");
       navigate("/review");

@@ -44,20 +44,25 @@ export type Thread = {
 
 export type Action = {
   id: string;
+  qibitId: string | null;
+  createdAt: string;
   title: string;
-  description: string;
-  bucket_code: string;
-  thread_id: string | null;
-  source_qibit_id: string | null;
-  status: string;
+  status: string; // 'open' | 'done'
   priority: string;
-  energy: string;
-  context: string;
-  scheduled_for: string | null;
-  due_date: string | null;
-  completed_at: string | null;
-  resolution_note: string | null;
-  tags_json: string[];
+  dueHint?: string;
+  sourceText?: string;
+  
+  // Legacy fields below (can be optional)
+  description?: string;
+  bucket_code?: string;
+  thread_id?: string | null;
+  energy?: string;
+  context?: string;
+  scheduled_for?: string | null;
+  due_date?: string | null;
+  completed_at?: string | null;
+  resolution_note?: string | null;
+  tags_json?: string[];
 };
 
 export type ActionStep = {
@@ -93,12 +98,20 @@ export type TimelineRow = {
 export type Draft = {
   id: string;
   createdAt: string;
-  title: string;
   sourceType?: string;
   rawText: string;
+  
+  // AgentDraft fields
   suggestedType: string;
-  summary: string;
+  suggestedTitle: string;
+  suggestedSummary: string;
   suggestedTags: string[];
   suggestedPriority: string;
+  suggestedSpace: string;
+  detectedSignals: string[];
+  confidence: "high" | "medium" | "low";
+  insight: string;
+  actions: Action[];
+  
   status: "draft";
 };

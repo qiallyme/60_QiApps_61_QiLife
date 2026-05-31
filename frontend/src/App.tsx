@@ -42,7 +42,7 @@ export default function App() {
         <Route path="/timeline" element={<TimelinePage refreshToken={refreshToken} />} />
         <Route path="/inbox" element={<InboxPage refreshToken={refreshToken} />} />
         <Route path="/threads" element={<ThreadsPage refreshToken={refreshToken} />} />
-        <Route path="/actions" element={<ActionsPage refreshToken={refreshToken} />} />
+        <Route path="/actions" element={<ActionsPage />} />
         <Route path="/people" element={<PeoplePage refreshToken={refreshToken} />} />
         <Route
           path="/calendar"
