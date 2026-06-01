@@ -10,6 +10,7 @@ Capture -> Agent Draft -> Review -> Save -> Timeline -> Dashboard / Actions / Re
 - Backend is not required for the core capture loop today.
 - If `VITE_API_BASE_URL` is unset or the API is offline, the frontend runs in localStorage fallback mode.
 - Local fallback mode should not show fake API-connected state or raw `Failed to fetch` cards.
+- Local fallback persistence is browser-local only. Durable cross-refresh and cross-device persistence in production requires a reachable backend API.
 
 ## Local Development
 
@@ -45,6 +46,7 @@ SQLite path defaults to:
 - Frontend reads all API traffic from `VITE_API_BASE_URL`
 - Local dev API example: `http://127.0.0.1:8000`
 - Future `qiserver` API target: `https://qilife-api.qially.com`
+- For Cloudflare Pages production persistence, set `VITE_API_BASE_URL` to the live QiLife API origin.
 
 ## Knowledge Source
 

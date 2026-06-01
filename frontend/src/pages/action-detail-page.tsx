@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, CheckCircle2, History, Link2 } from "lucide-react";
-import { updateActionStatusOnBackend } from "../api/client";
+import { BackendUnavailableError, getActionFromBackend, getQiBitFromBackend, updateActionStatusOnBackend } from "../api/client";
 import type { Action, QiBit, TimelineRow } from "../types";
 import { formatDate, formatRelative } from "../utils/format";
-import { getActionById, getQiBitById, getTimelineItemById, updateActionStatus } from "../utils/storage";
+import { getActionById, getQiBitById, getTimelineItemById, saveActions, saveQiBit, updateActionStatus } from "../utils/storage";
 import { StateEmpty } from "./shared";
 
 type Props = {
@@ -17,6 +17,7 @@ export function ActionDetailPage({ refreshToken }: Props) {
   const [action, setAction] = useState<Action | null>(null);
   const [qibit, setQiBit] = useState<QiBit | null>(null);
   const [timelineItem, setTimelineItem] = useState<TimelineRow | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const nextAction = id ? getActionById(id) : null;
@@ -31,6 +32,46 @@ export function ActionDetailPage({ refreshToken }: Props) {
     setQiBit(getQiBitById(nextAction.qibitId));
     setTimelineItem(getTimelineItemById(nextAction.qibitId));
   }, [id, refreshToken]);
+
+  useEffect(() => {
+    if (!id || action) return;
+
+    let active = true;
+    setLoading(true);
+
+    getActionFromBackend(id)
+      .then(async (payload) => {
+        if (!active) return;
+        saveActions([payload]);
+        setAction(payload);
+
+        if (payload.qibitId) {
+          try {
+            const qibitPayload = await getQiBitFromBackend(payload.qibitId);
+            if (!active) return;
+            saveQiBit(qibitPayload);
+            setQiBit(getQiBitById(payload.qibitId));
+            setTimelineItem(getTimelineItemById(payload.qibitId));
+          } catch (error) {
+            if (!(error instanceof BackendUnavailableError)) {
+              console.warn("Linked QiBit fetch unavailable.", error);
+            }
+          }
+        }
+      })
+      .catch((error) => {
+        if (!(error instanceof BackendUnavailableError)) {
+          console.warn("Action detail fetch unavailable.", error);
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [action, id]);
 
   async function toggleStatus() {
     if (!action) return;
@@ -51,12 +92,12 @@ export function ActionDetailPage({ refreshToken }: Props) {
         <section className="desk-banner">
           <div>
             <div className="section-tag subdued">Action</div>
-            <h2>Action not found</h2>
-            <p>The requested action is not available in the current local data set.</p>
+            <h2>{loading ? "Loading action" : "Action not found"}</h2>
+            <p>{loading ? "Checking backend and local storage for this action." : "The requested action is not available in the current local data set."}</p>
           </div>
         </section>
         <section className="card dense-card">
-          <StateEmpty icon={<CheckCircle2 size={24} />} text="Open the Actions page to continue from a saved action." />
+          <StateEmpty icon={<CheckCircle2 size={24} />} text={loading ? "Looking up action details." : "Open the Actions page to continue from a saved action."} />
         </section>
       </div>
     );

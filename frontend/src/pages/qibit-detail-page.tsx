@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Brain, CheckCircle2, Copy, History, PlusCircle } from "lucide-react";
+import { BackendUnavailableError, apiFetch } from "../api/client";
 import type { Action, QiBit, TimelineRow } from "../types";
 import { formatDate, formatRelative } from "../utils/format";
-import { getActionsForQiBit, getQiBitById, getQiBits, getTimelineItemById } from "../utils/storage";
+import { getActionsForQiBit, getQiBitById, getQiBits, getTimelineItemById, saveActions, saveQiBit, saveTimelineItem } from "../utils/storage";
 import { StateEmpty } from "./shared";
 
 type Props = {
@@ -18,6 +19,7 @@ export function QiBitDetailPage({ refreshToken }: Props) {
   const [timelineItem, setTimelineItem] = useState<TimelineRow | null>(null);
   const [relatedQiBits, setRelatedQiBits] = useState<QiBit[]>([]);
   const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const nextQiBit = id ? getQiBitById(id) : null;
@@ -39,6 +41,40 @@ export function QiBitDetailPage({ refreshToken }: Props) {
 
     setRelatedQiBits(related.slice(0, 6));
   }, [id, refreshToken]);
+
+  useEffect(() => {
+    if (!id || qibit) return;
+
+    let active = true;
+    setLoading(true);
+
+    apiFetch<(QiBit & { linkedActions?: Action[]; timeline?: TimelineRow })>(`/api/qibits/${id}`)
+      .then((payload) => {
+        if (!active) return;
+        saveQiBit(payload);
+        if (payload.linkedActions?.length) {
+          saveActions(payload.linkedActions);
+        }
+        if (payload.timeline) {
+          saveTimelineItem(payload.timeline);
+        }
+        setQiBit(getQiBitById(id));
+        setActions(getActionsForQiBit(id));
+        setTimelineItem(getTimelineItemById(id));
+      })
+      .catch((error) => {
+        if (!(error instanceof BackendUnavailableError)) {
+          console.warn("QiBit detail fetch unavailable.", error);
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [id, qibit]);
 
   const timelineQuery = useMemo(() => {
     if (!qibit) return "/timeline";
@@ -73,12 +109,12 @@ export function QiBitDetailPage({ refreshToken }: Props) {
         <section className="desk-banner">
           <div>
             <div className="section-tag subdued">QiBit</div>
-            <h2>Record not found</h2>
-            <p>The requested QiBit is not available in the current local data set.</p>
+            <h2>{loading ? "Loading record" : "Record not found"}</h2>
+            <p>{loading ? "Checking backend and local storage for this QiBit." : "The requested QiBit is not available in the current local data set."}</p>
           </div>
         </section>
         <section className="card dense-card">
-          <StateEmpty icon={<History size={24} />} text="Open Timeline or Today to continue from an existing record." />
+          <StateEmpty icon={<History size={24} />} text={loading ? "Looking up record details." : "Open Timeline or Today to continue from an existing record."} />
         </section>
       </div>
     );
