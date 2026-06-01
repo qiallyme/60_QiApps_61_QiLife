@@ -7,6 +7,8 @@ import { ContextDock } from "./components/context-dock";
 import { QuickCapture } from "./components/quick-capture";
 import { ActionsPage } from "./pages/actions-page";
 import { InboxPage } from "./pages/inbox-page";
+import { KnowledgePage } from "./pages/knowledge-page";
+import { MorePage } from "./pages/more-page";
 import { PeoplePage } from "./pages/people-page";
 import { PlaceholderPage } from "./pages/placeholder-page";
 import { ThreadsPage } from "./pages/threads-page";
@@ -40,10 +42,12 @@ export default function App() {
         <Route path="/capture" element={<CapturePage />} />
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/timeline" element={<TimelinePage refreshToken={refreshToken} />} />
-        <Route path="/inbox" element={<InboxPage refreshToken={refreshToken} />} />
-        <Route path="/threads" element={<ThreadsPage refreshToken={refreshToken} />} />
+        <Route path="/knowledge" element={<KnowledgePage backendStatus={backendStatus} />} />
         <Route path="/actions" element={<ActionsPage />} />
+        <Route path="/inbox" element={<InboxPage refreshToken={refreshToken} />} />
         <Route path="/people" element={<PeoplePage refreshToken={refreshToken} />} />
+        <Route path="/more" element={<MorePage />} />
+        <Route path="/threads" element={<ThreadsPage />} />
         <Route
           path="/calendar"
           element={
@@ -61,16 +65,6 @@ export default function App() {
               title="Money"
               description="Transactions stored in cents (no float errors). Obligations track who owes what. All linked back to QiBits for full provenance."
               phase="Phase 4"
-            />
-          }
-        />
-        <Route
-          path="/knowledge"
-          element={
-            <PlaceholderPage
-              title="Knowledge"
-              description="Write once in Markdown, index everywhere. Repo docs are imported as read-only system items. Knowledge links to buckets, threads, and people."
-              phase="Phase 3"
             />
           }
         />

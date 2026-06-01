@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { apiFetch } from "../api/client";
+import { apiFetch, BackendUnavailableError } from "../api/client";
 
 type ApiState<T> = {
   data: T;
@@ -27,12 +27,12 @@ export function useApi<T>(path: string, initialData: T, refreshToken: number): A
         if (active) setData(next);
       } catch (caught) {
         if (active) {
-          const msg = caught instanceof Error ? caught.message : "Unknown API error";
-          if (msg.includes("Failed to fetch") || msg.includes("NetworkError")) {
+          if (caught instanceof BackendUnavailableError) {
             console.warn(`[Mock Fallback] API offline for ${path}. Using empty initial data.`);
             setError(null);
             setData(initialData);
           } else {
+            const msg = caught instanceof Error ? caught.message : "Unknown API error";
             setError(msg);
           }
         }
@@ -43,7 +43,7 @@ export function useApi<T>(path: string, initialData: T, refreshToken: number): A
 
     void load();
     return () => { active = false; };
-  }, [path, refreshToken, internalToken]);
+  }, [path, refreshToken, internalToken, initialData]);
 
   return { data, loading, error, reload };
 }

@@ -1,23 +1,25 @@
-import { useState } from "react";
-import { apiFetch } from "../api/client";
-import { useApi } from "../hooks/use-api";
+import { useState, useEffect } from "react";
 import type { Bucket, Thread } from "../types";
-import { StatusBadge, PriorityBadge, StateEmpty, StateLoading, StateError } from "./shared";
+import { StatusBadge, PriorityBadge, StateEmpty } from "./shared";
 import { formatDate } from "../utils/format";
+import { getThreads, saveThread, getBuckets } from "../utils/storage";
 
-type Props = { refreshToken: number };
-
-export function ThreadsPage({ refreshToken }: Props) {
-  const threads = useApi<Thread[]>("/api/threads", [], refreshToken);
-  const buckets = useApi<Bucket[]>("/api/buckets", [], 0);
+export function ThreadsPage() {
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const buckets = getBuckets();
 
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", bucket_code: "10", priority: "normal" });
+  const [form, setForm] = useState({ title: "", description: "", bucket_code: "inbox", priority: "normal" });
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
 
   const [statusFilter, setStatusFilter] = useState("all");
-  const visible = threads.data.filter(
+  
+  useEffect(() => {
+    setThreads(getThreads());
+  }, []);
+
+  const visible = threads.filter(
     (t) => statusFilter === "all" || t.status === statusFilter
   );
 
@@ -26,13 +28,25 @@ export function ThreadsPage({ refreshToken }: Props) {
     setSaving(true);
     setSaveError("");
     try {
-      await apiFetch<Thread>("/api/threads", {
-        method: "POST",
-        body: JSON.stringify(form),
-      });
+      const newThread: Thread = {
+        id: crypto.randomUUID(),
+        title: form.title,
+        description: form.description,
+        bucket_code: form.bucket_code,
+        priority: form.priority,
+        status: "open",
+        started_at: new Date().toISOString(),
+        closed_at: null,
+        tags_json: [],
+        next_action: null,
+        due_date: null
+      };
+      
+      saveThread(newThread);
+      
       setShowCreate(false);
-      setForm({ title: "", description: "", bucket_code: "10", priority: "normal" });
-      threads.reload?.();
+      setForm({ title: "", description: "", bucket_code: "inbox", priority: "normal" });
+      setThreads(getThreads());
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "Create failed.");
     } finally {
@@ -41,10 +55,10 @@ export function ThreadsPage({ refreshToken }: Props) {
   }
 
   const counts = {
-    all: threads.data.length,
-    open: threads.data.filter((t) => t.status === "open").length,
-    active: threads.data.filter((t) => t.status === "active").length,
-    closed: threads.data.filter((t) => t.status === "closed").length,
+    all: threads.length,
+    open: threads.filter((t) => t.status === "open").length,
+    active: threads.filter((t) => t.status === "active").length,
+    closed: threads.filter((t) => t.status === "closed").length,
   };
 
   return (
@@ -73,9 +87,7 @@ export function ThreadsPage({ refreshToken }: Props) {
           </button>
         </div>
 
-        {threads.loading && <StateLoading />}
-        {threads.error && <StateError message={threads.error} />}
-        {!threads.loading && visible.length === 0 && (
+        {visible.length === 0 && (
           <StateEmpty icon="◎" text="No threads yet. Create one to track a situation." />
         )}
 
@@ -95,7 +107,7 @@ export function ThreadsPage({ refreshToken }: Props) {
               )}
               <div className="thread-card-footer">
                 <PriorityBadge priority={t.priority} />
-                <span className="badge badge-bucket">B{t.bucket_code}</span>
+                <span className="badge badge-bucket">Spc: {t.bucket_code}</span>
                 {t.due_date && (
                   <span className="badge" style={{ background: "rgba(192,68,58,0.1)", color: "var(--accent-red)" }}>
                     Due {formatDate(t.due_date)}
@@ -138,14 +150,14 @@ export function ThreadsPage({ refreshToken }: Props) {
                 />
               </div>
               <div className="form-field">
-                <label className="form-label">Bucket</label>
+                <label className="form-label">Space</label>
                 <select
                   className="select-input"
                   value={form.bucket_code}
                   onChange={(e) => setForm({ ...form, bucket_code: e.target.value })}
                 >
-                  {buckets.data.filter((b) => !b.is_system && b.code !== "00").map((b) => (
-                    <option key={b.code} value={b.code}>{b.code} · {b.name}</option>
+                  {buckets.filter((b) => !b.is_system && b.code !== "00").map((b) => (
+                    <option key={b.code} value={b.code}>{b.name}</option>
                   ))}
                 </select>
               </div>

@@ -1,33 +1,35 @@
 import type { ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { 
-  Sun, History, PlusCircle, CheckSquare, Inbox, Layers, 
-  CheckCircle, Calendar, Users, DollarSign, BookOpen, 
-  FileText, MessageCircle 
+import {
+  BookOpen,
+  CheckCircle,
+  CheckSquare,
+  History,
+  Inbox,
+  Menu,
+  PlusCircle,
+  Sun,
+  Users,
 } from "lucide-react";
 
 const navItems = [
   { label: "Today", href: "/", icon: <Sun size={18} /> },
-  { label: "Timeline", href: "/timeline", icon: <History size={18} /> },
-  { label: "Capture", href: "/capture", icon: <PlusCircle size={18} /> }, 
-  { label: "Review", href: "/review", icon: <CheckSquare size={18} /> },
-  { label: "Inbox", href: "/inbox", icon: <Inbox size={18} /> },
-  { label: "Threads", href: "/threads", icon: <Layers size={18} /> },
-  { label: "Actions", href: "/actions", icon: <CheckCircle size={18} /> },
-  { label: "Calendar", href: "/calendar", icon: <Calendar size={18} /> },
-  { label: "People", href: "/people", icon: <Users size={18} /> },
-  { label: "Money", href: "/money", icon: <DollarSign size={18} /> },
   { label: "Knowledge", href: "/knowledge", icon: <BookOpen size={18} /> },
-  { label: "Documents", href: "/documents", icon: <FileText size={18} /> },
-  { label: "Ask QiLife", href: "/ask", icon: <MessageCircle size={18} /> },
+  { label: "Capture", href: "/capture", icon: <PlusCircle size={18} /> },
+  { label: "Review", href: "/review", icon: <CheckSquare size={18} /> },
+  { label: "Timeline", href: "/timeline", icon: <History size={18} /> },
+  { label: "Actions", href: "/actions", icon: <CheckCircle size={18} /> },
+  { label: "Inbox", href: "/inbox", icon: <Inbox size={18} /> },
+  { label: "People", href: "/people", icon: <Users size={18} /> },
+  { label: "More", href: "/more", icon: <Menu size={18} /> },
 ] as const;
 
-// Mobile nav uses a subset
 const mobileNavItems = [
   { label: "Today", href: "/", icon: <Sun size={20} /> },
   { label: "Capture", href: "/capture", icon: <PlusCircle size={20} /> },
   { label: "Review", href: "/review", icon: <CheckSquare size={20} /> },
-  { label: "Timeline", href: "/timeline", icon: <History size={20} /> },
+  { label: "Actions", href: "/actions", icon: <CheckCircle size={20} /> },
+  { label: "More", href: "/more", icon: <Menu size={20} /> },
 ];
 
 type AppShellProps = {
@@ -37,30 +39,32 @@ type AppShellProps = {
   backendStatus?: "checking" | "online" | "offline";
 };
 
+function statusLabel(status: "checking" | "online" | "offline") {
+  if (status === "online") return "Backend connected";
+  if (status === "offline") return "Local fallback mode";
+  return "Checking backend";
+}
+
 export function AppShell({ children, contextDock, quickCapture, backendStatus = "checking" }: AppShellProps) {
   const location = useLocation();
-  
+  const isCaptureRoute = location.pathname === "/capture";
+
   return (
     <div className="shell">
-      {/* Mobile Header */}
       <header className="mobile-header">
         <h1>QiLife</h1>
-        <span className="mobile-mock-badge">
-          {backendStatus === "online" ? "Backend connected" : backendStatus === "offline" ? "Local fallback mode" : "Checking backend..."}
-        </span>
+        <span className="mobile-mock-badge">{statusLabel(backendStatus)}</span>
       </header>
 
-      {/* Left Rail (Desktop) */}
       <aside className="left-rail">
         <div className="rail-logo">
-          <div className="rail-logo-kicker">Personal LifeDesk</div>
+          <div className="rail-logo-kicker">AI LifeDesk</div>
           <h1>QiLife</h1>
-          <p>Capture, triage, act, resolve, retrieve.</p>
+          <p>{statusLabel(backendStatus)}</p>
         </div>
 
         <nav className="rail-nav" aria-label="Primary navigation">
-          <div className="rail-section-label">Core</div>
-          {navItems.slice(0, 6).map(({ label, href, icon }) => (
+          {navItems.map(({ label, href, icon }) => (
             <NavLink
               key={href}
               to={href}
@@ -71,44 +75,24 @@ export function AppShell({ children, contextDock, quickCapture, backendStatus = 
               {label}
             </NavLink>
           ))}
-
-          <div className="rail-section-label" style={{ marginTop: 16 }}>Modules</div>
-          {navItems.slice(6).map(({ label, href, icon }) => (
-            <NavLink
-              key={href}
-              to={href}
-              className={({ isActive }) => `nav-link${isActive ? " is-active" : ""}`}
-            >
-              <span className="nav-icon">{icon}</span>
-              {label}
-            </NavLink>
-          ))}
         </nav>
 
-        <div className="rail-footer">
-          QiLife v1 · {backendStatus === "online" ? "Backend connected" : backendStatus === "offline" ? "Local fallback mode" : "Checking backend..."}
-        </div>
+        {!isCaptureRoute ? <div className="rail-capture">{quickCapture}</div> : null}
       </aside>
 
-      {/* Main Content */}
       <main className="workspace">
         <header className="workspace-header">
-          <span className="workspace-breadcrumb">QiLife v1 Spine</span>
+          <span className="workspace-breadcrumb">QiLife Command Desk</span>
           <span className="workspace-status-dot">
-            <span className="status-dot" style={{ backgroundColor: backendStatus === "online" ? "var(--status-new)" : backendStatus === "offline" ? "var(--status-waiting)" : "var(--ink-400)" }} />
-            {backendStatus === "online" ? "Backend connected" : backendStatus === "offline" ? "Local fallback mode" : "Checking backend..."}
+            <span className="status-dot" />
+            {statusLabel(backendStatus)}
           </span>
         </header>
         {children}
       </main>
 
-      {/* Right Dock (Desktop/Tablet conditionally) */}
       <aside className="right-dock-wrap">{contextDock}</aside>
 
-      {/* Quick Capture floating bar (if needed, though capture is now a page) */}
-      <div className="quick-capture-bar">{quickCapture}</div>
-
-      {/* Mobile Bottom Nav */}
       <nav className="mobile-nav">
         {mobileNavItems.map(({ label, href, icon }) => {
           const isActive = location.pathname === href;

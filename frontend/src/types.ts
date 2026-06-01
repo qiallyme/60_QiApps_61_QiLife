@@ -42,17 +42,22 @@ export type Thread = {
   tags_json: string[];
 };
 
+export type QiBitType = "care" | "finance" | "legal" | "tech" | "task" | "note";
+export type Priority = "low" | "medium" | "high";
+export type ActionStatus = "open" | "done";
+export type AgentConfidence = "low" | "medium" | "high";
+
 export type Action = {
   id: string;
   qibitId: string | null;
   createdAt: string;
   title: string;
-  status: string; // 'open' | 'done'
-  priority: string;
+  status: ActionStatus;
+  priority: Priority;
   dueHint?: string;
   sourceText?: string;
-  
-  // Legacy fields below (can be optional)
+
+  // Legacy/API compatibility fields
   description?: string;
   bucket_code?: string;
   thread_id?: string | null;
@@ -63,6 +68,48 @@ export type Action = {
   completed_at?: string | null;
   resolution_note?: string | null;
   tags_json?: string[];
+  source_qibit_id?: string | null;
+};
+
+export type AgentDraft = {
+  suggestedType: QiBitType;
+  suggestedTitle: string;
+  suggestedSummary: string;
+  suggestedTags: string[];
+  suggestedPriority: Priority;
+  suggestedSpace: string;
+  detectedSignals: string[];
+  confidence: AgentConfidence;
+  insight: string;
+  actions: Action[];
+  extractedActions?: Action[];
+};
+
+export type QiBit = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  type: QiBitType;
+  title: string;
+  summary: string;
+  rawText: string;
+  tags: string[];
+  priority: Priority;
+  status: string;
+  space: string;
+  agentDraft: AgentDraft;
+  insight: string;
+  source: string;
+};
+
+export type Draft = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  rawText: string;
+  source: string;
+  status: "draft";
+  agentDraft: AgentDraft;
 };
 
 export type ActionStep = {
@@ -86,32 +133,31 @@ export type Person = {
   notes: string | null;
 };
 
+export type TimelineActionLink = Pick<Action, "id" | "title" | "status" | "priority" | "dueHint">;
+
+export type TimelinePayload = {
+  qibitId?: string;
+  rawText?: string;
+  summary?: string;
+  type?: QiBitType;
+  priority?: Priority;
+  tags?: string[];
+  space?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  linkedActionIds?: string[];
+  linkedActions?: TimelineActionLink[];
+  insight?: string;
+  source?: string;
+  agentDraft?: AgentDraft;
+  [key: string]: unknown;
+};
+
 export type TimelineRow = {
   id: string;
   record_type: string;
   title: string;
   timestamp: string;
   bucket_code: string;
-  payload: Record<string, unknown>;
-};
-
-export type Draft = {
-  id: string;
-  createdAt: string;
-  sourceType?: string;
-  rawText: string;
-  
-  // AgentDraft fields
-  suggestedType: string;
-  suggestedTitle: string;
-  suggestedSummary: string;
-  suggestedTags: string[];
-  suggestedPriority: string;
-  suggestedSpace: string;
-  detectedSignals: string[];
-  confidence: "high" | "medium" | "low";
-  insight: string;
-  actions: Action[];
-  
-  status: "draft";
+  payload: TimelinePayload;
 };

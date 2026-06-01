@@ -1,33 +1,52 @@
 # QiLife
 
-QiLife is an AI Life Copilot with a Personal LifeDesk cockpit. It captures what happens, correlates it with structured life memory, drafts insights/actions/reports, protects files, prevents duplicates, and keeps you oriented with minimal manual organizing.
+QiLife is an AI LifeDesk. The current working loop is:
 
-## Core Architecture
-- **Agent-First**: The backend agent is the real product. The UI is a control panel (Cockpit).
-- **Vertical Slices**: Built using the North Star scaffold approach. We build full slices (UI -> API -> DB) instead of throwaway MVPs.
-- **Data & Storage**: Clean local SQLite schema. App-managed storage/sync control center. Dup-allergic document vault. Legacy data bridge for importing old Supabase data.
-- **Spaces**: Scoped access sharing via spaces (e.g., Mom Care), replacing separate bloated apps.
+Capture -> Agent Draft -> Review -> Save -> Timeline -> Dashboard / Actions / Recent QiBits
 
-## Deployment Doctrine
-- **Frontend App**: Hosted on Cloudflare Pages.
-- **Backend App**: Hosted on `qiserver` running the real FastAPI application with local SQLite.
-- **Optional Gateway**: A future Cloudflare Worker may act as a proxy or gateway, but is not the primary backend currently.
+## Current Mode
 
-### Live Environment
-- **URL**: [https://qilife.qially.com](https://qilife.qially.com) *(Placeholder for production domain)*
-- **Current Mode**: The frontend is live. If the backend is unreachable, the app falls back to Local Mock Mode safely without showing "Failed to fetch" errors.
-- **Next Step**: Connect the `qiserver` FastAPI API securely through `VITE_API_BASE_URL`.
+- Frontend is deployed on Cloudflare Pages.
+- Backend is not required for the core capture loop today.
+- If `VITE_API_BASE_URL` is unset or the API is offline, the frontend runs in localStorage fallback mode.
+- Local fallback mode should not show fake API-connected state or raw `Failed to fetch` cards.
 
-### Cloudflare Pages Settings
-- **Root directory**: `frontend`
-- **Build command**: `npm run build`
-- **Build output directory**: `dist`
-- **Install command**: `npm ci`
+## Local Development
 
-### Environment Setup
-- **Local Dev API**: `http://localhost:8000`
-- **Production API**: `https://qilife-api.qially.com`
-*(Set via VITE_API_BASE_URL in `.env.local` and `.env.production` in the `frontend` folder)*
+### Frontend
 
-## Primary Flow
-Capture → Ingestion Item → File/Text Extraction → Mock AI Draft → Draft Review → Approval/Edit/Reject → Official QiBit/Action/Thread → Timeline → Activity Log → Context Dock / Retrieval hooks
+1. `cd frontend`
+2. `npm ci`
+3. Optional: set `VITE_API_BASE_URL=http://127.0.0.1:8000` in `.env.local`
+4. `npm run dev`
+
+If `VITE_API_BASE_URL` is omitted, the frontend still works in local fallback mode.
+
+### Backend
+
+1. `cd backend`
+2. Create and activate a virtual environment
+3. `pip install -r requirements.txt`
+4. `uvicorn app.main:app --reload --host 127.0.0.1 --port 8000`
+
+SQLite path defaults to:
+
+- `C:\QiLabs\60_QiApps\_qilife\data\db\qilife.sqlite`
+
+## Cloudflare Pages
+
+- Root directory: `frontend`
+- Build command: `npm run build`
+- Output directory: `dist`
+- Install command: `npm ci`
+
+## API Configuration
+
+- Frontend reads all API traffic from `VITE_API_BASE_URL`
+- Local dev API example: `http://127.0.0.1:8000`
+- Future `qiserver` API target: `https://qilife-api.qially.com`
+
+## Knowledge Source
+
+- Repo docs under `docs/` are the source of truth
+- The frontend Knowledge page should index repo docs when a backend docs endpoint is available

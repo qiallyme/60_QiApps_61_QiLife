@@ -10,31 +10,33 @@
 
 1. Create and activate a virtual environment.
 2. Install backend dependencies from `requirements.txt`.
-3. Run Alembic migrations.
-4. Run the seed command.
-5. Start FastAPI on `127.0.0.1:8000`.
+3. Start FastAPI with `uvicorn app.main:app --reload --host 127.0.0.1 --port 8000`.
 
 Python's standard library already includes SQLite support; do not add `sqlite3` as a pip dependency.
 
 ## Frontend
 
 1. Install dependencies in `frontend/`.
-2. Set `VITE_API_URL=http://127.0.0.1:8000`.
+2. Optional: set `VITE_API_BASE_URL=http://127.0.0.1:8000`.
 3. Start Vite on `127.0.0.1:5173`.
+
+If `VITE_API_BASE_URL` is not set, the app stays operational in localStorage fallback mode.
 
 ## Deployment Doctrine
 
 We use a single API base URL strategy across environments.
-- **Frontend App**: Hosted on Cloudflare Pages.
-- **Backend App**: Hosted on `qiserver` running the real FastAPI application with local SQLite.
-- **Optional Gateway**: A future Cloudflare Worker may act as a proxy or gateway, but is not the primary backend currently.
+
+- Frontend app: hosted on Cloudflare Pages.
+- Backend app: hosted on `qiserver` running the real FastAPI application with local SQLite.
+- Optional gateway: a future Cloudflare Worker may proxy traffic, but it is not the primary backend today.
 
 ### Frontend API Configuration
+
 - Uses `VITE_API_BASE_URL` for all backend API calls.
-- **Local Dev**: `http://localhost:8000`
-- **Production**: `https://qilife-api.qially.com`
-- Do not hardcode localhost in components.
-- On startup, the frontend checks the backend health. If offline, it shows "Local fallback mode" and safely uses localStorage fallback for v1 features.
+- Local dev example: `http://127.0.0.1:8000`
+- Future `qiserver` API target: `https://qilife-api.qially.com`
+- Do not hardcode localhost in frontend components.
+- On startup, the frontend checks `/api/health`. If offline, it shows `Local fallback mode` and uses localStorage for the working loop.
 
 ## Development Rules
 

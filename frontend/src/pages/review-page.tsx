@@ -1,247 +1,299 @@
 import { FormEvent, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getPendingDraft, clearPendingDraft, addTimelineItem, saveActions } from "../utils/storage";
-import { Action, Draft, TimelineRow } from "../types";
-import { StateEmpty } from "./shared";
+import { Link } from "react-router-dom";
 import { CheckSquare } from "lucide-react";
+import { Action, Draft, Priority, QiBit, QiBitType } from "../types";
+import { clearPendingDraft, getPendingDraft, saveReviewResult } from "../utils/storage";
+import { StateEmpty } from "./shared";
+
+const TYPE_OPTIONS: Array<{ value: QiBitType; label: string }> = [
+  { value: "care", label: "Care" },
+  { value: "finance", label: "Finance" },
+  { value: "legal", label: "Legal" },
+  { value: "tech", label: "Tech" },
+  { value: "task", label: "Task" },
+  { value: "note", label: "Note" },
+];
+
+const PRIORITY_OPTIONS: Priority[] = ["low", "medium", "high"];
+
+type ReviewAction = Action & { kept: boolean };
+
+type SaveResult = {
+  qibit: QiBit;
+  actionCount: number;
+};
 
 export function ReviewPage() {
-  const navigate = useNavigate();
   const [draft, setDraft] = useState<Draft | null>(null);
-
   const [title, setTitle] = useState("");
-  const [type, setType] = useState("");
+  const [type, setType] = useState<QiBitType>("note");
   const [summary, setSummary] = useState("");
   const [tags, setTags] = useState("");
-  const [priority, setPriority] = useState("");
-  const [bucket, setBucket] = useState("inbox");
-  const [actions, setActions] = useState<(Action & { selected: boolean })[]>([]);
+  const [priority, setPriority] = useState<Priority>("low");
+  const [space, setSpace] = useState("General");
+  const [actions, setActions] = useState<ReviewAction[]>([]);
+  const [saveResult, setSaveResult] = useState<SaveResult | null>(null);
 
   useEffect(() => {
-    const d = getPendingDraft();
-    if (!d) return;
-    
-    setDraft(d);
-    setTitle(d.suggestedTitle);
-    setType(d.suggestedType);
-    setSummary(d.suggestedSummary);
-    setTags(d.suggestedTags.join(", "));
-    setPriority(d.suggestedPriority);
-    
-    // Default bucket based on space if possible
-    if (d.suggestedSpace === "Mom's Care") setBucket("areas");
-    else if (d.suggestedSpace === "Finance") setBucket("areas");
-    else if (d.suggestedSpace === "Projects") setBucket("projects");
-    else setBucket("inbox");
+    const pending = getPendingDraft();
+    if (!pending) return;
 
-    setActions(d.actions.map(a => ({ ...a, selected: true })));
+    setDraft(pending);
+    setTitle(pending.agentDraft.suggestedTitle);
+    setType(pending.agentDraft.suggestedType);
+    setSummary(pending.agentDraft.suggestedSummary);
+    setTags(pending.agentDraft.suggestedTags.join(", "));
+    setPriority(pending.agentDraft.suggestedPriority);
+    setSpace(pending.agentDraft.suggestedSpace);
+    setActions(pending.agentDraft.actions.map((action) => ({ ...action, kept: true })));
   }, []);
 
-  function handleSave(e: FormEvent) {
-    e.preventDefault();
-    if (!draft) return;
+  function toggleAction(id: string) {
+    setActions((current) => current.map((action) => (action.id === id ? { ...action, kept: !action.kept } : action)));
+  }
 
-    const timelineId = draft.id;
-    
-    // Save accepted actions
-    const acceptedActions = actions.filter(a => a.selected).map(a => {
-      const { selected, ...actionData } = a;
-      return { ...actionData, qibitId: timelineId };
-    });
-    
-    if (acceptedActions.length > 0) {
-      saveActions(acceptedActions);
-    }
-
-    const timelineItem: TimelineRow = {
-      id: timelineId,
-      record_type: type,
-      title: title,
-      timestamp: new Date().toISOString(),
-      bucket_code: bucket,
-      payload: {
-        original_draft_id: draft.id,
-        raw_text: draft.rawText,
-        summary,
-        tags: tags.split(",").map(t => t.trim()).filter(Boolean),
-        priority,
-        insight: draft.insight,
-        linked_actions: acceptedActions.map(a => a.id)
-      }
-    };
-
-    addTimelineItem(timelineItem);
-    clearPendingDraft();
-    navigate("/timeline");
+  function updateActionField(id: string, updates: Partial<ReviewAction>) {
+    setActions((current) => current.map((action) => (action.id === id ? { ...action, ...updates } : action)));
   }
 
   function handleDiscard() {
     clearPendingDraft();
     setDraft(null);
-    navigate("/");
   }
 
-  function toggleAction(id: string) {
-    setActions(actions.map(a => a.id === id ? { ...a, selected: !a.selected } : a));
+  function handleSave(event: FormEvent) {
+    event.preventDefault();
+    if (!draft) return;
+
+    const now = new Date().toISOString();
+    const finalQiBit: QiBit = {
+      id: draft.id,
+      createdAt: now,
+      updatedAt: now,
+      type,
+      title: title.trim() || draft.agentDraft.suggestedTitle,
+      summary: summary.trim() || draft.agentDraft.suggestedSummary,
+      rawText: draft.rawText,
+      tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean),
+      priority,
+      status: "saved",
+      space: space.trim() || draft.agentDraft.suggestedSpace,
+      agentDraft: draft.agentDraft,
+      insight: draft.agentDraft.insight,
+      source: draft.source,
+    };
+
+    const acceptedActions = actions
+      .filter((action) => action.kept && action.title.trim())
+      .map(({ kept, ...action }) => ({
+        ...action,
+        qibitId: finalQiBit.id,
+        sourceText: draft.rawText,
+        priority: action.priority || priority,
+      }));
+
+    saveReviewResult(finalQiBit, acceptedActions);
+    setSaveResult({ qibit: finalQiBit, actionCount: acceptedActions.length });
+    setDraft(null);
   }
 
-  function updateActionTitle(id: string, newTitle: string) {
-    setActions(actions.map(a => a.id === id ? { ...a, title: newTitle } : a));
+  if (saveResult) {
+    return (
+      <div className="page-stack">
+        <section className="desk-banner">
+          <div>
+            <div className="section-tag subdued">Saved</div>
+            <h2>{saveResult.qibit.title}</h2>
+            <p>
+              Saved to local QiBits with {saveResult.actionCount} action{saveResult.actionCount === 1 ? "" : "s"} and a timeline entry.
+            </p>
+          </div>
+        </section>
+
+        <section className="card dense-card stack-md">
+          <div className="compact-row spread">
+            <span className="badge badge-type">{saveResult.qibit.type}</span>
+            <span className="badge badge-open">{saveResult.qibit.priority}</span>
+          </div>
+          <div className="compact-text">{saveResult.qibit.summary}</div>
+          <div className="action-row">
+            <Link to="/" className="btn btn-primary">
+              Go to Today
+            </Link>
+            <Link to="/timeline" className="btn btn-outline">
+              Open Timeline
+            </Link>
+          </div>
+        </section>
+      </div>
+    );
   }
 
   if (!draft) {
     return (
       <div className="page-stack">
-        <section className="hero-panel compact-hero" style={{ borderLeft: "4px solid var(--accent-gold)" }}>
-          <div className="section-tag" style={{ color: "var(--accent-gold)", background: "rgba(251, 191, 36, 0.1)" }}>Approval Desk</div>
-          <h2>Review Queue</h2>
-          <p>This is where agent-processed drafts await your approval before committing to the timeline.</p>
+        <section className="desk-banner">
+          <div>
+            <div className="section-tag subdued">Review</div>
+            <h2>Approval desk</h2>
+            <p>No pending draft. Capture something first.</p>
+          </div>
         </section>
-        <div className="card">
-          <StateEmpty icon={<CheckSquare size={32} />} text="No pending drafts to review. Go capture something!" />
+        <div className="card dense-card">
+          <StateEmpty icon={<CheckSquare size={28} />} text="No pending draft to review." />
         </div>
       </div>
     );
   }
 
-  const confidenceColor = draft.confidence === "high" ? "var(--status-new)" : draft.confidence === "medium" ? "var(--status-triaged)" : "var(--status-waiting)";
-
   return (
     <div className="page-stack">
-      <section className="hero-panel compact-hero" style={{ borderLeft: "4px solid var(--accent-gold)" }}>
-        <div className="section-tag" style={{ color: "var(--accent-gold)", background: "rgba(251, 191, 36, 0.1)" }}>Approval Desk</div>
-        <h2>Review Draft</h2>
-        <p>The agent has structured your capture. Edit below before committing.</p>
+      <section className="desk-banner">
+        <div>
+          <div className="section-tag subdued">Review</div>
+          <h2>Approve the draft.</h2>
+          <p>Save commits the final QiBit, accepted actions, and one timeline entry.</p>
+        </div>
       </section>
 
-      <form className="card" onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-        <div style={{ padding: 16, background: "rgba(10, 132, 255, 0.05)", borderRadius: "var(--r-md)", marginBottom: 8, border: "1px dashed rgba(10, 132, 255, 0.2)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-            <span className="form-label" style={{ color: "var(--accent-blue)", margin: 0 }}>Agent Insight (v1 Mock)</span>
-            <span style={{ fontSize: 11, color: "var(--ink-500)" }}>Confidence: <strong style={{ color: confidenceColor }}>{draft.confidence.toUpperCase()}</strong></span>
+      <form className="two-col review-grid" onSubmit={handleSave}>
+        <section className="card dense-card stack-md">
+          <div className="card-header">
+            <span className="card-title">Raw Capture</span>
+            <span className="card-count">{draft.source}</span>
           </div>
-          <div style={{ fontSize: 14, color: "var(--ink-700)", marginBottom: 12 }}>
-            <em>"{draft.insight}"</em>
-          </div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
-            {draft.detectedSignals.map(s => (
-              <span key={s} className="badge badge-triaged" style={{ fontSize: 10 }}>{s}</span>
-            ))}
-          </div>
-        </div>
+          <div className="raw-panel">{draft.rawText}</div>
 
-        {actions.length > 0 && (
-          <div>
-            <label className="form-label">Extracted Actions</label>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {actions.map(a => (
-                <div key={a.id} style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(255,255,255,0.03)", padding: "8px 12px", borderRadius: "var(--r-sm)" }}>
-                  <input type="checkbox" checked={a.selected} onChange={() => toggleAction(a.id)} style={{ width: 16, height: 16 }} />
-                  <input 
-                    className="text-input" 
-                    style={{ flex: 1, padding: "6px 10px", background: "transparent", border: "1px solid transparent" }}
-                    value={a.title}
-                    onChange={(e) => updateActionTitle(a.id, e.target.value)}
-                    disabled={!a.selected}
-                  />
-                  {a.dueHint && <span className="badge badge-open">{a.dueHint}</span>}
-                </div>
+          <div className="card-header">
+            <span className="card-title">Agent Draft</span>
+            <span className="card-count">{draft.agentDraft.confidence}</span>
+          </div>
+
+          <div className="stack-sm">
+            <div className="compact-row spread">
+              <span className="badge badge-type">{draft.agentDraft.suggestedType}</span>
+              <span className="badge badge-open">{draft.agentDraft.suggestedPriority}</span>
+            </div>
+            <div className="stack-xs compact-text">
+              <strong>{draft.agentDraft.suggestedTitle}</strong>
+              <span>{draft.agentDraft.suggestedSummary}</span>
+              <span>{draft.agentDraft.insight}</span>
+            </div>
+            <div className="item-meta">
+              {draft.agentDraft.suggestedTags.map((tag) => (
+                <span key={tag} className="badge badge-bucket">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+            <div className="item-meta">
+              {draft.agentDraft.detectedSignals.map((signal) => (
+                <span key={signal} className="badge badge-triaged">
+                  {signal}
+                </span>
               ))}
             </div>
           </div>
-        )}
+        </section>
 
-        <div>
-          <label className="form-label">Final Title</label>
-          <input 
-            className="text-input"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-
-        <div className="three-col">
-          <div>
-            <label className="form-label">Record Type</label>
-            <select 
-              className="select-input"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-            >
-              <option value="qibits">QiBit / Note</option>
-              <option value="actions">Action / Task</option>
-              <option value="transactions">Transaction / Finance</option>
-              <option value="events">Event / Legal</option>
-              <option value="care">Health / Care</option>
-            </select>
+        <section className="card dense-card stack-md">
+          <div className="card-header">
+            <span className="card-title">Final QiBit</span>
+            <span className="card-count">{actions.filter((action) => action.kept).length} actions kept</span>
           </div>
+
           <div>
-            <label className="form-label">Space</label>
-            <select 
-              className="select-input"
-              value={bucket}
-              onChange={(e) => setBucket(e.target.value)}
-            >
-              <option value="inbox">Inbox</option>
-              <option value="projects">Projects</option>
-              <option value="areas">Areas</option>
-              <option value="resources">Resources</option>
-              <option value="archive">Archive</option>
-            </select>
+            <label className="form-label">Title</label>
+            <input className="text-input" value={title} onChange={(event) => setTitle(event.target.value)} />
           </div>
+
+          <div className="three-col">
+            <div>
+              <label className="form-label">Type</label>
+              <select className="select-input" value={type} onChange={(event) => setType(event.target.value as QiBitType)}>
+                {TYPE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="form-label">Priority</label>
+              <select className="select-input" value={priority} onChange={(event) => setPriority(event.target.value as Priority)}>
+                {PRIORITY_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="form-label">Space</label>
+              <input className="text-input" value={space} onChange={(event) => setSpace(event.target.value)} />
+            </div>
+          </div>
+
           <div>
-            <label className="form-label">Priority</label>
-            <select 
-              className="select-input"
-              value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
+            <label className="form-label">Summary</label>
+            <textarea className="textarea-input" rows={4} value={summary} onChange={(event) => setSummary(event.target.value)} />
           </div>
-        </div>
 
-        <div>
-          <label className="form-label">Summary</label>
-          <textarea
-            className="textarea-input"
-            value={summary}
-            onChange={(e) => setSummary(e.target.value)}
-            rows={2}
-          />
-        </div>
+          <div>
+            <label className="form-label">Tags</label>
+            <input className="text-input" value={tags} onChange={(event) => setTags(event.target.value)} />
+          </div>
 
-        <div>
-          <label className="form-label">Tags (comma separated)</label>
-          <input 
-            className="text-input"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-          />
-        </div>
+          <div className="stack-sm">
+            <div className="card-header">
+              <span className="card-title">Generated Actions</span>
+              <span className="card-count">{actions.length}</span>
+            </div>
 
-        <div style={{ padding: 12, background: "rgba(255, 255, 255, 0.02)", borderRadius: "var(--r-md)", border: "1px dashed rgba(255, 255, 255, 0.15)" }}>
-          <div className="form-label" style={{ marginBottom: 4 }}>Original Raw Text</div>
-          <div style={{ fontSize: 13, whiteSpace: "pre-wrap", color: "var(--ink-500)" }}>{draft.rawText}</div>
-        </div>
+            {actions.length === 0 ? (
+              <StateEmpty icon={<CheckSquare size={20} />} text="No actions extracted from this capture." />
+            ) : (
+              actions.map((action) => (
+                <div key={action.id} className={`generated-action ${action.kept ? "" : "is-discarded"}`}>
+                  <div className="compact-row spread">
+                    <span className="badge badge-type">{action.priority}</span>
+                    <button
+                      type="button"
+                      className={`btn btn-sm ${action.kept ? "btn-ghost" : "btn-outline"}`}
+                      onClick={() => toggleAction(action.id)}
+                    >
+                      {action.kept ? "Discard" : "Keep"}
+                    </button>
+                  </div>
+                  <input
+                    className="text-input"
+                    value={action.title}
+                    onChange={(event) => updateActionField(action.id, { title: event.target.value })}
+                    disabled={!action.kept}
+                  />
+                  <div className="compact-row">
+                    <input
+                      className="text-input"
+                      value={action.dueHint ?? ""}
+                      onChange={(event) => updateActionField(action.id, { dueHint: event.target.value || undefined })}
+                      disabled={!action.kept}
+                      placeholder="Due hint"
+                    />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 }}>
-          <button 
-            type="button"
-            className="btn btn-ghost" 
-            onClick={handleDiscard}
-          >
-            Discard
-          </button>
-          <button 
-            type="submit"
-            className="btn btn-primary" 
-          >
-            Save to Timeline
-          </button>
-        </div>
+          <div className="action-row">
+            <button type="button" className="btn btn-ghost" onClick={handleDiscard}>
+              Discard Draft
+            </button>
+            <button type="submit" className="btn btn-primary">
+              Save QiBit
+            </button>
+          </div>
+        </section>
       </form>
     </div>
   );

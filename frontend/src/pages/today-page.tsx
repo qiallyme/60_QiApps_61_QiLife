@@ -1,177 +1,235 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import type { Action, TimelineRow } from "../types";
+import { AlertCircle, ArrowRight, Brain, CheckCircle2, Clock3, FileText, History, Inbox } from "lucide-react";
+import type { Action, Draft, QiBit, TimelineRow } from "../types";
+import { formatDate, formatRelative } from "../utils/format";
+import { getActions, getPendingDraft, getQiBits, getTimelineItems, updateAction } from "../utils/storage";
 import { StateEmpty } from "./shared";
-import { formatRelative } from "../utils/format";
-import { getActions, getTimelineItems, updateAction } from "../utils/storage";
-import { CheckCircle, History, Zap, FileText, DollarSign, Calendar, Heart, Circle, Plus, Brain } from "lucide-react";
 
 type Props = { refreshToken: number };
 
 export function TodayPage({ refreshToken }: Props) {
-  const [timelineData, setTimelineData] = useState<TimelineRow[]>([]);
-  const [actionsData, setActionsData] = useState<Action[]>([]);
+  const [pendingDraft, setPendingDraft] = useState<Draft | null>(null);
+  const [qibits, setQiBits] = useState<QiBit[]>([]);
+  const [actions, setActions] = useState<Action[]>([]);
+  const [timeline, setTimeline] = useState<TimelineRow[]>([]);
   const [localRefresh, setLocalRefresh] = useState(0);
 
   useEffect(() => {
-    setTimelineData(getTimelineItems());
-    setActionsData(getActions());
+    setPendingDraft(getPendingDraft());
+    setQiBits(getQiBits());
+    setActions(getActions());
+    setTimeline(getTimelineItems());
   }, [refreshToken, localRefresh]);
 
-  function toggleActionStatus(id: string, currentStatus: string) {
-    updateAction(id, { status: currentStatus === "open" ? "done" : "open" });
-    setLocalRefresh(n => n + 1);
-  }
+  const openActions = actions.filter((action) => action.status === "open").slice(0, 6);
+  const recentQiBits = qibits.slice(0, 4);
+  const recentTimeline = timeline.slice(0, 5);
+  const insights = qibits.filter((qibit) => qibit.insight).slice(0, 3);
 
-  const today = new Date().toDateString();
-  const recentTimeline = timelineData.slice(0, 5);
-  
-  const recentQiBits = timelineData
-    .filter(r => r.record_type === "qibits")
-    .slice(0, 3);
-    
-  const openActions = actionsData
-    .filter(a => a.status === "open")
-    .slice(0, 5);
-    
-  const insights = timelineData
-    .filter(r => r.payload?.insight)
-    .slice(0, 2);
+  const nextStep = pendingDraft
+    ? "Review the pending draft before you capture something else."
+    : openActions[0]
+      ? `Start with: ${openActions[0].title}`
+      : recentQiBits[0]
+        ? `Latest saved QiBit: ${recentQiBits[0].title}`
+        : "Capture the first item for today.";
+
+  function toggleActionStatus(action: Action) {
+    updateAction(action.id, { status: action.status === "open" ? "done" : "open" });
+    setLocalRefresh((value) => value + 1);
+  }
 
   return (
     <div className="page-stack">
-      <section className="hero-panel" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <section className="desk-banner">
         <div>
-          <div className="section-tag">Today · {today}</div>
-          <h2>Run life from the spine.</h2>
-          <p>
-            Scheduled work, open loops, and the live timeline signal in one command view.
-          </p>
+          <div className="section-tag subdued">Today</div>
+          <h2>What needs attention now?</h2>
+          <p>{nextStep}</p>
         </div>
-        <Link to="/capture" className="btn btn-accent" style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 24px", fontSize: "16px" }}>
-          <Plus size={20} />
+        <Link to="/capture" className="btn btn-primary">
           New Capture
         </Link>
       </section>
 
+      <div className="stats-grid">
+        <div className="card dense-card">
+          <div className="compact-row spread">
+            <span className="card-title">Pending Review</span>
+            <span className="card-count">{pendingDraft ? 1 : 0}</span>
+          </div>
+          {pendingDraft ? (
+            <div className="stack-xs compact-text">
+              <strong>{pendingDraft.agentDraft.suggestedTitle}</strong>
+              <span>{pendingDraft.agentDraft.suggestedSummary}</span>
+              <Link to="/review" className="inline-link">
+                Open review <ArrowRight size={14} />
+              </Link>
+            </div>
+          ) : (
+            <span className="compact-text">No draft waiting.</span>
+          )}
+        </div>
+
+        <div className="card dense-card">
+          <div className="compact-row spread">
+            <span className="card-title">Recent Capture</span>
+            <span className="card-count">{recentQiBits.length}</span>
+          </div>
+          {recentQiBits[0] ? (
+            <div className="stack-xs compact-text">
+              <strong>{recentQiBits[0].title}</strong>
+              <span>{recentQiBits[0].summary}</span>
+              <span>{formatRelative(recentQiBits[0].createdAt)}</span>
+            </div>
+          ) : (
+            <span className="compact-text">Nothing saved yet.</span>
+          )}
+        </div>
+
+        <div className="card dense-card">
+          <div className="compact-row spread">
+            <span className="card-title">Open Actions</span>
+            <span className="card-count">{openActions.length}</span>
+          </div>
+          <span className="compact-text">{openActions[0]?.title ?? "No open actions."}</span>
+        </div>
+
+        <div className="card dense-card">
+          <div className="compact-row spread">
+            <span className="card-title">Recent Changes</span>
+            <span className="card-count">{recentTimeline.length}</span>
+          </div>
+          <span className="compact-text">{recentTimeline[0] ? `${recentTimeline[0].title} • ${formatRelative(recentTimeline[0].timestamp)}` : "Timeline is empty."}</span>
+        </div>
+      </div>
+
       <div className="two-col">
-        {/* Open Actions */}
-        <div className="card">
+        <section className="card dense-card">
           <div className="card-header">
             <span className="card-title">Open Actions</span>
             <span className="card-count">{openActions.length}</span>
           </div>
+
           {openActions.length === 0 ? (
-            <StateEmpty icon={<CheckCircle size={24} />} text="No open actions." />
+            <StateEmpty icon={<CheckCircle2 size={22} />} text="No open actions." />
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {openActions.map(a => (
-                <div key={a.id} className="item-row">
-                  <input 
-                    type="checkbox" 
-                    checked={false} 
-                    onChange={() => toggleActionStatus(a.id, a.status)}
-                    style={{ width: 16, height: 16, marginTop: 4 }} 
-                  />
+            <div className="stack-sm">
+              {openActions.map((action) => (
+                <div key={action.id} className="item-row dense-row">
+                  <input type="checkbox" checked={action.status === "done"} onChange={() => toggleActionStatus(action)} />
                   <div className="item-main">
-                    <div className="item-title">{a.title}</div>
-                    <div className="item-meta" style={{ marginTop: 4 }}>
-                      <span className="badge badge-open">Priority: {a.priority}</span>
-                      {a.dueHint && <span className="badge badge-triaged">Due: {a.dueHint}</span>}
+                    <div className="item-title">{action.title}</div>
+                    <div className="item-meta">
+                      <span className="badge badge-open">{action.priority}</span>
+                      {action.dueHint ? <span className="badge badge-triaged">{action.dueHint}</span> : null}
+                      <span className="item-sub">{formatRelative(action.createdAt)}</span>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
-        </div>
+        </section>
 
-        {/* Recent Agent Insights */}
-        <div className="card">
-          <div className="card-header">
-            <span className="card-title">Agent Insights</span>
-            <span className="card-count">{insights.length}</span>
-          </div>
-          {insights.length === 0 ? (
-            <StateEmpty icon={<Brain size={24} />} text="Capture something to get insights." />
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {insights.map(r => (
-                <div key={r.id} style={{ background: "rgba(10, 132, 255, 0.05)", padding: "10px 12px", borderRadius: "var(--r-sm)", borderLeft: "2px solid var(--accent-blue)" }}>
-                  <div style={{ fontSize: 13, color: "var(--ink-700)" }}>{r.payload?.insight as string}</div>
-                  <div style={{ fontSize: 11, color: "var(--ink-500)", marginTop: 6 }}>From: {r.title} ({formatRelative(r.timestamp)})</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="two-col">
-        {/* Recent QiBits */}
-        <div className="card">
+        <section className="card dense-card">
           <div className="card-header">
             <span className="card-title">Recent QiBits</span>
             <span className="card-count">{recentQiBits.length}</span>
           </div>
+
           {recentQiBits.length === 0 ? (
-            <StateEmpty icon={<Zap size={24} />} text="No QiBits captured yet." />
+            <StateEmpty icon={<Inbox size={22} />} text="No saved QiBits yet." />
           ) : (
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              {recentQiBits.map((row) => (
-                <TimelineEntry key={`${row.record_type}-${row.id}`} row={row} />
+            <div className="stack-sm">
+              {recentQiBits.map((qibit) => (
+                <div key={qibit.id} className="stack-xs">
+                  <div className="compact-row spread">
+                    <strong>{qibit.title}</strong>
+                    <span className="badge badge-type">{qibit.type}</span>
+                  </div>
+                  <div className="compact-text">{qibit.summary}</div>
+                  <div className="item-meta">
+                    <span className="badge badge-open">{qibit.priority}</span>
+                    <span className="badge badge-bucket">{qibit.space}</span>
+                    <span className="item-sub">{formatDate(qibit.createdAt)}</span>
+                  </div>
+                </div>
               ))}
             </div>
           )}
-        </div>
+        </section>
+      </div>
 
-        {/* Timeline Snapshot */}
-        <div className="card">
+      <div className="two-col">
+        <section className="card dense-card">
           <div className="card-header">
-            <span className="card-title">Timeline Snapshot</span>
-            <span className="card-count">{timelineData.length} entries</span>
+            <span className="card-title">Agent Insights</span>
+            <span className="card-count">{insights.length}</span>
           </div>
-          {recentTimeline.length === 0 ? (
-            <StateEmpty icon={<History size={24} />} text="Timeline is empty." />
+
+          {insights.length === 0 ? (
+            <StateEmpty icon={<Brain size={22} />} text="Insights appear after review and save." />
           ) : (
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              {recentTimeline.map((row) => (
-                <TimelineEntry key={`${row.record_type}-${row.id}`} row={row} />
+            <div className="stack-sm">
+              {insights.map((qibit) => (
+                <div key={qibit.id} className="insight-row">
+                  <Brain size={16} />
+                  <div className="stack-xs">
+                    <strong>{qibit.title}</strong>
+                    <span className="compact-text">{qibit.insight}</span>
+                  </div>
+                </div>
               ))}
             </div>
           )}
-        </div>
-      </div>
-    </div>
-  );
-}
+        </section>
 
-function TimelineEntry({ row }: { row: TimelineRow }) {
-  const renderIcon = (type: string) => {
-    switch (type) {
-      case "qibits": return <Zap size={18} />;
-      case "actions": return <CheckCircle size={18} />;
-      case "transactions": return <DollarSign size={18} />;
-      case "events": return <Calendar size={18} />;
-      case "daily_summaries": return <FileText size={18} />;
-      case "care": return <Heart size={18} />;
-      default: return <Circle size={18} />;
-    }
-  };
+        <section className="card dense-card">
+          <div className="card-header">
+            <span className="card-title">Timeline Summary</span>
+            <span className="card-count">{recentTimeline.length}</span>
+          </div>
 
-  return (
-    <div className="timeline-entry">
-      <div className={`timeline-icon timeline-icon-${row.record_type}`}>
-        {renderIcon(row.record_type)}
+          {recentTimeline.length === 0 ? (
+            <StateEmpty icon={<History size={22} />} text="Timeline is empty." />
+          ) : (
+            <div className="stack-sm">
+              {recentTimeline.map((item) => (
+                <div key={item.id} className="compact-row top">
+                  <Clock3 size={16} />
+                  <div className="stack-xs">
+                    <strong>{item.title}</strong>
+                    <span className="compact-text">{item.payload.summary ?? "No summary saved."}</span>
+                    <div className="item-meta">
+                      <span className="badge badge-type">{item.payload.type ?? "note"}</span>
+                      <span className="badge badge-bucket">{item.payload.space ?? item.bucket_code}</span>
+                      <span className="item-sub">{formatRelative(item.timestamp)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
-      <div className="timeline-body">
-        <div className="item-title">{row.title}</div>
-        <div className="item-meta">
-          <span className="badge badge-type">{row.record_type.replace("_", " ")}</span>
-          <span className="badge badge-bucket">{(row.payload?.priority as string) || "low"}</span>
+
+      <section className="card dense-card">
+        <div className="card-header">
+          <span className="card-title">What Should I Do Next?</span>
         </div>
-      </div>
-      <div className="timeline-time" style={{ whiteSpace: "nowrap" }}>{formatRelative(row.timestamp)}</div>
+        <div className="stack-xs compact-text">
+          <div className="compact-row">
+            <AlertCircle size={16} />
+            <span>{nextStep}</span>
+          </div>
+          <div className="compact-row">
+            <FileText size={16} />
+            <span>{pendingDraft ? "Save or discard the current draft before adding another." : "If something new happened, capture it immediately so the draft can create structure."}</span>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
