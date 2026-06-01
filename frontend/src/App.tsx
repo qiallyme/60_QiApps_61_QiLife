@@ -16,6 +16,8 @@ import { TimelinePage } from "./pages/timeline-page";
 import { TodayPage } from "./pages/today-page";
 import { CapturePage } from "./pages/capture-page";
 import { ReviewPage } from "./pages/review-page";
+import { QiBitDetailPage } from "./pages/qibit-detail-page";
+import { ActionDetailPage } from "./pages/action-detail-page";
 
 export default function App() {
   const [refreshToken, setRefreshToken] = useState(0);
@@ -44,6 +46,8 @@ export default function App() {
         <Route path="/timeline" element={<TimelinePage refreshToken={refreshToken} />} />
         <Route path="/knowledge" element={<KnowledgePage backendStatus={backendStatus} />} />
         <Route path="/actions" element={<ActionsPage />} />
+        <Route path="/qibits/:id" element={<QiBitDetailPage />} />
+        <Route path="/actions/:id" element={<ActionDetailPage />} />
         <Route path="/inbox" element={<InboxPage refreshToken={refreshToken} />} />
         <Route path="/people" element={<PeoplePage refreshToken={refreshToken} />} />
         <Route path="/more" element={<MorePage />} />

@@ -384,6 +384,10 @@ export function getQiBits(): QiBit[] {
   return sortNewest(migrated);
 }
 
+export function getQiBitById(id: string): QiBit | null {
+  return getQiBits().find((qibit) => qibit.id === id) ?? null;
+}
+
 export function saveQiBit(qibit: QiBit) {
   const existing = getQiBits();
   writeJson(QIBITS_KEY, sortNewest(upsertById(existing, normalizeQiBit(qibit as unknown as Record<string, unknown>))));
@@ -391,6 +395,10 @@ export function saveQiBit(qibit: QiBit) {
 
 export function getTimelineItems(): TimelineRow[] {
   return sortNewest(readJson<Record<string, unknown>[]>(TIMELINE_KEY, []).map(normalizeTimelineRow));
+}
+
+export function getTimelineItemById(id: string): TimelineRow | null {
+  return getTimelineItems().find((item) => item.id === id || item.payload.qibitId === id) ?? null;
 }
 
 export function saveTimelineItem(item: TimelineRow) {
@@ -431,6 +439,14 @@ export function deleteTimelineItem(id: string) {
 
 export function getActions(): Action[] {
   return sortNewest(readJson<Record<string, unknown>[]>(ACTIONS_KEY, []).map((action) => normalizeAction(action)));
+}
+
+export function getActionById(id: string): Action | null {
+  return getActions().find((action) => action.id === id) ?? null;
+}
+
+export function getActionsForQiBit(qibitId: string): Action[] {
+  return getActions().filter((action) => action.qibitId === qibitId || action.source_qibit_id === qibitId);
 }
 
 export function saveActions(actions: Action[]) {
@@ -474,6 +490,10 @@ export function updateAction(id: string, updates: Partial<Action>) {
   });
 
   writeJson(TIMELINE_KEY, rows);
+}
+
+export function updateActionStatus(id: string, status: Action["status"]) {
+  updateAction(id, { status });
 }
 
 export function deleteAction(id: string) {

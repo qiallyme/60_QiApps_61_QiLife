@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { AlertCircle, ArrowRight, Brain, CheckCircle2, Clock3, FileText, History, Inbox } from "lucide-react";
+import { AlertCircle, ArrowRight, BookOpen, Brain, CheckCircle2, Clock3, FileText, History, Inbox, PlusCircle } from "lucide-react";
 import type { Action, Draft, QiBit, TimelineRow } from "../types";
 import { formatDate, formatRelative } from "../utils/format";
-import { getActions, getPendingDraft, getQiBits, getTimelineItems, updateAction } from "../utils/storage";
+import { getActions, getPendingDraft, getQiBits, getTimelineItems, updateActionStatus } from "../utils/storage";
 import { StateEmpty } from "./shared";
 
 type Props = { refreshToken: number };
@@ -26,6 +26,7 @@ export function TodayPage({ refreshToken }: Props) {
   const recentQiBits = qibits.slice(0, 4);
   const recentTimeline = timeline.slice(0, 5);
   const insights = qibits.filter((qibit) => qibit.insight).slice(0, 3);
+  const qibitTitleById = new Map(qibits.map((qibit) => [qibit.id, qibit.title]));
 
   const nextStep = pendingDraft
     ? "Review the pending draft before you capture something else."
@@ -36,7 +37,7 @@ export function TodayPage({ refreshToken }: Props) {
         : "Capture the first item for today.";
 
   function toggleActionStatus(action: Action) {
-    updateAction(action.id, { status: action.status === "open" ? "done" : "open" });
+    updateActionStatus(action.id, action.status === "open" ? "done" : "open");
     setLocalRefresh((value) => value + 1);
   }
 
@@ -53,8 +54,39 @@ export function TodayPage({ refreshToken }: Props) {
         </Link>
       </section>
 
+      <section className="command-grid">
+        <Link to="/capture" className="card dense-card interactive-card command-card">
+          <PlusCircle size={16} />
+          <div className="stack-xs">
+            <strong>Capture</strong>
+            <span className="compact-text">Add a new raw record.</span>
+          </div>
+        </Link>
+        <Link to="/review" className="card dense-card interactive-card command-card">
+          <CheckCircle2 size={16} />
+          <div className="stack-xs">
+            <strong>Review</strong>
+            <span className="compact-text">{pendingDraft ? "Approve the current draft." : "Review desk is clear."}</span>
+          </div>
+        </Link>
+        <Link to="/actions" className="card dense-card interactive-card command-card">
+          <Clock3 size={16} />
+          <div className="stack-xs">
+            <strong>Actions</strong>
+            <span className="compact-text">{openActions.length} open work items.</span>
+          </div>
+        </Link>
+        <Link to="/knowledge" className="card dense-card interactive-card command-card">
+          <BookOpen size={16} />
+          <div className="stack-xs">
+            <strong>Knowledge</strong>
+            <span className="compact-text">Open docs-backed reference.</span>
+          </div>
+        </Link>
+      </section>
+
       <div className="stats-grid">
-        <div className="card dense-card">
+        <Link to="/review" className="card dense-card interactive-card">
           <div className="compact-row spread">
             <span className="card-title">Pending Review</span>
             <span className="card-count">{pendingDraft ? 1 : 0}</span>
@@ -63,16 +95,16 @@ export function TodayPage({ refreshToken }: Props) {
             <div className="stack-xs compact-text">
               <strong>{pendingDraft.agentDraft.suggestedTitle}</strong>
               <span>{pendingDraft.agentDraft.suggestedSummary}</span>
-              <Link to="/review" className="inline-link">
+              <span className="inline-link">
                 Open review <ArrowRight size={14} />
-              </Link>
+              </span>
             </div>
           ) : (
             <span className="compact-text">No draft waiting.</span>
           )}
-        </div>
+        </Link>
 
-        <div className="card dense-card">
+        <Link to={recentQiBits[0] ? `/qibits/${recentQiBits[0].id}` : "/capture"} className="card dense-card interactive-card">
           <div className="compact-row spread">
             <span className="card-title">Recent Capture</span>
             <span className="card-count">{recentQiBits.length}</span>
@@ -86,30 +118,32 @@ export function TodayPage({ refreshToken }: Props) {
           ) : (
             <span className="compact-text">Nothing saved yet.</span>
           )}
-        </div>
+        </Link>
 
-        <div className="card dense-card">
+        <Link to={openActions[0] ? `/actions/${openActions[0].id}` : "/actions"} className="card dense-card interactive-card">
           <div className="compact-row spread">
             <span className="card-title">Open Actions</span>
             <span className="card-count">{openActions.length}</span>
           </div>
           <span className="compact-text">{openActions[0]?.title ?? "No open actions."}</span>
-        </div>
+        </Link>
 
-        <div className="card dense-card">
+        <Link to={recentTimeline[0] ? `/qibits/${recentTimeline[0].payload.qibitId ?? recentTimeline[0].id}` : "/timeline"} className="card dense-card interactive-card">
           <div className="compact-row spread">
             <span className="card-title">Recent Changes</span>
             <span className="card-count">{recentTimeline.length}</span>
           </div>
           <span className="compact-text">{recentTimeline[0] ? `${recentTimeline[0].title} • ${formatRelative(recentTimeline[0].timestamp)}` : "Timeline is empty."}</span>
-        </div>
+        </Link>
       </div>
 
       <div className="two-col">
         <section className="card dense-card">
           <div className="card-header">
             <span className="card-title">Open Actions</span>
-            <span className="card-count">{openActions.length}</span>
+            <Link to="/actions" className="inline-link">
+              View all <ArrowRight size={14} />
+            </Link>
           </div>
 
           {openActions.length === 0 ? (
@@ -117,15 +151,27 @@ export function TodayPage({ refreshToken }: Props) {
           ) : (
             <div className="stack-sm">
               {openActions.map((action) => (
-                <div key={action.id} className="item-row dense-row">
-                  <input type="checkbox" checked={action.status === "done"} onChange={() => toggleActionStatus(action)} />
-                  <div className="item-main">
-                    <div className="item-title">{action.title}</div>
-                    <div className="item-meta">
-                      <span className="badge badge-open">{action.priority}</span>
-                      {action.dueHint ? <span className="badge badge-triaged">{action.dueHint}</span> : null}
-                      <span className="item-sub">{formatRelative(action.createdAt)}</span>
-                    </div>
+                <div key={action.id} className="record-with-control">
+                  <input
+                    type="checkbox"
+                    checked={action.status === "done"}
+                    onChange={() => toggleActionStatus(action)}
+                    aria-label={`Mark ${action.title} ${action.status === "open" ? "done" : "open"}`}
+                  />
+                  <div className="item-main stack-xs">
+                    <Link to={`/actions/${action.id}`} className="record-row-link">
+                      <div className="item-title">{action.title}</div>
+                      <div className="item-meta">
+                        <span className={`badge badge-${action.priority}`}>{action.priority}</span>
+                        {action.dueHint ? <span className="badge badge-triaged">{action.dueHint}</span> : null}
+                        <span className="item-sub">{formatRelative(action.createdAt)}</span>
+                      </div>
+                    </Link>
+                    {action.qibitId ? (
+                      <Link to={`/qibits/${action.qibitId}`} className="inline-link subtle-link">
+                        {qibitTitleById.get(action.qibitId) ?? "Open source QiBit"}
+                      </Link>
+                    ) : null}
                   </div>
                 </div>
               ))}
@@ -136,7 +182,9 @@ export function TodayPage({ refreshToken }: Props) {
         <section className="card dense-card">
           <div className="card-header">
             <span className="card-title">Recent QiBits</span>
-            <span className="card-count">{recentQiBits.length}</span>
+            <Link to="/timeline" className="inline-link">
+              Timeline <ArrowRight size={14} />
+            </Link>
           </div>
 
           {recentQiBits.length === 0 ? (
@@ -144,18 +192,18 @@ export function TodayPage({ refreshToken }: Props) {
           ) : (
             <div className="stack-sm">
               {recentQiBits.map((qibit) => (
-                <div key={qibit.id} className="stack-xs">
+                <Link key={qibit.id} to={`/qibits/${qibit.id}`} className="record-link-card">
                   <div className="compact-row spread">
                     <strong>{qibit.title}</strong>
                     <span className="badge badge-type">{qibit.type}</span>
                   </div>
                   <div className="compact-text">{qibit.summary}</div>
                   <div className="item-meta">
-                    <span className="badge badge-open">{qibit.priority}</span>
+                    <span className={`badge badge-${qibit.priority}`}>{qibit.priority}</span>
                     <span className="badge badge-bucket">{qibit.space}</span>
                     <span className="item-sub">{formatDate(qibit.createdAt)}</span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
@@ -174,13 +222,13 @@ export function TodayPage({ refreshToken }: Props) {
           ) : (
             <div className="stack-sm">
               {insights.map((qibit) => (
-                <div key={qibit.id} className="insight-row">
+                <Link key={qibit.id} to={`/qibits/${qibit.id}`} className="insight-row interactive-card">
                   <Brain size={16} />
                   <div className="stack-xs">
                     <strong>{qibit.title}</strong>
                     <span className="compact-text">{qibit.insight}</span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
@@ -189,7 +237,9 @@ export function TodayPage({ refreshToken }: Props) {
         <section className="card dense-card">
           <div className="card-header">
             <span className="card-title">Timeline Summary</span>
-            <span className="card-count">{recentTimeline.length}</span>
+            <Link to="/timeline" className="inline-link">
+              View all <ArrowRight size={14} />
+            </Link>
           </div>
 
           {recentTimeline.length === 0 ? (
@@ -197,18 +247,20 @@ export function TodayPage({ refreshToken }: Props) {
           ) : (
             <div className="stack-sm">
               {recentTimeline.map((item) => (
-                <div key={item.id} className="compact-row top">
-                  <Clock3 size={16} />
-                  <div className="stack-xs">
-                    <strong>{item.title}</strong>
-                    <span className="compact-text">{item.payload.summary ?? "No summary saved."}</span>
-                    <div className="item-meta">
-                      <span className="badge badge-type">{item.payload.type ?? "note"}</span>
-                      <span className="badge badge-bucket">{item.payload.space ?? item.bucket_code}</span>
-                      <span className="item-sub">{formatRelative(item.timestamp)}</span>
+                <Link key={item.id} to={`/qibits/${item.payload.qibitId ?? item.id}`} className="record-link-card">
+                  <div className="compact-row top">
+                    <Clock3 size={16} />
+                    <div className="stack-xs">
+                      <strong>{item.title}</strong>
+                      <span className="compact-text">{item.payload.summary ?? "No summary saved."}</span>
+                      <div className="item-meta">
+                        <span className="badge badge-type">{item.payload.type ?? "note"}</span>
+                        <span className="badge badge-bucket">{item.payload.space ?? item.bucket_code}</span>
+                        <span className="item-sub">{formatRelative(item.timestamp)}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}
@@ -227,6 +279,12 @@ export function TodayPage({ refreshToken }: Props) {
           <div className="compact-row">
             <FileText size={16} />
             <span>{pendingDraft ? "Save or discard the current draft before adding another." : "If something new happened, capture it immediately so the draft can create structure."}</span>
+          </div>
+          <div className="compact-row">
+            <ArrowRight size={16} />
+            <Link to={pendingDraft ? "/review" : openActions[0] ? `/actions/${openActions[0].id}` : "/capture"} className="inline-link">
+              {pendingDraft ? "Open the review desk" : openActions[0] ? "Open the next action" : "Start a new capture"}
+            </Link>
           </div>
         </div>
       </section>

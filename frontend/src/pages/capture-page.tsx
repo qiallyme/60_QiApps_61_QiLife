@@ -1,5 +1,5 @@
-import { FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { FormEvent, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { mockIngestion } from "../utils/mock-agent";
 import { savePendingDraft } from "../utils/storage";
 
@@ -7,9 +7,23 @@ const SOURCE_TYPES = ["", "note", "care", "finance", "legal", "tech", "task", "o
 
 export function CapturePage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [rawText, setRawText] = useState("");
   const [sourceType, setSourceType] = useState("");
   const [status, setStatus] = useState<"idle" | "processing">("idle");
+
+  useEffect(() => {
+    const state = location.state as { prefill?: string; sourceType?: string } | null;
+    if (!state) return;
+
+    if (state.prefill) {
+      setRawText(state.prefill);
+    }
+
+    if (state.sourceType) {
+      setSourceType(state.sourceType);
+    }
+  }, [location.state]);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
