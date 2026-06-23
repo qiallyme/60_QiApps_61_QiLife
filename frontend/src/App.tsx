@@ -24,6 +24,7 @@ import { ThreadDetailPage } from "./pages/thread-detail-page";
 import { replaceActions, replacePeople, replaceQiBits, replaceThreads, replaceTimelineItems } from "./utils/storage";
 
 const AlphaWorkbenchPage = React.lazy(() => import("./features/alpha_qilife_workbench/components/AlphaWorkbenchPage"));
+const QiLifeShell        = React.lazy(() => import("./features/qilife/components/QiLifeShell").then((m) => ({ default: m.QiLifeShell })));
 
 export default function App() {
   const [refreshToken, setRefreshToken] = useState(0);
@@ -136,6 +137,14 @@ export default function App() {
           element={
             <React.Suspense fallback={<div>Loading Workbench...</div>}>
               <AlphaWorkbenchPage />
+            </React.Suspense>
+          }
+        />
+        <Route
+          path="/qilife/*"
+          element={
+            <React.Suspense fallback={<div style={{ padding: 40, color: '#96a39b' }}>Loading QiLife…</div>}>
+              <QiLifeShell />
             </React.Suspense>
           }
         />
