@@ -1,18 +1,18 @@
-import { entityRegistry } from "../data/entityRegistry";
 import { navGroups, type QiSpecialViewKey } from "../data/navRegistry";
+import type { QiWorkspaceKey } from "../data/workspaceRegistry";
 
 interface SidebarNavProps {
-  activeEntityKey: string | null;
+  activeWorkspaceKey: QiWorkspaceKey | null;
   activeViewKey: QiSpecialViewKey | null;
-  onSelectEntity: (entityKey: string) => void;
+  onSelectWorkspace: (workspaceKey: QiWorkspaceKey) => void;
   onSelectView: (viewKey: QiSpecialViewKey) => void;
   onHome: () => void;
 }
 
 export function SidebarNav({
-  activeEntityKey,
+  activeWorkspaceKey,
   activeViewKey,
-  onSelectEntity,
+  onSelectWorkspace,
   onSelectView,
   onHome
 }: SidebarNavProps) {
@@ -26,18 +26,27 @@ export function SidebarNav({
         </div>
       </button>
 
+      <button
+        className={`qilife-assistant-button ${activeViewKey === "assistant" ? "active" : ""}`}
+        type="button"
+        onClick={() => onSelectView("assistant")}
+      >
+        <span>✦</span>
+        <div>
+          <strong>Ask QiLife</strong>
+          <small>Search, orient, act</small>
+        </div>
+      </button>
+
       <nav className="qilife-nav" aria-label="QiLife navigation">
         {navGroups.map((group) => (
           <section key={group.id} className="qilife-nav-group">
             {group.label && <div className="qilife-nav-group-label">{group.label}</div>}
 
             {group.items.map((item) => {
-              const entity = item.entityKey ? entityRegistry[item.entityKey] : null;
-              const active = item.viewKey
-                ? item.viewKey === activeViewKey
-                : item.entityKey
-                  ? item.entityKey === activeEntityKey && !activeViewKey
-                  : !activeEntityKey && !activeViewKey;
+              const active = item.home
+                ? !activeWorkspaceKey && !activeViewKey
+                : item.workspaceKey === activeWorkspaceKey && !activeViewKey;
 
               return (
                 <button
@@ -45,14 +54,11 @@ export function SidebarNav({
                   className={`qilife-nav-item ${active ? "active" : ""}`}
                   type="button"
                   onClick={() => {
-                    if (item.viewKey) onSelectView(item.viewKey);
-                    else if (item.entityKey) onSelectEntity(item.entityKey);
-                    else onHome();
+                    if (item.home) onHome();
+                    else if (item.workspaceKey) onSelectWorkspace(item.workspaceKey);
                   }}
                 >
-                  <span className="qilife-nav-icon">
-                    {item.viewKey === "assistant" ? "✦" : entity?.icon || "⌂"}
-                  </span>
+                  <span className="qilife-nav-icon">{item.icon}</span>
                   <span>{item.label}</span>
                 </button>
               );
