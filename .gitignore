@@ -59,6 +59,7 @@ dist
 dist-ssr
 *.local
 
+
 # Temporary files
 .DS_Store
 Thumbs.db
@@ -78,3 +79,23 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
+
+__pycache__/
+*.py[cod]
+node_modules/
+dist/
+
+__pycache__/
+*.py[cod]
+
+*.sqlite
+*.sqlite-*
+*.sqlite-journal
+*.db
+*.db-journal
+
+.wrangler/
+.vite/
+coverage/
+.DS_Store
+Thumbs.db
