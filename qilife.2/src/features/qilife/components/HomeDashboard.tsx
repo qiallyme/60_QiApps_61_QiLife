@@ -86,11 +86,20 @@ export function HomeDashboard({
 
   const view = useMemo(() => {
     const open = records.filter(isOpen);
+    const inbox = records.filter(
+      (record) => record.entity_key === "qibit" && String(record.status || "inbox") === "inbox"
+    );
+    const waiting = open.filter(
+      (record) => String(record.status || "").toLowerCase() === "waiting"
+    );
+
     return {
       now: open.filter(isUrgent).slice(0, 4),
       today: open.filter(isToday).slice(0, 6),
-      inbox: records.filter((record) => record.entity_key === "qibit" && String(record.status || "inbox") === "inbox").slice(0, 5),
-      waiting: open.filter((record) => String(record.status || "").toLowerCase() === "waiting").slice(0, 5),
+      inbox: inbox.slice(0, 5),
+      inboxCount: inbox.length,
+      waiting: waiting.slice(0, 5),
+      waitingCount: waiting.length,
       continue: open
         .filter((record) => ["task", "project", "thread"].includes(record.entity_key))
         .slice(0, 5),
@@ -128,8 +137,8 @@ export function HomeDashboard({
         </div>
         <div className="qilife-home-counts">
           <button type="button" onClick={() => onOpenWorkspace("today")}><strong>{view.openCount}</strong><span>open loops</span></button>
-          <button type="button" onClick={() => onOpenEntity("qibit")}><strong>{view.inbox.length}</strong><span>in inbox</span></button>
-          <button type="button" onClick={() => onOpenEntity("task")}><strong>{view.waiting.length}</strong><span>waiting</span></button>
+          <button type="button" onClick={() => onOpenEntity("qibit")}><strong>{view.inboxCount}</strong><span>in inbox</span></button>
+          <button type="button" onClick={() => onOpenEntity("task")}><strong>{view.waitingCount}</strong><span>waiting</span></button>
         </div>
       </section>
 
