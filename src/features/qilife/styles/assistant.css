@@ -1,0 +1,56 @@
+.qilife-assistant-page { max-width: 1180px; }
+
+.qilife-assistant-search {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--qi-border-strong);
+  border-radius: 13px;
+  background: #0e0d16;
+  padding: 10px 11px;
+  margin-bottom: 10px;
+}
+.qilife-assistant-search > span { color: var(--qi-green); font-size: 19px; }
+.qilife-assistant-search input {
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--qi-text);
+  outline: none;
+  padding: 8px 4px;
+  font-size: 14px;
+}
+.qilife-assistant-prompts { margin-bottom: 18px; }
+.qilife-assistant-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 230px;
+  gap: 12px;
+}
+.qilife-result-count {
+  min-width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--qi-border);
+  border-radius: 999px;
+  color: var(--qi-muted);
+  font-size: 11px;
+}
+.qilife-assistant-status { align-self: start; display: grid; gap: 12px; }
+.qilife-assistant-status > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid var(--qi-border);
+  padding-bottom: 9px;
+}
+.qilife-assistant-status span { color: var(--qi-faint); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+.qilife-assistant-status strong { font-size: 19px; }
+.qilife-assistant-status p { margin: 4px 0 0; color: var(--qi-muted); font-size: 11px; line-height: 1.6; }
+
+@media (max-width: 760px) {
+  .qilife-assistant-search { grid-template-columns: auto minmax(0, 1fr); }
+  .qilife-assistant-search .qilife-btn { grid-column: span 1; }
+  .qilife-assistant-layout { grid-template-columns: 1fr; }
+}
