@@ -1,20 +1,28 @@
 import { entityRegistry } from "../data/entityRegistry";
-import { navGroups } from "../data/navRegistry";
+import { navGroups, type QiSpecialViewKey } from "../data/navRegistry";
 
 interface SidebarNavProps {
   activeEntityKey: string | null;
+  activeViewKey: QiSpecialViewKey | null;
   onSelectEntity: (entityKey: string) => void;
+  onSelectView: (viewKey: QiSpecialViewKey) => void;
   onHome: () => void;
 }
 
-export function SidebarNav({ activeEntityKey, onSelectEntity, onHome }: SidebarNavProps) {
+export function SidebarNav({
+  activeEntityKey,
+  activeViewKey,
+  onSelectEntity,
+  onSelectView,
+  onHome
+}: SidebarNavProps) {
   return (
     <aside className="qilife-sidebar">
       <button className="qilife-brand" type="button" onClick={onHome}>
         <div className="qilife-brand-mark">◐</div>
         <div>
           <div className="qilife-brand-title">QiLife</div>
-          <div className="qilife-brand-subtitle">Life Command</div>
+          <div className="qilife-brand-subtitle">Life OS</div>
         </div>
       </button>
 
@@ -25,16 +33,26 @@ export function SidebarNav({ activeEntityKey, onSelectEntity, onHome }: SidebarN
 
             {group.items.map((item) => {
               const entity = item.entityKey ? entityRegistry[item.entityKey] : null;
-              const active = item.entityKey === activeEntityKey || (!item.entityKey && !activeEntityKey);
+              const active = item.viewKey
+                ? item.viewKey === activeViewKey
+                : item.entityKey
+                  ? item.entityKey === activeEntityKey && !activeViewKey
+                  : !activeEntityKey && !activeViewKey;
 
               return (
                 <button
                   key={item.id}
                   className={`qilife-nav-item ${active ? "active" : ""}`}
                   type="button"
-                  onClick={() => (item.entityKey ? onSelectEntity(item.entityKey) : onHome())}
+                  onClick={() => {
+                    if (item.viewKey) onSelectView(item.viewKey);
+                    else if (item.entityKey) onSelectEntity(item.entityKey);
+                    else onHome();
+                  }}
                 >
-                  <span className="qilife-nav-icon">{entity?.icon || "⌂"}</span>
+                  <span className="qilife-nav-icon">
+                    {item.viewKey === "assistant" ? "✦" : entity?.icon || "⌂"}
+                  </span>
                   <span>{item.label}</span>
                 </button>
               );
