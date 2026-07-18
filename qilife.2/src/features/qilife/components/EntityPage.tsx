@@ -11,9 +11,16 @@ interface EntityPageProps {
   refreshToken: number;
   autoEditRecord?: QiRecord | null;
   onClearAutoEdit?: () => void;
+  embedded?: boolean;
 }
 
-export function EntityPage({ entity, refreshToken, autoEditRecord, onClearAutoEdit }: EntityPageProps) {
+export function EntityPage({
+  entity,
+  refreshToken,
+  autoEditRecord,
+  onClearAutoEdit,
+  embedded = false
+}: EntityPageProps) {
   const [records, setRecords] = useState<QiRecord[]>([]);
   const [layout, setLayout] = useState<QiLayout>(entity.defaultLayout);
   const [loading, setLoading] = useState(true);
@@ -34,11 +41,10 @@ export function EntityPage({ entity, refreshToken, autoEditRecord, onClearAutoEd
     }
   }
 
-  // Trigger modal when an autoEditRecord is supplied from parent (e.g. recent dashboard click)
   useEffect(() => {
     if (autoEditRecord && autoEditRecord.entity_key === entity.key) {
       setModalState({ mode: "edit", record: autoEditRecord });
-      if (onClearAutoEdit) onClearAutoEdit();
+      onClearAutoEdit?.();
     }
   }, [entity.key, autoEditRecord, onClearAutoEdit]);
 
@@ -48,7 +54,7 @@ export function EntityPage({ entity, refreshToken, autoEditRecord, onClearAutoEd
   }, [entity.key, entity.defaultLayout]);
 
   useEffect(() => {
-    load();
+    void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entity.key, refreshToken]);
 
@@ -60,31 +66,28 @@ export function EntityPage({ entity, refreshToken, autoEditRecord, onClearAutoEd
 
   async function handleFormSubmit(values: Record<string, unknown>, record?: QiRecord) {
     const mapped = mapFormValuesToRecord(entity, values);
-    if (record) {
-      await updateRecord(record.id, mapped);
-    } else {
-      await createRecord({ entity_key: entity.key, ...mapped });
-    }
+    if (record) await updateRecord(record.id, mapped);
+    else await createRecord({ entity_key: entity.key, ...mapped });
     setModalState(null);
     await load();
   }
 
   async function handleArchive(record: QiRecord, skipConfirm = false) {
-    if (!skipConfirm) {
-      const ok = window.confirm(`Archive "${record.title}"?`);
-      if (!ok) return;
-    }
+    if (!skipConfirm && !window.confirm(`Archive "${record.title}"?`)) return;
     await archiveRecord(record.id);
     setModalState(null);
     await load();
   }
 
   return (
-    <div className="qilife-page">
-      <div className="qilife-page-header">
+    <div className={embedded ? "qilife-entity-embedded" : "qilife-page"}>
+      <div className={embedded ? "qilife-entity-toolbar" : "qilife-page-header"}>
         <div>
-          <div className="qilife-eyebrow">{entity.section}</div>
-          <h2><span className="qilife-title-icon">{entity.icon}</span>{entity.plural}</h2>
+          {!embedded && <div className="qilife-eyebrow">{entity.section}</div>}
+          <h2 className={embedded ? "qilife-entity-title" : ""}>
+            {!embedded && <span className="qilife-title-icon">{entity.icon}</span>}
+            {entity.plural}
+          </h2>
           <p>{entity.description}</p>
         </div>
 
@@ -95,28 +98,25 @@ export function EntityPage({ entity, refreshToken, autoEditRecord, onClearAutoEd
             onChange={(event) => setSearch(event.target.value)}
             placeholder={`Search ${entity.plural.toLowerCase()}...`}
           />
-
-          <button className="qilife-btn" type="button" onClick={() => setLayout(layout === "table" ? "cards" : "table")}>
+          <button className="qilife-btn quiet" type="button" onClick={() => setLayout(layout === "table" ? "cards" : "table")}>
             {layout === "table" ? "Cards" : "Table"}
           </button>
-
           <button className="qilife-btn primary" type="button" onClick={() => setModalState({ mode: "create" })}>
-            + New {entity.label}
+            + New
           </button>
         </div>
       </div>
 
       <div className="qilife-subbar">
-        <span>{filteredRecords.length} visible</span>
-        <span>{records.length} total</span>
-        <span>Layout: {layout}</span>
+        <span>{filteredRecords.length} shown</span>
+        {search && <span>{records.length} total</span>}
       </div>
 
       {loading && <div className="qilife-empty">Loading...</div>}
       {error && <div className="qilife-error">{error}</div>}
 
       {!loading && !error && filteredRecords.length === 0 && (
-        <div className="qilife-empty">No {entity.plural.toLowerCase()} found. Create the first one.</div>
+        <div className="qilife-empty">No {entity.plural.toLowerCase()} yet.</div>
       )}
 
       {!loading && !error && filteredRecords.length > 0 && layout === "table" && (
@@ -144,7 +144,7 @@ export function EntityPage({ entity, refreshToken, autoEditRecord, onClearAutoEd
           mode={modalState.mode}
           onClose={() => setModalState(null)}
           onSubmit={handleFormSubmit}
-          onArchive={(rec) => handleArchive(rec, true)}
+          onArchive={(record) => handleArchive(record, true)}
         />
       )}
     </div>
