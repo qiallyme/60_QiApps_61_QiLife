@@ -12,35 +12,26 @@ export function Topbar({ activeLabel, storeMode, userEmail, onQuickCapture }: To
 
   return (
     <header className="qilife-topbar">
-      <div>
+      <div className="qilife-topbar-title">
         <div className="qilife-eyebrow">QILIFE</div>
         <h1>{activeLabel}</h1>
       </div>
 
-      <div className="qilife-topbar-actions" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        <div className={`qilife-store-pill ${storeMode === "supabase" ? "online" : "local"}`}>
-          {storeMode === "supabase" ? "Supabase Connected" : "Local Mode"}
+      <button className="qilife-capture-bar" type="button" onClick={onQuickCapture}>
+        <span>＋</span>
+        <strong>Capture anything</strong>
+        <kbd>Ctrl K</kbd>
+      </button>
+
+      <div className="qilife-topbar-actions">
+        <div className={`qilife-store-pill ${storeMode === "supabase" ? "online" : "local"}`} title={userEmail}>
+          {storeMode === "supabase" ? "Synced" : "Local"}
         </div>
-
         {storeMode === "supabase" && userEmail && (
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "13px" }}>
-            <span style={{ color: "var(--qi-muted)" }} title={userEmail}>
-              Signed in as <strong style={{ color: "var(--qi-text)" }}>{userEmail}</strong>
-            </span>
-            <button
-              className="qilife-mini-btn danger"
-              type="button"
-              onClick={() => signOut().catch(console.error)}
-              style={{ padding: "4px 8px", fontSize: "11px" }}
-            >
-              Sign Out
-            </button>
-          </div>
+          <button className="qilife-mini-btn" type="button" onClick={() => signOut().catch(console.error)}>
+            Sign out
+          </button>
         )}
-
-        <button className="qilife-btn primary" type="button" onClick={onQuickCapture}>
-          + Capture
-        </button>
       </div>
     </header>
   );
