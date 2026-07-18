@@ -1,0 +1,36 @@
+name: QiLife CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: qilife.2
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: qilife.2/package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Build canonical QiLife app
+        run: npm run build
+
+      - name: Verify Cloudflare output
+        run: test -f dist/index.html
