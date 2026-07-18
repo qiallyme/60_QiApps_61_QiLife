@@ -15,6 +15,8 @@ const STARTER_QUERIES = [
   "What is due soon?"
 ];
 
+const CLOSED = new Set(["done", "completed", "cancelled", "resolved", "closed", "archived"]);
+
 function recordSearchText(record: QiRecord): string {
   return [
     record.title,
@@ -23,23 +25,59 @@ function recordSearchText(record: QiRecord): string {
     record.priority,
     record.due_date,
     JSON.stringify(record.data)
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
+  ].filter(Boolean).join(" ").toLowerCase();
 }
 
-function matchesQuery(record: QiRecord, query: string): boolean {
+function recordDate(record: QiRecord): Date | null {
+  const raw = record.due_date || record.data.when || record.data.deadline || record.data.review_date;
+  if (!raw) return null;
+  const date = new Date(String(raw));
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function isOpen(record: QiRecord): boolean {
+  return !CLOSED.has(String(record.status || "").toLowerCase());
+}
+
+function textMatches(record: QiRecord, query: string): boolean {
   const terms = query.toLowerCase().split(/\s+/).filter((term) => term.length > 1);
   if (terms.length === 0) return true;
   const haystack = recordSearchText(record);
   return terms.every((term) => haystack.includes(term));
 }
 
-function isOpen(record: QiRecord): boolean {
-  return !["done", "completed", "cancelled", "resolved", "closed", "archived"].includes(
-    String(record.status || "").toLowerCase()
-  );
+function queryRecords(records: QiRecord[], query: string): QiRecord[] {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) return records;
+
+  if (normalized.includes("waiting")) {
+    return records.filter((record) => isOpen(record) && String(record.status || "").toLowerCase() === "waiting");
+  }
+
+  if (normalized.includes("attention") || normalized.includes("urgent")) {
+    return records.filter((record) => {
+      if (!isOpen(record)) return false;
+      const priority = String(record.priority || "").toLowerCase();
+      const date = recordDate(record);
+      return priority === "urgent" || priority === "high" || Boolean(date && date.getTime() < Date.now());
+    });
+  }
+
+  if (normalized.includes("decision")) {
+    return records.filter((record) => record.entity_key === "decision");
+  }
+
+  if (normalized.includes("due soon") || normalized.includes("upcoming")) {
+    const now = Date.now();
+    const sevenDays = now + 7 * 24 * 60 * 60 * 1000;
+    return records.filter((record) => {
+      if (!isOpen(record)) return false;
+      const date = recordDate(record);
+      return Boolean(date && date.getTime() >= now && date.getTime() <= sevenDays);
+    });
+  }
+
+  return records.filter((record) => textMatches(record, normalized));
 }
 
 export function AssistantPage({ onOpenEntity, refreshToken }: AssistantPageProps) {
@@ -52,20 +90,18 @@ export function AssistantPage({ onOpenEntity, refreshToken }: AssistantPageProps
     setLoading(true);
     listAllRecords()
       .then(setRecords)
-      .catch((error) => console.warn(error))
+      .catch(console.warn)
       .finally(() => setLoading(false));
   }, [refreshToken]);
 
-  const results = useMemo(() => {
-    const source = submittedQuery
-      ? records.filter((record) => matchesQuery(record, submittedQuery))
-      : records;
-    return source.slice(0, 20);
-  }, [records, submittedQuery]);
+  const results = useMemo(
+    () => queryRecords(records, submittedQuery).slice(0, 20),
+    [records, submittedQuery]
+  );
 
   const openItems = useMemo(() => records.filter(isOpen).length, [records]);
   const waitingItems = useMemo(
-    () => records.filter((record) => String(record.status || "").toLowerCase() === "waiting").length,
+    () => records.filter((record) => isOpen(record) && String(record.status || "").toLowerCase() === "waiting").length,
     [records]
   );
 
@@ -76,52 +112,48 @@ export function AssistantPage({ onOpenEntity, refreshToken }: AssistantPageProps
   }
 
   return (
-    <div className="qilife-page">
-      <section className="qilife-hero">
-        <div className="qilife-eyebrow">QI ASSISTANT · FOUNDATION</div>
-        <h2>Ask your life, not another empty chatbot.</h2>
-        <p>
-          This first pass searches the records already inside QiLife. QiVault, email, calendar,
-          QiFinance, and other connectors can feed this same workspace next.
-        </p>
-
-        <form
-          className="qilife-actions wrap"
-          style={{ justifyContent: "flex-start", marginTop: 16 }}
-          onSubmit={(event) => {
-            event.preventDefault();
-            runQuery(query);
-          }}
-        >
-          <input
-            className="qilife-search"
-            style={{ flex: "1 1 360px" }}
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search tasks, threads, people, events, decisions, and notes..."
-            aria-label="Ask QiLife"
-          />
-          <button className="qilife-btn primary" type="submit">Search QiLife</button>
-          {submittedQuery && (
-            <button className="qilife-btn" type="button" onClick={() => runQuery("")}>Clear</button>
-          )}
-        </form>
+    <div className="qilife-page qilife-assistant-page">
+      <section className="qilife-home-intro">
+        <div>
+          <div className="qilife-eyebrow">QI ASSISTANT · FOUNDATION</div>
+          <h2>Ask your life.</h2>
+          <p>Search and orient across the records already inside QiLife.</p>
+        </div>
       </section>
 
-      <section className="qilife-stat-grid">
-        <div className="qilife-stat-card"><span>Indexed records</span><strong>{records.length}</strong></div>
-        <div className="qilife-stat-card"><span>Open items</span><strong>{openItems}</strong></div>
-        <div className="qilife-stat-card"><span>Waiting</span><strong>{waitingItems}</strong></div>
-        <div className="qilife-stat-card"><span>Matches</span><strong>{results.length}</strong></div>
-      </section>
+      <form
+        className="qilife-assistant-search"
+        onSubmit={(event) => {
+          event.preventDefault();
+          runQuery(query);
+        }}
+      >
+        <span>✦</span>
+        <input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="What needs attention? Who am I waiting on? Find the rental thread..."
+          aria-label="Ask QiLife"
+          autoFocus
+        />
+        <button className="qilife-btn primary" type="submit">Search</button>
+        {submittedQuery && <button className="qilife-btn quiet" type="button" onClick={() => runQuery("")}>Clear</button>}
+      </form>
 
-      <section className="qilife-split-section">
+      <div className="qilife-chip-cloud qilife-assistant-prompts">
+        {STARTER_QUERIES.map((starter) => (
+          <button key={starter} type="button" onClick={() => runQuery(starter)}>{starter}</button>
+        ))}
+      </div>
+
+      <section className="qilife-assistant-layout">
         <div className="qilife-panel">
           <div className="qilife-panel-head">
             <div>
               <div className="qilife-eyebrow">RESULTS</div>
               <h3>{submittedQuery ? `Matches for “${submittedQuery}”` : "Recent QiLife records"}</h3>
             </div>
+            <span className="qilife-result-count">{results.length}</span>
           </div>
 
           {loading ? (
@@ -131,19 +163,11 @@ export function AssistantPage({ onOpenEntity, refreshToken }: AssistantPageProps
           ) : (
             <div className="qilife-list">
               {results.map((record) => (
-                <button
-                  key={record.id}
-                  className="qilife-list-row"
-                  type="button"
-                  onClick={() => onOpenEntity(record.entity_key, record)}
-                >
+                <button key={record.id} className="qilife-list-row" type="button" onClick={() => onOpenEntity(record.entity_key, record)}>
                   <span>{entityRegistry[record.entity_key]?.icon || "•"}</span>
                   <div>
                     <strong>{record.title}</strong>
-                    <small>
-                      {entityRegistry[record.entity_key]?.label || record.entity_key}
-                      {record.status ? ` · ${record.status}` : ""}
-                    </small>
+                    <small>{entityRegistry[record.entity_key]?.label || record.entity_key}{record.status ? ` · ${record.status}` : ""}</small>
                   </div>
                 </button>
               ))}
@@ -151,25 +175,15 @@ export function AssistantPage({ onOpenEntity, refreshToken }: AssistantPageProps
           )}
         </div>
 
-        <div className="qilife-panel">
-          <div className="qilife-panel-head">
-            <div>
-              <div className="qilife-eyebrow">START HERE</div>
-              <h3>Useful questions</h3>
-            </div>
-          </div>
-          <div className="qilife-chip-cloud">
-            {STARTER_QUERIES.map((starter) => (
-              <button key={starter} type="button" onClick={() => runQuery(starter)}>
-                {starter}
-              </button>
-            ))}
-          </div>
-          <p style={{ color: "var(--qi-muted)", lineHeight: 1.55, marginTop: 16 }}>
-            Current mode is transparent local retrieval—not pretend AI. The next intelligence layer
-            should add semantic search, connector citations, suggested actions, and an approval queue.
+        <aside className="qilife-panel qilife-assistant-status">
+          <div><span>Indexed</span><strong>{records.length}</strong></div>
+          <div><span>Open</span><strong>{openItems}</strong></div>
+          <div><span>Waiting</span><strong>{waitingItems}</strong></div>
+          <p>
+            Current mode is transparent QiLife retrieval. Email, Calendar, QiVault filesystem,
+            QiFinance, semantic search, and approved actions are the next intelligence layer.
           </p>
-        </div>
+        </aside>
       </section>
     </div>
   );
