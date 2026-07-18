@@ -32,8 +32,8 @@ jobs:
         run: npm run build
         env:
           VITE_QI_API_URL: https://api.qially.com
-          VITE_SUPABASE_URL: https://emnskvvajdlqixwzjfsm.supabase.co
-          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_I7JH7fI8hWP1AtGKskpWew_E4ws1YDa
+          VITE_SUPABASE_URL: https://placeholder.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: placeholder-build-key
 
       - name: Verify Cloudflare output
         run: test -f dist/index.html
