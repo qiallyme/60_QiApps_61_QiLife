@@ -1,0 +1,15 @@
+{
+  "name": "qilife-deployment-root",
+  "private": true,
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=22.12 <25",
+    "npm": ">=11"
+  },
+  "packageManager": "npm@11.9.0",
+  "scripts": {
+    "build": "npm ci --prefix qilife.2 && npm run build --prefix qilife.2",
+    "dev": "npm run dev --prefix qilife.2",
+    "preview": "npm run preview --prefix qilife.2"
+  }
+}
