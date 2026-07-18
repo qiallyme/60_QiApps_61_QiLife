@@ -2,7 +2,7 @@ import { useAuth } from "../auth/useAuth";
 
 interface TopbarProps {
   activeLabel: string;
-  storeMode: "supabase" | "localStorage";
+  storeMode: "api" | "localStorage";
   userEmail?: string;
   onQuickCapture: () => void;
 }
@@ -24,10 +24,10 @@ export function Topbar({ activeLabel, storeMode, userEmail, onQuickCapture }: To
       </button>
 
       <div className="qilife-topbar-actions">
-        <div className={`qilife-store-pill ${storeMode === "supabase" ? "online" : "local"}`} title={userEmail}>
-          {storeMode === "supabase" ? "Synced" : "Local"}
+        <div className={`qilife-store-pill ${storeMode === "api" ? "online" : "local"}`} title={userEmail}>
+          {storeMode === "api" ? "Qi API" : "Local"}
         </div>
-        {storeMode === "supabase" && userEmail && (
+        {storeMode === "api" && userEmail && (
           <button className="qilife-mini-btn" type="button" onClick={() => signOut().catch(console.error)}>
             Sign out
           </button>
