@@ -3,7 +3,8 @@ name: QiLife CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -12,9 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: qilife.2
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -24,13 +23,17 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: qilife.2/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Build canonical QiLife app
+      - name: Build QiLife
         run: npm run build
+        env:
+          VITE_QI_API_URL: https://api.qially.com
+          VITE_SUPABASE_URL: https://emnskvvajdlqixwzjfsm.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_I7JH7fI8hWP1AtGKskpWew_E4ws1YDa
 
       - name: Verify Cloudflare output
         run: test -f dist/index.html
