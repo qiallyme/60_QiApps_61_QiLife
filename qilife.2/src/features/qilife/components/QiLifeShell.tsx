@@ -6,14 +6,17 @@ import { HomeDashboard } from "./HomeDashboard";
 import { QuickCaptureModal } from "./QuickCaptureModal";
 import { SidebarNav } from "./SidebarNav";
 import { Topbar } from "./Topbar";
+import { AssistantPage } from "./AssistantPage";
 import { useAuth } from "../auth/useAuth";
 import { LoginPage } from "../auth/LoginPage";
 import type { QiRecord } from "../types";
+import type { QiSpecialViewKey } from "../data/navRegistry";
 
 export function QiLifeShell() {
   const { user, loading } = useAuth();
   const [localBypass, setLocalBypass] = useState(false);
   const [activeEntityKey, setActiveEntityKey] = useState<string | null>(null);
+  const [activeViewKey, setActiveViewKey] = useState<QiSpecialViewKey | null>(null);
   const [autoEditRecord, setAutoEditRecord] = useState<QiRecord | null>(null);
   const [captureOpen, setCaptureOpen] = useState(false);
   const [refreshToken, setRefreshToken] = useState(0);
@@ -29,7 +32,7 @@ export function QiLifeShell() {
 
   useEffect(() => {
     setBooted(false);
-    
+
     const isLocal = !isConfigured || localBypass || !user;
     if (isLocal) {
       seedDemoData()
@@ -45,10 +48,21 @@ export function QiLifeShell() {
   }
 
   function handleOpenEntity(entityKey: string, record?: QiRecord) {
+    setActiveViewKey(null);
     setActiveEntityKey(entityKey);
-    if (record) {
-      setAutoEditRecord(record);
-    }
+    if (record) setAutoEditRecord(record);
+  }
+
+  function handleOpenView(viewKey: QiSpecialViewKey) {
+    setActiveEntityKey(null);
+    setAutoEditRecord(null);
+    setActiveViewKey(viewKey);
+  }
+
+  function handleHome() {
+    setActiveEntityKey(null);
+    setActiveViewKey(null);
+    setAutoEditRecord(null);
   }
 
   if (loading) {
@@ -61,19 +75,22 @@ export function QiLifeShell() {
 
   if (showLogin) {
     return (
-      <LoginPage 
-        showBypass={true} 
-        onBypassLocal={() => setLocalBypass(true)} 
+      <LoginPage
+        showBypass={true}
+        onBypassLocal={() => setLocalBypass(true)}
       />
     );
   }
 
   const storeMode = getStoreMode(!!user && !localBypass);
+  const activeLabel = activeViewKey === "assistant"
+    ? "Ask QiLife"
+    : activeEntity?.plural || "Home";
 
   return (
     <div className="qilife-app">
       <Topbar
-        activeLabel={activeEntity?.plural || "Home"}
+        activeLabel={activeLabel}
         storeMode={storeMode}
         userEmail={user?.email}
         onQuickCapture={() => setCaptureOpen(true)}
@@ -82,24 +99,32 @@ export function QiLifeShell() {
       <div className="qilife-body">
         <SidebarNav
           activeEntityKey={activeEntityKey}
-          onSelectEntity={setActiveEntityKey}
-          onHome={() => setActiveEntityKey(null)}
+          activeViewKey={activeViewKey}
+          onSelectEntity={(entityKey) => handleOpenEntity(entityKey)}
+          onSelectView={handleOpenView}
+          onHome={handleHome}
         />
 
         <main className="qilife-content">
           {!booted ? (
             <div className="qilife-page"><div className="qilife-empty">Booting QiLife...</div></div>
+          ) : activeViewKey === "assistant" ? (
+            <AssistantPage
+              onOpenEntity={handleOpenEntity}
+              refreshToken={refreshToken}
+            />
           ) : activeEntity ? (
-            <EntityPage 
-              entity={activeEntity} 
-              refreshToken={refreshToken} 
+            <EntityPage
+              entity={activeEntity}
+              refreshToken={refreshToken}
               autoEditRecord={autoEditRecord}
               onClearAutoEdit={() => setAutoEditRecord(null)}
             />
           ) : (
-            <HomeDashboard 
-              onOpenEntity={handleOpenEntity} 
-              refreshToken={refreshToken} 
+            <HomeDashboard
+              onOpenEntity={handleOpenEntity}
+              onOpenAssistant={() => handleOpenView("assistant")}
+              refreshToken={refreshToken}
             />
           )}
         </main>
@@ -117,4 +142,5 @@ export function QiLifeShell() {
     </div>
   );
 }
+
 export default QiLifeShell;
