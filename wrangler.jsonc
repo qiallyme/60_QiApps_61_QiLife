@@ -1,0 +1,11 @@
+{
+  "$schema": "./qilife.2/node_modules/wrangler/config-schema.json",
+  "name": "qilife",
+  "compatibility_date": "2026-07-18",
+  "workers_dev": true,
+  "preview_urls": true,
+  "assets": {
+    "directory": "./qilife.2/dist",
+    "not_found_handling": "single-page-application"
+  }
+}
