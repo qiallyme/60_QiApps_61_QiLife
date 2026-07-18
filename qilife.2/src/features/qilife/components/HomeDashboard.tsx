@@ -1,25 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
-import { entityRegistry } from "../data/entityRegistry";
-import { entityList } from "../data/entityRegistry";
+import { entityRegistry, entityList } from "../data/entityRegistry";
 import { listAllRecords } from "../services/qilifeStore";
 import type { QiRecord } from "../types";
 
 interface HomeDashboardProps {
   onOpenEntity: (entityKey: string, record?: QiRecord) => void;
+  onOpenAssistant: () => void;
   refreshToken: number;
 }
 
 const dashboardCards = [
+  { title: "Inbox", description: "Unprocessed thoughts, messages, evidence, notes, and loose inputs.", entityKey: "qibit" },
   { title: "Today", description: "Tasks, reminders, and appointments that need attention.", entityKey: "task" },
-  { title: "Care", description: "Care notes, symptoms, supplies, appointments, and follow-up.", entityKey: "care_note" },
-  { title: "Finance", description: "Expenses, receipts, rent deductions, bills, and money tracking.", entityKey: "expense" },
-  { title: "Legal", description: "Matters, deadlines, evidence, filings, and event trails.", entityKey: "legal_matter" },
-  { title: "Documents", description: "Drive/QiNexus linked documents and source files.", entityKey: "document" },
-  { title: "Projects", description: "Active builds, repairs, systems, and major life containers.", entityKey: "project" }
+  { title: "Threads", description: "Ongoing situations that cross people, projects, files, and events.", entityKey: "thread" },
+  { title: "Life Record", description: "Calls, incidents, payments, work sessions, and what actually happened.", entityKey: "event" },
+  { title: "Journal", description: "Reflection, lessons, dreams, working notes, and after-action reviews.", entityKey: "journal_entry" },
+  { title: "QiVault", description: "Markdown knowledge, doctrine, references, procedures, and research.", entityKey: "knowledge_item" },
+  { title: "Decisions", description: "Choices, rationale, assumptions, risks, review dates, and outcomes.", entityKey: "decision" },
+  { title: "Reports", description: "Daily, weekly, monthly, project, timeline, and evidence reports.", entityKey: "report" }
 ];
 
 function isDueSoon(record: QiRecord) {
-  const date = record.due_date || String(record.data.when || record.data.deadline || "");
+  const date = record.due_date || String(record.data.when || record.data.deadline || record.data.review_date || "");
   if (!date) return false;
   const target = new Date(date);
   if (Number.isNaN(target.getTime())) return false;
@@ -28,7 +30,13 @@ function isDueSoon(record: QiRecord) {
   return target.getTime() <= now.getTime() + sevenDays;
 }
 
-export function HomeDashboard({ onOpenEntity, refreshToken }: HomeDashboardProps) {
+function isOpen(record: QiRecord) {
+  return !["done", "completed", "cancelled", "resolved", "closed", "archived"].includes(
+    String(record.status || "").toLowerCase()
+  );
+}
+
+export function HomeDashboard({ onOpenEntity, onOpenAssistant, refreshToken }: HomeDashboardProps) {
   const [records, setRecords] = useState<QiRecord[]>([]);
 
   useEffect(() => {
@@ -40,8 +48,8 @@ export function HomeDashboard({ onOpenEntity, refreshToken }: HomeDashboardProps
     records.forEach((record) => byEntity.set(record.entity_key, (byEntity.get(record.entity_key) || 0) + 1));
     return {
       total: records.length,
-      tasks: byEntity.get("task") || 0,
-      care: byEntity.get("care_note") || 0,
+      inbox: byEntity.get("qibit") || 0,
+      open: records.filter(isOpen).length,
       dueSoon: records.filter(isDueSoon).length
     };
   }, [records]);
@@ -51,17 +59,22 @@ export function HomeDashboard({ onOpenEntity, refreshToken }: HomeDashboardProps
   return (
     <div className="qilife-page">
       <section className="qilife-hero">
-        <div className="qilife-eyebrow">COMMAND CENTER</div>
-        <h2>What needs your attention?</h2>
+        <div className="qilife-eyebrow">LIFE OPERATING SYSTEM</div>
+        <h2>What matters now?</h2>
         <p>
-          One shell for daily action, care, finance, legal, files, home, people, and projects.
+          Capture what enters, connect what belongs together, preserve what happened,
+          and turn the whole system into clear next action.
         </p>
+        <div className="qilife-actions" style={{ marginTop: 16 }}>
+          <button className="qilife-btn primary" type="button" onClick={onOpenAssistant}>✦ Ask QiLife</button>
+          <button className="qilife-btn" type="button" onClick={() => onOpenEntity("qibit")}>Open Inbox</button>
+        </div>
       </section>
 
       <section className="qilife-stat-grid">
         <div className="qilife-stat-card"><span>Total records</span><strong>{stats.total}</strong></div>
-        <div className="qilife-stat-card"><span>Tasks</span><strong>{stats.tasks}</strong></div>
-        <div className="qilife-stat-card"><span>Care notes</span><strong>{stats.care}</strong></div>
+        <div className="qilife-stat-card"><span>Inbox</span><strong>{stats.inbox}</strong></div>
+        <div className="qilife-stat-card"><span>Open loops</span><strong>{stats.open}</strong></div>
         <div className="qilife-stat-card"><span>Due soon</span><strong>{stats.dueSoon}</strong></div>
       </section>
 
@@ -95,10 +108,10 @@ export function HomeDashboard({ onOpenEntity, refreshToken }: HomeDashboardProps
           ) : (
             <div className="qilife-list">
               {recent.map((record) => (
-                <button 
-                  key={record.id} 
-                  className="qilife-list-row" 
-                  type="button" 
+                <button
+                  key={record.id}
+                  className="qilife-list-row"
+                  type="button"
                   onClick={() => onOpenEntity(record.entity_key, record)}
                 >
                   <span>{entityRegistry[record.entity_key]?.icon || "•"}</span>
@@ -115,7 +128,7 @@ export function HomeDashboard({ onOpenEntity, refreshToken }: HomeDashboardProps
         <div className="qilife-panel">
           <div className="qilife-panel-head">
             <div>
-              <div className="qilife-eyebrow">REGISTRY</div>
+              <div className="qilife-eyebrow">SYSTEM MAP</div>
               <h3>Available modules</h3>
             </div>
           </div>
