@@ -1,0 +1,20 @@
+@echo off
+title QiTimeline v2 - Engine
+echo [1/3] SYNCING PYTHON DEPENDENCIES...
+python -m pip install markdown >nul 2>&1
+
+echo [2/3] PROCESSING DIFFERENTIAL CONTENT...
+python build_and_dev.py
+if %ERRORLEVEL% NEQ 0 (
+    echo ! ERROR IN BUILD SCRIPT.
+    pause
+    exit /b
+)
+
+echo [3/3] STARTING VITE ENGINE...
+:: Using pnpm as it was your preference in the monorepo context
+call pnpm dev
+if %ERRORLEVEL% NEQ 0 (
+    echo ! PNPM DEV FAILED. DID YOU RUN 'PNPM INSTALL' FIRST?
+    pause
+)
