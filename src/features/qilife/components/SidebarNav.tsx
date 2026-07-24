@@ -1,9 +1,12 @@
+import { NavLink } from "react-router-dom";
+import type { NavigationItem } from "../../../app/moduleTypes";
 import { navGroups, type QiSpecialViewKey } from "../data/navRegistry";
 import type { QiWorkspaceKey } from "../data/workspaceRegistry";
 
 interface SidebarNavProps {
   activeWorkspaceKey: QiWorkspaceKey | null;
   activeViewKey: QiSpecialViewKey | null;
+  moduleNavigation?: readonly NavigationItem[];
   onSelectWorkspace: (workspaceKey: QiWorkspaceKey) => void;
   onSelectView: (viewKey: QiSpecialViewKey) => void;
   onHome: () => void;
@@ -12,6 +15,7 @@ interface SidebarNavProps {
 export function SidebarNav({
   activeWorkspaceKey,
   activeViewKey,
+  moduleNavigation = [],
   onSelectWorkspace,
   onSelectView,
   onHome
@@ -39,6 +43,21 @@ export function SidebarNav({
       </button>
 
       <nav className="qilife-nav" aria-label="QiLife navigation">
+        {moduleNavigation.length > 0 && (
+          <section className="qilife-nav-group">
+            <div className="qilife-nav-group-label">Modules</div>
+            {moduleNavigation.map((item) => (
+              <NavLink
+                key={item.id}
+                className={({ isActive }) => `qilife-nav-item ${isActive ? "active" : ""}`}
+                to={item.to}
+              >
+                <span className="qilife-nav-icon">{item.icon}</span>
+                <span>{item.label}</span>
+              </NavLink>
+            ))}
+          </section>
+        )}
         {navGroups.map((group) => (
           <section key={group.id} className="qilife-nav-group">
             {group.label && <div className="qilife-nav-group-label">{group.label}</div>}

@@ -4,6 +4,7 @@ import {
   JournalIndexRoute,
   JournalNewRoute,
 } from "./routes";
+import { JournalWidget } from "./widgets/JournalWidget";
 
 export const journalModule: QiLifeModule = {
   key: "journal",
@@ -20,6 +21,11 @@ export const journalModule: QiLifeModule = {
     to: "/journal/new",
     keywords: ["journal", "write", "reflection"],
   }],
-  widgets: [{ id: "journal-widget", label: "Journal", to: "/journal" }],
+  widgets: [{
+    id: "journal-widget",
+    label: "Journal",
+    to: "/journal",
+    Component: JournalWidget,
+  }],
   recordTypes: ["journal_entry"],
 };

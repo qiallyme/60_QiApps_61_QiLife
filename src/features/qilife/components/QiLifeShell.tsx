@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { moduleRegistry } from "../../../app/moduleRegistry";
 import { getStoreMode, seedDemoData, isSupabaseConfigured } from "../services/qilifeStore";
 import { HomeDashboard } from "./HomeDashboard";
 import { QuickCaptureModal } from "./QuickCaptureModal";
@@ -17,6 +19,7 @@ import {
 } from "../data/workspaceRegistry";
 
 export function QiLifeShell() {
+  const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [localBypass, setLocalBypass] = useState(false);
   const [activeWorkspaceKey, setActiveWorkspaceKey] = useState<QiWorkspaceKey | null>(null);
@@ -54,6 +57,10 @@ export function QiLifeShell() {
   }, []);
 
   function handleOpenEntity(entityKey: string, record?: QiRecord) {
+    if (entityKey === "journal_entry" && record) {
+      navigate(`/journal/${record.id}`);
+      return;
+    }
     setActiveViewKey(null);
     setActiveWorkspaceKey(workspaceForEntity(entityKey));
     setActiveEntityKey(entityKey);
@@ -91,11 +98,18 @@ export function QiLifeShell() {
 
   return (
     <div className="qilife-app">
-      <Topbar activeLabel={activeLabel} storeMode={storeMode} userEmail={user?.email} onQuickCapture={() => setCaptureOpen(true)} />
+      <Topbar
+        activeLabel={activeLabel}
+        storeMode={storeMode}
+        userEmail={user?.email}
+        onQuickCapture={() => setCaptureOpen(true)}
+        onQuickJournal={() => navigate("/journal/new")}
+      />
       <div className="qilife-body">
         <SidebarNav
           activeWorkspaceKey={activeWorkspaceKey}
           activeViewKey={activeViewKey}
+          moduleNavigation={moduleRegistry.navigation}
           onSelectWorkspace={handleOpenWorkspace}
           onSelectView={handleOpenView}
           onHome={handleHome}
@@ -120,6 +134,7 @@ export function QiLifeShell() {
               onOpenWorkspace={handleOpenWorkspace}
               onOpenAssistant={() => handleOpenView("assistant")}
               refreshToken={refreshToken}
+              moduleWidgets={moduleRegistry.widgets}
             />
           )}
         </main>

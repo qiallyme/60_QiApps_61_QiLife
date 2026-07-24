@@ -3,12 +3,14 @@ import { entityRegistry } from "../data/entityRegistry";
 import { listAllRecords } from "../services/qilifeStore";
 import type { QiWorkspaceKey } from "../data/workspaceRegistry";
 import type { QiRecord } from "../types";
+import type { DashboardWidgetDefinition } from "../../../app/moduleTypes";
 
 interface HomeDashboardProps {
   onOpenEntity: (entityKey: string, record?: QiRecord) => void;
   onOpenWorkspace: (workspaceKey: QiWorkspaceKey) => void;
   onOpenAssistant: () => void;
   refreshToken: number;
+  moduleWidgets?: readonly DashboardWidgetDefinition[];
 }
 
 const CLOSED = new Set(["done", "completed", "cancelled", "resolved", "closed", "archived"]);
@@ -76,7 +78,8 @@ export function HomeDashboard({
   onOpenEntity,
   onOpenWorkspace,
   onOpenAssistant,
-  refreshToken
+  refreshToken,
+  moduleWidgets = [],
 }: HomeDashboardProps) {
   const [records, setRecords] = useState<QiRecord[]>([]);
 
@@ -143,6 +146,10 @@ export function HomeDashboard({
       </section>
 
       <section className="qilife-home-grid">
+        {moduleWidgets.map((widget) => {
+          const Widget = widget.Component;
+          return Widget ? <Widget key={widget.id} to={widget.to} /> : null;
+        })}
         <article className="qilife-panel">
           <div className="qilife-panel-head"><div><div className="qilife-eyebrow">TODAY</div><h3>Due and scheduled</h3></div><button type="button" onClick={() => onOpenWorkspace("today")}>Open</button></div>
           <RecordList records={view.today} empty="Nothing dated for today." onOpen={(record) => onOpenEntity(record.entity_key, record)} />
