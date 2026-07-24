@@ -24,6 +24,8 @@ export interface JournalDraft {
   pinned: boolean;
 }
 
+export type JournalSaveStatus = "clean" | "dirty" | "saving" | "failed";
+
 export interface JournalRecordStore {
   listRecords(entityKey: string): Promise<QiRecord[]>;
   createRecord(input: QiCreateRecordInput): Promise<QiRecord>;
