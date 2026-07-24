@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useState } from "react";
 import { supabase, hasSupabaseConfig } from "../../../lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
+import { currentInternalDestination, sameOriginAuthRedirect } from "./authReturnPath";
 
 interface AuthContextType {
   user: User | null;
@@ -47,10 +48,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function signInWithMagicLink(email: string) {
     if (!supabase) throw new Error("Supabase is not configured.");
+    const redirectTo = sameOriginAuthRedirect(
+      window.location.origin,
+      currentInternalDestination(window.location),
+    );
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: window.location.origin
+        emailRedirectTo: redirectTo
       }
     });
     if (error) throw error;
@@ -58,10 +63,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   async function signInWithGoogle() {
     if (!supabase) throw new Error("Supabase is not configured.");
+    const redirectTo = sameOriginAuthRedirect(
+      window.location.origin,
+      currentInternalDestination(window.location),
+    );
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin
+        redirectTo
       }
     });
     if (error) throw error;

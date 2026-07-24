@@ -1,12 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { JournalCalendar } from "./components/JournalCalendar";
 import { JournalEditor } from "./components/JournalEditor";
 import { JournalFilters } from "./components/JournalFilters";
 import { JournalList } from "./components/JournalList";
+import { JournalNavigationGuard } from "./components/JournalNavigationGuard";
 import { JournalNotFound } from "./components/JournalNotFound";
 import { useJournalEntries } from "./hooks/useJournalEntries";
 import { useJournalEntry } from "./hooks/useJournalEntry";
+import { useSerializedJournalSave } from "./hooks/useSerializedJournalSave";
 import { filterJournalEntries, type JournalFilters as JournalFilterValues } from "./services/journalSearch";
 import { journalRepository } from "./services/journalRepository";
 import { downloadJournalMarkdown } from "./services/markdownExport";
@@ -115,7 +117,12 @@ export function JournalEntryRoute() {
   const { id = "" } = useParams();
   const { entry, error, setEntry } = useJournalEntry(journalRepository, id);
   const [draft, setDraft] = useState<JournalDraft | null>(null);
-  const [status, setStatus] = useState<JournalSaveStatus>("clean");
+
+  const persist = useCallback(async (next: JournalDraft) => {
+    const saved = await journalRepository.update(id, next);
+    setEntry(saved);
+  }, [id, setEntry]);
+  const saveQueue = useSerializedJournalSave(persist);
 
   useEffect(() => {
     if (entry) setDraft(draftFromEntry(entry));
@@ -129,34 +136,27 @@ export function JournalEntryRoute() {
     return <JournalNotFound message={error ?? undefined} />;
   }
 
-  async function save() {
-    if (!draft) return;
-    setStatus("saving");
-    try {
-      const saved = await journalRepository.update(id, draft);
-      setEntry(saved);
-      setStatus("clean");
-    } catch {
-      setStatus("failed");
-    }
-  }
-
   return (
     <main className="qilife-page">
       <h1>{entry.title}</h1>
       {draft && (
         <JournalEditor
           draft={draft}
-          status={status}
+          status={saveQueue.status}
           onChange={(next) => {
             setDraft(next);
-            setStatus("dirty");
+            saveQueue.queue(next);
           }}
-          onSave={() => void save()}
-          onRetry={() => void save()}
-          onExport={() => downloadJournalMarkdown({ ...entry, ...draftFromEntry(entry), ...draft })}
+          onSave={() => void saveQueue.flush()}
+          onRetry={() => void saveQueue.retry()}
+          onExport={() => downloadJournalMarkdown({ ...entry, ...draft })}
         />
       )}
+      <JournalNavigationGuard
+        active={saveQueue.hasUnsafeNavigation}
+        failed={saveQueue.status === "failed"}
+        onRetry={() => void saveQueue.retry()}
+      />
     </main>
   );
 }
