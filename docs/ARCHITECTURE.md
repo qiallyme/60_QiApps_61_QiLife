@@ -79,3 +79,43 @@ Not in MVP:
 - calendar sync
 
 Those come after the shell and core record engine are stable.
+
+## Module registry and routing
+
+QiLife modules declare routes, navigation, commands, widgets, and supported
+record types through the typed registry in `src/app/`. Manifests describe
+capabilities only; persistence and stateful behavior remain inside module
+hooks and services.
+
+The application router renders registered module routes before
+`CompatibilityShellRoute`. That catch-all is a temporary bridge for the
+pre-module, state-driven QiLife workspaces. New modules must use URL-first
+routing and must not add state-only screens to the compatibility shell.
+
+Journal is the first registered module:
+
+```txt
+/journal
+/journal/new
+/journal/:id
+```
+
+The URL is the sole source of truth for the active Journal view and selected
+entry. Cloudflare direct refreshes are supported by `public/_redirects` and
+the SPA asset fallback in `wrangler.jsonc`.
+
+## Journal persistence boundary
+
+Journal uses shared QiLife records:
+
+```txt
+Journal UI
+  -> journalRepository
+  -> qilifeStore
+  -> authenticated Qi API or existing localStorage fallback
+  -> qilife.records
+```
+
+Journal has no separate table, Supabase client, local database, or sync
+engine. See `docs/architecture/qilife_journal_module.md` for its complete
+record mapping and save semantics.
