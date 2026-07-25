@@ -5,9 +5,16 @@ interface TopbarProps {
   storeMode: "api" | "localStorage";
   userEmail?: string;
   onQuickCapture: () => void;
+  onQuickJournal?: () => void;
 }
 
-export function Topbar({ activeLabel, storeMode, userEmail, onQuickCapture }: TopbarProps) {
+export function Topbar({
+  activeLabel,
+  storeMode,
+  userEmail,
+  onQuickCapture,
+  onQuickJournal,
+}: TopbarProps) {
   const { signOut } = useAuth();
 
   return (
@@ -24,6 +31,11 @@ export function Topbar({ activeLabel, storeMode, userEmail, onQuickCapture }: To
       </button>
 
       <div className="qilife-topbar-actions">
+        {onQuickJournal && (
+          <button className="qilife-mini-btn" type="button" onClick={onQuickJournal}>
+            Quick journal
+          </button>
+        )}
         <div className={`qilife-store-pill ${storeMode === "api" ? "online" : "local"}`} title={userEmail}>
           {storeMode === "api" ? "Qi API" : "Local"}
         </div>

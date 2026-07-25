@@ -160,12 +160,12 @@ export const entityRegistry: Record<string, QiEntityDefinition> = {
       { key: "title", label: "Title", type: "text", primary: true, required: true },
       { key: "entry_type", label: "Type", type: "enum", options: ["daily", "reflection", "dream", "spiritual", "after_action", "relationship", "working_note", "lesson"] },
       { key: "entry_date", label: "Date", type: "date" },
-      { key: "mood", label: "Mood / State", type: "text" },
       { key: "thread", label: "Related Thread", type: "relation", relationEntity: "thread" },
-      { key: "body", label: "Entry", type: "textarea" },
-      { key: "tags", label: "Tags", type: "tags" }
+      { key: "body_markdown", label: "Markdown", type: "textarea" },
+      { key: "tags", label: "Tags", type: "tags" },
+      { key: "pinned", label: "Pinned", type: "checkbox" }
     ],
-    columns: ["title", "entry_type", "entry_date", "mood", "thread"]
+    columns: ["title", "entry_type", "entry_date", "thread", "pinned"]
   },
 
   decision: {
