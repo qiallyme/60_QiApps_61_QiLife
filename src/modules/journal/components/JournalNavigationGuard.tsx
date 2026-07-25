@@ -3,10 +3,12 @@ import { useBlocker } from "react-router-dom";
 export function JournalNavigationGuard({
   active,
   failed,
+  message,
   onRetry,
 }: {
   active: boolean;
   failed: boolean;
+  message?: string;
   onRetry: () => void;
 }) {
   const blocker = useBlocker(active);
@@ -25,7 +27,7 @@ export function JournalNavigationGuard({
         <p>
           {failed
             ? "The latest save failed. Your current-session draft is still open."
-            : "A Journal save is still pending."}
+            : message ?? "A Journal save is still pending."}
         </p>
         <div className="qilife-actions end">
           <button type="button" onClick={() => blocker.reset()}>Stay</button>

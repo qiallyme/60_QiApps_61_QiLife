@@ -3,6 +3,7 @@ import type { JournalDraft, JournalSaveStatus } from "../types";
 interface JournalEditorProps {
   draft: JournalDraft;
   status: JournalSaveStatus;
+  cleanStatusText?: string;
   onChange: (draft: JournalDraft) => void;
   onSave: () => void;
   onRetry: () => void;
@@ -19,6 +20,7 @@ const statusText: Record<JournalSaveStatus, string> = {
 export function JournalEditor({
   draft,
   status,
+  cleanStatusText = "Saved",
   onChange,
   onSave,
   onRetry,
@@ -81,7 +83,9 @@ export function JournalEditor({
         />
       </label>
       <div className="journal-editor-actions">
-        <span role="status">{statusText[status]}</span>
+        <span role="status">
+          {status === "clean" ? cleanStatusText : statusText[status]}
+        </span>
         {status === "failed" && (
           <button type="button" onClick={onRetry}>Retry save</button>
         )}

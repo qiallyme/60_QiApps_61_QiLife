@@ -83,13 +83,20 @@ export function JournalNewRoute() {
     pinned: false,
   });
   const [status, setStatus] = useState<JournalSaveStatus>("clean");
+  const [createdEntryId, setCreatedEntryId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (createdEntryId) {
+      navigate(`/journal/${createdEntryId}`, { replace: true });
+    }
+  }, [createdEntryId, navigate]);
 
   async function create() {
     setStatus("saving");
     try {
       const entry = await journalRepository.create(draft);
       setStatus("clean");
-      navigate(`/journal/${entry.id}`, { replace: true });
+      setCreatedEntryId(entry.id);
     } catch {
       setStatus("failed");
     }
@@ -101,6 +108,7 @@ export function JournalNewRoute() {
       <JournalEditor
         draft={draft}
         status={status}
+        cleanStatusText="Not saved yet"
         onChange={(next) => {
           setDraft(next);
           setStatus("dirty");
@@ -109,6 +117,14 @@ export function JournalNewRoute() {
         onRetry={() => void create()}
         onExport={() => undefined}
       />
+      {status !== "clean" && (
+        <JournalNavigationGuard
+          active
+          failed={status === "failed"}
+          message={status === "dirty" ? "This entry has not been saved." : undefined}
+          onRetry={() => void create()}
+        />
+      )}
     </main>
   );
 }

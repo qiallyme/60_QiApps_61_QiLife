@@ -1,6 +1,11 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter, useLocation } from "react-router-dom";
+import {
+  createMemoryRouter,
+  MemoryRouter,
+  RouterProvider,
+  useLocation,
+} from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { AppRouter } from "../../app/AppRouter";
 import { createModuleRegistry } from "../../app/moduleRegistry";
@@ -43,6 +48,23 @@ describe("Journal routes", () => {
     expect(screen.getByRole("heading", { name: "New journal entry" })).toBeInTheDocument();
   });
 
+  it("protects a modified new-entry draft from navigation", async () => {
+    const user = userEvent.setup();
+    const router = createMemoryRouter([
+      { path: "/journal/new", element: <JournalNewRoute /> },
+      { path: "/journal", element: <h1>Journal</h1> },
+    ], { initialEntries: ["/journal/new"] });
+    render(<RouterProvider router={router} />);
+
+    await user.type(screen.getByLabelText("Title"), "Unsaved entry");
+    await act(async () => {
+      await router.navigate("/journal");
+    });
+
+    expect(await screen.findByRole("dialog", { name: "Unsaved journal changes" }))
+      .toHaveTextContent("This entry has not been saved.");
+  });
+
   it("renders a module-level unavailable state for a missing entry", async () => {
     renderPath("/journal/missing");
     await waitFor(() => {
@@ -67,13 +89,11 @@ describe("Journal routes", () => {
     function LocationProbe() {
       return <output aria-label="Current path">{useLocation().pathname}</output>;
     }
-
-    render(
-      <MemoryRouter initialEntries={["/journal/new"]}>
-        <JournalNewRoute />
-        <LocationProbe />
-      </MemoryRouter>,
-    );
+    const router = createMemoryRouter([
+      { path: "/journal/new", element: <JournalNewRoute /> },
+      { path: "/journal/:id", element: <LocationProbe /> },
+    ], { initialEntries: ["/journal/new"] });
+    render(<RouterProvider router={router} />);
 
     await user.type(screen.getByLabelText("Title"), "Today");
     await user.type(screen.getByLabelText("Markdown"), "# Body");
