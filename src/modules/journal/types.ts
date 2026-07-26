@@ -12,6 +12,7 @@ export interface JournalEntry {
   rawCapture?: string | null;
   tags: string[];
   pinned: boolean;
+  peopleIds?: string[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -22,6 +23,7 @@ export interface JournalDraft {
   bodyMarkdown: string;
   tags: string[];
   pinned: boolean;
+  peopleIds?: string[];
 }
 
 export type JournalSaveStatus = "clean" | "dirty" | "saving" | "failed";

@@ -62,6 +62,7 @@ const draft = {
   bodyMarkdown: "# Current",
   tags: ["life"],
   pinned: true,
+  peopleIds: ["person-1"],
 };
 
 describe("Journal record mapping", () => {
@@ -74,6 +75,7 @@ describe("Journal record mapping", () => {
         raw_capture: "# Original",
         tags: ["life"],
         pinned: true,
+        people_ids: ["person-1"],
       },
     }));
 
@@ -83,6 +85,7 @@ describe("Journal record mapping", () => {
       rawCapture: "# Original",
       tags: ["life"],
       pinned: true,
+      peopleIds: ["person-1"],
     });
   });
 
@@ -144,6 +147,7 @@ describe("Journal repository", () => {
       raw_capture: "# Original",
       tags: ["life"],
       pinned: true,
+      people_ids: ["person-1"],
       thread: "thread-1",
     });
   });
