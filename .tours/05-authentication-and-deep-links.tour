@@ -1,0 +1,26 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "Authentication and deep links",
+  "steps": [
+    {
+      "file": "src/features/qilife/auth/authReturnPath.ts",
+      "line": 1,
+      "description": "Return-path helpers preserve pathname, query, and hash while rejecting arbitrary external destinations."
+    },
+    {
+      "file": "src/features/qilife/auth/AuthProvider.tsx",
+      "line": 1,
+      "description": "AuthProvider initiates magic-link or Google sign-in with the safe current internal destination."
+    },
+    {
+      "file": "src/features/qilife/auth/AuthenticationBoundary.tsx",
+      "line": 1,
+      "description": "The shared boundary presents login consistently before rendering any application route."
+    },
+    {
+      "file": "wrangler.jsonc",
+      "line": 1,
+      "description": "Cloudflare's SPA fallback serves index.html for direct deep-route requests."
+    }
+  ]
+}

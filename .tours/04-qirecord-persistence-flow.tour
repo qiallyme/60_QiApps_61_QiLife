@@ -1,0 +1,36 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "QiRecord persistence flow",
+  "steps": [
+    {
+      "file": "src/modules/journal/services/journalRepository.ts",
+      "line": 1,
+      "description": "Module repositories translate domain drafts to the shared QiRecord contract."
+    },
+    {
+      "file": "src/features/qilife/services/qilifeStore.ts",
+      "line": 1,
+      "description": "QiLifeStore is the single frontend persistence boundary and selects authenticated API or explicit local fallback."
+    },
+    {
+      "file": "src/lib/qiApiClient.ts",
+      "line": 1,
+      "description": "QiApiClient attaches the Supabase access token and calls the centralized Qi API."
+    },
+    {
+      "file": "src/lib/supabaseClient.ts",
+      "line": 1,
+      "description": "The repository has one Supabase client, used for authentication."
+    },
+    {
+      "file": "supabase/migrations/0001_qilife_records.sql",
+      "line": 1,
+      "description": "The canonical database model is the shared qilife.records table."
+    },
+    {
+      "file": "supabase/migrations/0002_qilife_auth_rls.sql",
+      "line": 1,
+      "description": "Ownership and row-level security constrain authenticated record access."
+    }
+  ]
+}

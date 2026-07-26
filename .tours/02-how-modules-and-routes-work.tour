@@ -1,0 +1,31 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "How modules and routes work",
+  "steps": [
+    {
+      "file": "src/app/moduleTypes.ts",
+      "line": 1,
+      "description": "The typed module contract defines declarative routes, navigation, commands, widgets, and record types."
+    },
+    {
+      "file": "src/app/moduleRegistry.ts",
+      "line": 1,
+      "description": "The central registry validates uniqueness and aggregates every released module."
+    },
+    {
+      "file": "src/modules/actions/manifest.ts",
+      "line": 1,
+      "description": "A module manifest declares capabilities without owning persistence logic."
+    },
+    {
+      "file": "src/app/AppRouter.tsx",
+      "line": 1,
+      "description": "AppRouter converts registered route definitions into React Router routes."
+    },
+    {
+      "file": "src/app/ModuleRouteFrame.tsx",
+      "line": 1,
+      "description": "ModuleRouteFrame gives every URL-first module the shared QiLife shell."
+    }
+  ]
+}

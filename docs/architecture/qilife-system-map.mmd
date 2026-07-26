@@ -1,0 +1,48 @@
+flowchart LR
+  Browser[Browser]
+  Auth[AuthenticationBoundary]
+  Router[AppRouter]
+  Registry[ModuleRegistry]
+  Frame[ModuleRouteFrame]
+
+  Today[Today]
+  Actions[Actions]
+  Projects[Projects]
+  People[People]
+  Journal[Journal]
+
+  Selector[RelationSelector]
+  Resolver[RelationshipResolver]
+  Store[QiLifeStore]
+  API[QiApiClient]
+  Supabase[(Supabase qilife.records)]
+  Worker[Cloudflare Worker]
+
+  Browser -->|SPA request| Worker
+  Worker -->|index.html + assets| Browser
+  Browser --> Auth
+  Auth --> Router
+  Registry -->|declarative routes| Router
+  Router --> Frame
+  Frame --> Today
+  Frame --> Actions
+  Frame --> Projects
+  Frame --> People
+  Frame --> Journal
+
+  Actions --> Selector
+  Projects --> Selector
+  People --> Resolver
+  Projects --> Resolver
+  Today --> Resolver
+  Journal --> Resolver
+
+  Today --> Store
+  Actions --> Store
+  Projects --> Store
+  People --> Store
+  Journal --> Store
+  Resolver --> Store
+  Store -->|authenticated| API
+  API --> Supabase
+  Store -.->|explicit local fallback| Browser

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "Actions and Projects relationship flow",
+  "steps": [
+    {
+      "file": "src/modules/actions/components/ActionForm.tsx",
+      "line": 1,
+      "description": "ActionForm uses shared relation controls to select Projects, People, and Threads by stable ID."
+    },
+    {
+      "file": "src/features/qilife/components/RelationSelector.tsx",
+      "line": 1,
+      "description": "RelationSelector loads active QiRecords, displays readable titles, and preserves unresolved legacy values."
+    },
+    {
+      "file": "src/features/qilife/relations/relationshipFields.ts",
+      "line": 1,
+      "description": "The canonical relationship contract normalizes project_id, people_ids, thread_id, and role-specific Person IDs."
+    },
+    {
+      "file": "src/modules/actions/services/actionRepository.ts",
+      "line": 1,
+      "description": "The Action repository maps the form draft to a shared task QiRecord."
+    },
+    {
+      "file": "src/features/qilife/relations/relationResolver.ts",
+      "line": 1,
+      "description": "The shared resolver projects the same Action onto its Project and People dashboards."
+    },
+    {
+      "file": "src/modules/projects/routes.tsx",
+      "line": 1,
+      "description": "Project routes render contextual Actions and related shared records without creating copies."
+    }
+  ]
+}

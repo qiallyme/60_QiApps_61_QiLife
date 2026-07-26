@@ -1,0 +1,31 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "QiLife application startup",
+  "steps": [
+    {
+      "file": "src/main.tsx",
+      "line": 1,
+      "description": "QiLife starts here: global styles load, the browser router is created, and React mounts the application."
+    },
+    {
+      "file": "src/features/qilife/auth/AuthProvider.tsx",
+      "line": 1,
+      "description": "AuthProvider owns the Supabase session and the explicit session-scoped local fallback."
+    },
+    {
+      "file": "src/features/qilife/auth/AuthenticationBoundary.tsx",
+      "line": 1,
+      "description": "One boundary protects both module routes and compatibility routes."
+    },
+    {
+      "file": "src/app/createAppRoutes.tsx",
+      "line": 1,
+      "description": "The root route delegates application routing to AppRouter."
+    },
+    {
+      "file": "src/app/AppRouter.tsx",
+      "line": 1,
+      "description": "Registered module routes are rendered before the temporary compatibility catch-all."
+    }
+  ]
+}

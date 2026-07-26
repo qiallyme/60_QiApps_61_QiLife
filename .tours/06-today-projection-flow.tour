@@ -1,0 +1,26 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "Today projection flow",
+  "steps": [
+    {
+      "file": "src/modules/today/manifest.ts",
+      "line": 1,
+      "description": "Today is registered as a URL-first module rather than a separate record universe."
+    },
+    {
+      "file": "src/modules/today/routes.tsx",
+      "line": 1,
+      "description": "The Today route loads shared QiRecords and renders only meaningful operational sections."
+    },
+    {
+      "file": "src/modules/today/services/todayProjection.ts",
+      "line": 1,
+      "description": "The pure projection classifies Actions, Projects, People, activity, and Inbox records."
+    },
+    {
+      "file": "src/features/qilife/services/qilifeStore.ts",
+      "line": 1,
+      "description": "Today reads the same shared records as their owning modules and never creates Today-specific storage."
+    }
+  ]
+}
