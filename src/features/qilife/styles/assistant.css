@@ -263,9 +263,134 @@ textarea:disabled {
 }
 .qilife-relation-chip button:hover { background: #dce8ff; color: var(--qi-danger); }
 
+.qilife-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.qilife-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--qi-muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.qilife-form-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.qilife-form-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.qilife-form-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.qilife-form-actions,
+.people-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.qilife-form-actions {
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.qilife-check-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--qi-muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.qilife-check-label input { min-height: auto; }
+
+.qilife-empty-state.compact {
+  padding: 8px 0;
+  color: var(--qi-muted);
+  font-size: 12px;
+}
+
+.qilife-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 34px;
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: var(--qi-radius-sm);
+  background: transparent;
+  cursor: pointer;
+}
+
+.qilife-icon-btn.danger { color: var(--qi-danger); }
+.qilife-icon-btn:hover { background: var(--qi-surface-interactive); }
+
+.people-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.people-editor h3,
+.people-panel-header h4 {
+  margin: 0;
+  color: var(--qi-text);
+  letter-spacing: -0.015em;
+}
+
+.people-editor h3 { font-size: 17px; }
+.people-panel-header { margin-bottom: 12px; }
+.people-panel-header h4 { font-size: 14px; }
+
+.people-filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px;
+}
+
+.people-filter-search { flex: 1 1 220px; }
+.people-filter-search input { width: 100%; }
+
+.people-panel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.people-contact-row {
+  display: grid;
+  grid-template-columns: 130px minmax(150px, 1fr) 110px auto;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  background: var(--qi-surface-interactive);
+  border: 1px solid var(--qi-border-primary);
+  border-radius: var(--qi-radius-sm);
+}
+
+.people-contact-row.read-only {
+  grid-template-columns: 110px 1fr auto;
+}
+
 @media (max-width: 760px) {
   .qilife-metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .qilife-page { padding: 18px 14px 28px; }
+  .qilife-form-grid.two,
+  .qilife-form-grid.three { grid-template-columns: 1fr; }
+  .people-contact-row,
+  .people-contact-row.read-only { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {

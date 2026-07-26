@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 import type { ContactMethod, ContactMethodKind } from "../types";
 
 interface ContactMethodsPanelProps {
@@ -12,6 +12,7 @@ export const ContactMethodsPanel: React.FC<ContactMethodsPanelProps> = ({
   onChange,
   readOnly = false,
 }) => {
+  const fieldId = useId();
   const handleAdd = () => {
     if (readOnly || !onChange) return;
     const newMethod: ContactMethod = {
@@ -42,14 +43,13 @@ export const ContactMethodsPanel: React.FC<ContactMethodsPanelProps> = ({
 
   return (
     <div className="qilife-card people-contact-methods">
-      <div className="people-panel-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-        <h4 style={{ margin: 0, fontSize: "14px", letterSpacing: "-0.01em" }}>Contact Methods</h4>
+      <div className="people-panel-header">
+        <h4>Contact Methods</h4>
         {!readOnly && (
           <button
             type="button"
             className="qilife-mini-btn"
             onClick={handleAdd}
-            style={{ fontSize: "11px", padding: "4px 8px" }}
           >
             + Add Method
           </button>
@@ -57,24 +57,15 @@ export const ContactMethodsPanel: React.FC<ContactMethodsPanelProps> = ({
       </div>
 
       {methods.length === 0 ? (
-        <div style={{ color: "var(--qi-faint, #666)", fontSize: "12px", fontStyle: "italic" }}>
+        <div className="qilife-empty-state compact">
           No contact methods recorded.
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+        <div className="people-panel-list">
           {methods.map((cm) => (
             <div
               key={cm.id}
-              style={{
-                display: "grid",
-                gridTemplateColumns: readOnly ? "110px 1fr auto" : "110px 1fr 100px auto",
-                gap: "8px",
-                alignItems: "center",
-                background: "rgba(255, 255, 255, 0.02)",
-                padding: "8px 10px",
-                borderRadius: "8px",
-                border: "1px solid var(--qi-border, rgba(255, 255, 255, 0.08))",
-              }}
+              className={`people-contact-row ${readOnly ? "read-only" : ""}`}
             >
               {readOnly ? (
                 <>
@@ -93,9 +84,11 @@ export const ContactMethodsPanel: React.FC<ContactMethodsPanelProps> = ({
               ) : (
                 <>
                   <select
+                    id={`${fieldId}-${cm.id}-kind`}
+                    name={`contactMethod-${cm.id}-kind`}
+                    aria-label={`${cm.label || "Contact method"} type`}
                     value={cm.kind}
                     onChange={(e) => handleUpdate(cm.id, { kind: e.target.value as ContactMethodKind })}
-                    style={{ background: "#11101a", color: "#fff", border: "1px solid #333", borderRadius: "4px", padding: "4px 6px", fontSize: "11px" }}
                   >
                     <option value="email">Email</option>
                     <option value="mobile_phone">Mobile Phone</option>
@@ -109,15 +102,19 @@ export const ContactMethodsPanel: React.FC<ContactMethodsPanelProps> = ({
                   </select>
 
                   <input
+                    id={`${fieldId}-${cm.id}-value`}
+                    name={`contactMethod-${cm.id}-value`}
+                    aria-label={`${cm.label || "Contact method"} value`}
                     type="text"
                     placeholder="Value (email, phone number, handle)..."
                     value={cm.value}
                     onChange={(e) => handleUpdate(cm.id, { value: e.target.value })}
-                    style={{ background: "#11101a", color: "#fff", border: "1px solid #333", borderRadius: "4px", padding: "4px 8px", fontSize: "12px" }}
                   />
 
-                  <label style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "#aaa", cursor: "pointer" }}>
+                  <label className="qilife-check-label" htmlFor={`${fieldId}-${cm.id}-primary`}>
                     <input
+                      id={`${fieldId}-${cm.id}-primary`}
+                      name={`contactMethod-${cm.id}-primary`}
                       type="checkbox"
                       checked={cm.isPrimary}
                       onChange={(e) => handleUpdate(cm.id, { isPrimary: e.target.checked })}
@@ -128,7 +125,7 @@ export const ContactMethodsPanel: React.FC<ContactMethodsPanelProps> = ({
                   <button
                     type="button"
                     onClick={() => handleRemove(cm.id)}
-                    style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", fontSize: "14px" }}
+                    className="qilife-icon-btn danger"
                     title="Remove"
                   >
                     ✕

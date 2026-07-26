@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import type { ContactMethod, Person, PersonName, RelationshipCategory, RelationshipStatus, UpdatePersonInput } from "../types";
 import { ContactMethodsPanel } from "./ContactMethodsPanel";
 
@@ -9,6 +9,7 @@ interface PersonEditorProps {
 }
 
 export const PersonEditor: React.FC<PersonEditorProps> = ({ person, onSave, onCancel }) => {
+  const fieldId = useId();
   const [givenName, setGivenName] = useState(person?.name.givenName || "");
   const [familyName, setFamilyName] = useState(person?.name.familyName || "");
   const [preferredName, setPreferredName] = useState(person?.name.preferredName || "");
@@ -56,75 +57,81 @@ export const PersonEditor: React.FC<PersonEditorProps> = ({ person, onSave, onCa
   };
 
   return (
-    <form onSubmit={handleSubmit} className="qilife-card people-editor" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      <h3 style={{ margin: 0, fontSize: "16px", letterSpacing: "-0.02em" }}>
+    <form onSubmit={handleSubmit} className="qilife-card people-editor">
+      <h3>
         {person ? `Edit Person: ${person.name.formattedName}` : "Create New Person"}
       </h3>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+      <div className="qilife-form-grid three">
         <div>
-          <label style={{ fontSize: "11px", color: "var(--qi-faint, #666)", display: "block", marginBottom: "4px" }}>Given Name *</label>
+          <label className="qilife-label" htmlFor={`${fieldId}-given-name`}>Given Name *</label>
           <input
+            id={`${fieldId}-given-name`}
+            name="givenName"
             type="text"
             value={givenName}
             onChange={(e) => setGivenName(e.target.value)}
             required
-            style={{ width: "100%", background: "#111", color: "#fff", padding: "6px 8px", borderRadius: "6px", border: "1px solid #333", fontSize: "13px" }}
           />
         </div>
 
         <div>
-          <label style={{ fontSize: "11px", color: "var(--qi-faint, #666)", display: "block", marginBottom: "4px" }}>Family Name</label>
+          <label className="qilife-label" htmlFor={`${fieldId}-family-name`}>Family Name</label>
           <input
+            id={`${fieldId}-family-name`}
+            name="familyName"
             type="text"
             value={familyName}
             onChange={(e) => setFamilyName(e.target.value)}
-            style={{ width: "100%", background: "#111", color: "#fff", padding: "6px 8px", borderRadius: "6px", border: "1px solid #333", fontSize: "13px" }}
           />
         </div>
 
         <div>
-          <label style={{ fontSize: "11px", color: "var(--qi-faint, #666)", display: "block", marginBottom: "4px" }}>Preferred Name</label>
+          <label className="qilife-label" htmlFor={`${fieldId}-preferred-name`}>Preferred Name</label>
           <input
+            id={`${fieldId}-preferred-name`}
+            name="preferredName"
             type="text"
             value={preferredName}
             onChange={(e) => setPreferredName(e.target.value)}
-            style={{ width: "100%", background: "#111", color: "#fff", padding: "6px 8px", borderRadius: "6px", border: "1px solid #333", fontSize: "13px" }}
           />
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+      <div className="qilife-form-grid two">
         <div>
-          <label style={{ fontSize: "11px", color: "var(--qi-faint, #666)", display: "block", marginBottom: "4px" }}>Organization</label>
+          <label className="qilife-label" htmlFor={`${fieldId}-organization`}>Organization</label>
           <input
+            id={`${fieldId}-organization`}
+            name="organization"
             type="text"
             value={orgName}
             onChange={(e) => setOrgName(e.target.value)}
             placeholder="Company, institution, team..."
-            style={{ width: "100%", background: "#111", color: "#fff", padding: "6px 8px", borderRadius: "6px", border: "1px solid #333", fontSize: "13px" }}
           />
         </div>
 
         <div>
-          <label style={{ fontSize: "11px", color: "var(--qi-faint, #666)", display: "block", marginBottom: "4px" }}>Job Title</label>
+          <label className="qilife-label" htmlFor={`${fieldId}-job-title`}>Job Title</label>
           <input
+            id={`${fieldId}-job-title`}
+            name="jobTitle"
             type="text"
             value={jobTitle}
             onChange={(e) => setJobTitle(e.target.value)}
             placeholder="Title or role..."
-            style={{ width: "100%", background: "#111", color: "#fff", padding: "6px 8px", borderRadius: "6px", border: "1px solid #333", fontSize: "13px" }}
           />
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+      <div className="qilife-form-grid three">
         <div>
-          <label style={{ fontSize: "11px", color: "var(--qi-faint, #666)", display: "block", marginBottom: "4px" }}>Category</label>
+          <label className="qilife-label" htmlFor={`${fieldId}-category`}>Category</label>
           <select
+            id={`${fieldId}-category`}
+            name="category"
             value={category}
             onChange={(e) => setCategory(e.target.value as RelationshipCategory)}
-            style={{ width: "100%", background: "#111", color: "#fff", padding: "6px 8px", borderRadius: "6px", border: "1px solid #333", fontSize: "13px" }}
           >
             <option value="family">Family</option>
             <option value="friend">Friend</option>
@@ -138,11 +145,12 @@ export const PersonEditor: React.FC<PersonEditorProps> = ({ person, onSave, onCa
         </div>
 
         <div>
-          <label style={{ fontSize: "11px", color: "var(--qi-faint, #666)", display: "block", marginBottom: "4px" }}>Relationship Status</label>
+          <label className="qilife-label" htmlFor={`${fieldId}-status`}>Relationship Status</label>
           <select
+            id={`${fieldId}-status`}
+            name="relationshipStatus"
             value={status}
             onChange={(e) => setStatus(e.target.value as RelationshipStatus)}
-            style={{ width: "100%", background: "#111", color: "#fff", padding: "6px 8px", borderRadius: "6px", border: "1px solid #333", fontSize: "13px" }}
           >
             <option value="active">Active</option>
             <option value="dormant">Dormant</option>
@@ -152,14 +160,15 @@ export const PersonEditor: React.FC<PersonEditorProps> = ({ person, onSave, onCa
         </div>
 
         <div>
-          <label style={{ fontSize: "11px", color: "var(--qi-faint, #666)", display: "block", marginBottom: "4px" }}>Cadence (Target Days)</label>
+          <label className="qilife-label" htmlFor={`${fieldId}-cadence`}>Cadence (Target Days)</label>
           <input
+            id={`${fieldId}-cadence`}
+            name="communicationCadenceDays"
             type="number"
             min={1}
             max={365}
             value={cadenceDays}
             onChange={(e) => setCadenceDays(parseInt(e.target.value, 10) || 30)}
-            style={{ width: "100%", background: "#111", color: "#fff", padding: "6px 8px", borderRadius: "6px", border: "1px solid #333", fontSize: "13px" }}
           />
         </div>
       </div>
@@ -167,34 +176,36 @@ export const PersonEditor: React.FC<PersonEditorProps> = ({ person, onSave, onCa
       <ContactMethodsPanel methods={contactMethods} onChange={setContactMethods} />
 
       <div>
-        <label style={{ fontSize: "11px", color: "var(--qi-faint, #666)", display: "block", marginBottom: "4px" }}>Boundaries & Preferences (One per line)</label>
+        <label className="qilife-label" htmlFor={`${fieldId}-boundaries`}>Boundaries & Preferences (One per line)</label>
         <textarea
+          id={`${fieldId}-boundaries`}
+          name="boundaries"
           value={boundariesText}
           onChange={(e) => setBoundariesText(e.target.value)}
           rows={2}
           placeholder="e.g. No evening calls after 7 PM&#10;Prefers written updates..."
-          style={{ width: "100%", background: "#111", color: "#fff", padding: "6px 8px", borderRadius: "6px", border: "1px solid #333", fontSize: "12px" }}
         />
       </div>
 
       <div>
-        <label style={{ fontSize: "11px", color: "var(--qi-faint, #666)", display: "block", marginBottom: "4px" }}>User Notes & Context</label>
+        <label className="qilife-label" htmlFor={`${fieldId}-notes`}>User Notes & Context</label>
         <textarea
+          id={`${fieldId}-notes`}
+          name="userNotes"
           value={userNotes}
           onChange={(e) => setUserNotes(e.target.value)}
           rows={3}
           placeholder="Personal context, background, preferences..."
-          style={{ width: "100%", background: "#111", color: "#fff", padding: "6px 8px", borderRadius: "6px", border: "1px solid #333", fontSize: "12px" }}
         />
       </div>
 
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", marginTop: "8px" }}>
+      <div className="qilife-form-actions">
         {onCancel && (
           <button type="button" onClick={onCancel} className="qilife-mini-btn">
             Cancel
           </button>
         )}
-        <button type="submit" disabled={saving} className="qilife-mini-btn" style={{ background: "#c084fc", color: "#000", fontWeight: "bold" }}>
+        <button type="submit" disabled={saving} className="qilife-mini-btn primary">
           {saving ? "Saving..." : "Save Person Record"}
         </button>
       </div>

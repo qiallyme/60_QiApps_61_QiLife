@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 import type { AttentionLevel, PeopleQuery, RelationshipCategory, RelationshipStatus } from "../types";
 
 interface PeopleFiltersProps {
@@ -7,22 +7,31 @@ interface PeopleFiltersProps {
 }
 
 export const PeopleFilters: React.FC<PeopleFiltersProps> = ({ query = {}, onChange }) => {
+  const fieldId = useId();
+
   return (
-    <div className="qilife-card people-filters" style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap", padding: "10px 12px" }}>
-      <div style={{ flex: "1 1 200px" }}>
+    <div className="qilife-card people-filters">
+      <div className="people-filter-search">
+        <label className="qilife-sr-only" htmlFor={`${fieldId}-search`}>Search people</label>
         <input
+          id={`${fieldId}-search`}
+          name="peopleSearch"
           type="text"
           placeholder="Search people by name, company, email..."
           value={query.search || ""}
-          onChange={(e) => onChange({ ...query, search: e.target.value || undefined })}
-          style={{ width: "100%", background: "#111", color: "#fff", border: "1px solid #333", borderRadius: "6px", padding: "6px 10px", fontSize: "12px" }}
+          onChange={(event) => onChange({ ...query, search: event.target.value || undefined })}
         />
       </div>
 
+      <label className="qilife-sr-only" htmlFor={`${fieldId}-category`}>Relationship category</label>
       <select
+        id={`${fieldId}-category`}
+        name="peopleCategory"
         value={query.category || ""}
-        onChange={(e) => onChange({ ...query, category: (e.target.value as RelationshipCategory) || undefined })}
-        style={{ background: "#111", color: "#fff", border: "1px solid #333", borderRadius: "6px", padding: "6px 8px", fontSize: "12px" }}
+        onChange={(event) => onChange({
+          ...query,
+          category: (event.target.value as RelationshipCategory) || undefined,
+        })}
       >
         <option value="">All Categories</option>
         <option value="family">Family</option>
@@ -34,10 +43,15 @@ export const PeopleFilters: React.FC<PeopleFiltersProps> = ({ query = {}, onChan
         <option value="acquaintance">Acquaintance</option>
       </select>
 
+      <label className="qilife-sr-only" htmlFor={`${fieldId}-status`}>Relationship status</label>
       <select
+        id={`${fieldId}-status`}
+        name="peopleStatus"
         value={query.status || ""}
-        onChange={(e) => onChange({ ...query, status: (e.target.value as RelationshipStatus) || undefined })}
-        style={{ background: "#111", color: "#fff", border: "1px solid #333", borderRadius: "6px", padding: "6px 8px", fontSize: "12px" }}
+        onChange={(event) => onChange({
+          ...query,
+          status: (event.target.value as RelationshipStatus) || undefined,
+        })}
       >
         <option value="">All Statuses</option>
         <option value="active">Active</option>
@@ -46,10 +60,15 @@ export const PeopleFilters: React.FC<PeopleFiltersProps> = ({ query = {}, onChan
         <option value="archived">Archived</option>
       </select>
 
+      <label className="qilife-sr-only" htmlFor={`${fieldId}-attention`}>Attention level</label>
       <select
+        id={`${fieldId}-attention`}
+        name="peopleAttention"
         value={query.attentionLevel || ""}
-        onChange={(e) => onChange({ ...query, attentionLevel: (e.target.value as AttentionLevel) || undefined })}
-        style={{ background: "#111", color: "#fff", border: "1px solid #333", borderRadius: "6px", padding: "6px 8px", fontSize: "12px" }}
+        onChange={(event) => onChange({
+          ...query,
+          attentionLevel: (event.target.value as AttentionLevel) || undefined,
+        })}
       >
         <option value="">All Priorities</option>
         <option value="urgent">Urgent</option>
@@ -58,13 +77,18 @@ export const PeopleFilters: React.FC<PeopleFiltersProps> = ({ query = {}, onChan
         <option value="low">Low</option>
       </select>
 
-      <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--qi-muted, #aaa)", cursor: "pointer" }}>
+      <label className="qilife-check-label" htmlFor={`${fieldId}-needs-contact`}>
         <input
+          id={`${fieldId}-needs-contact`}
+          name="needsContact"
           type="checkbox"
           checked={Boolean(query.needsContact)}
-          onChange={(e) => onChange({ ...query, needsContact: e.target.checked || undefined })}
+          onChange={(event) => onChange({
+            ...query,
+            needsContact: event.target.checked || undefined,
+          })}
         />
-        🚨 Overdue Contact Only
+        Overdue contact only
       </label>
     </div>
   );

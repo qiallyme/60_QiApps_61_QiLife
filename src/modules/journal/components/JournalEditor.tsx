@@ -1,3 +1,4 @@
+import { useId } from "react";
 import type { JournalDraft, JournalSaveStatus } from "../types";
 
 interface JournalEditorProps {
@@ -26,6 +27,8 @@ export function JournalEditor({
   onRetry,
   onExport,
 }: JournalEditorProps) {
+  const fieldId = useId();
+
   function patch(values: Partial<JournalDraft>) {
     onChange({ ...draft, ...values });
   }
@@ -33,26 +36,32 @@ export function JournalEditor({
   return (
     <div className="journal-editor">
       <div className="journal-editor-fields">
-        <label>
+        <label htmlFor={`${fieldId}-title`}>
           Title
           <input
+            id={`${fieldId}-title`}
+            name="title"
             aria-label="Title"
             value={draft.title}
             onChange={(event) => patch({ title: event.target.value })}
           />
         </label>
-        <label>
+        <label htmlFor={`${fieldId}-entry-date`}>
           Journal date
           <input
+            id={`${fieldId}-entry-date`}
+            name="entryDate"
             aria-label="Journal date"
             type="date"
             value={draft.entryDate}
             onChange={(event) => patch({ entryDate: event.target.value })}
           />
         </label>
-        <label>
+        <label htmlFor={`${fieldId}-tags`}>
           Tags
           <input
+            id={`${fieldId}-tags`}
+            name="tags"
             aria-label="Tags"
             value={draft.tags.join(", ")}
             onChange={(event) => patch({
@@ -63,8 +72,10 @@ export function JournalEditor({
             })}
           />
         </label>
-        <label className="journal-pin">
+        <label className="journal-pin" htmlFor={`${fieldId}-pinned`}>
           <input
+            id={`${fieldId}-pinned`}
+            name="pinned"
             aria-label="Pinned"
             type="checkbox"
             checked={draft.pinned}
@@ -73,9 +84,11 @@ export function JournalEditor({
           Pinned
         </label>
       </div>
-      <label>
+      <label htmlFor={`${fieldId}-markdown`}>
         Markdown
         <textarea
+          id={`${fieldId}-markdown`}
+          name="bodyMarkdown"
           aria-label="Markdown"
           rows={20}
           value={draft.bodyMarkdown}
