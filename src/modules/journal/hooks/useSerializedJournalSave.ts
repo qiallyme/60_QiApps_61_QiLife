@@ -72,7 +72,7 @@ export function useSerializedJournalSave(
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-    if (status !== "clean") {
+    if (queuedRef.current || status === "dirty" || status === "failed") {
       queuedRef.current = true;
       await persist();
     }

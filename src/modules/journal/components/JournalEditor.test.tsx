@@ -26,7 +26,7 @@ describe("JournalEditor", () => {
     );
 
     fireEvent.change(screen.getByLabelText("Title"), { target: { value: "Today" } });
-    expect(onChange).toHaveBeenLastCalledWith({ ...draft, title: "Today" });
+    expect(onChange).toHaveBeenLastCalledWith({ title: "Today" });
 
     const filled = { ...draft, title: "Today", bodyMarkdown: "# Exact" };
     rerender(

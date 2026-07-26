@@ -5,7 +5,7 @@ interface JournalEditorProps {
   draft: JournalDraft;
   status: JournalSaveStatus;
   cleanStatusText?: string;
-  onChange: (draft: JournalDraft) => void;
+  onChange: (values: Partial<JournalDraft>) => void;
   onSave: () => void;
   onRetry: () => void;
   onExport: () => void;
@@ -30,7 +30,7 @@ export function JournalEditor({
   const fieldId = useId();
 
   function patch(values: Partial<JournalDraft>) {
-    onChange({ ...draft, ...values });
+    onChange(values);
   }
 
   return (

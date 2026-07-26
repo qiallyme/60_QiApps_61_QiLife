@@ -76,4 +76,17 @@ describe("useSerializedJournalSave", () => {
     expect(save).toHaveBeenLastCalledWith(first);
     expect(result.current.status).toBe("clean");
   });
+
+  it("flushes the latest queued snapshot before React rerenders the status", async () => {
+    const save = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() => useSerializedJournalSave(save, 500));
+
+    await act(async () => {
+      result.current.queue(latest);
+      await result.current.flush();
+    });
+
+    expect(save).toHaveBeenCalledWith(latest);
+    expect(result.current.status).toBe("clean");
+  });
 });

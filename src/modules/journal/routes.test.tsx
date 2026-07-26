@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
   createMemoryRouter,
@@ -102,5 +102,37 @@ describe("Journal routes", () => {
     await waitFor(() => {
       expect(screen.getByLabelText("Current path")).toHaveTextContent("/journal/created-1");
     });
+  });
+
+  it("creates from the latest batched draft instead of stale rendered fields", async () => {
+    repositoryMocks.create.mockResolvedValueOnce({
+      id: "created-batched",
+      title: "Batched title",
+      entryDate: "2026-07-24",
+      bodyMarkdown: "# Exact batched body",
+      rawCapture: "# Exact batched body",
+      tags: [],
+      pinned: false,
+    });
+    const router = createMemoryRouter([
+      { path: "/journal/new", element: <JournalNewRoute /> },
+      { path: "/journal/:id", element: <h1>Created</h1> },
+    ], { initialEntries: ["/journal/new"] });
+    render(<RouterProvider router={router} />);
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText("Title"), {
+        target: { value: "Batched title" },
+      });
+      fireEvent.change(screen.getByLabelText("Markdown"), {
+        target: { value: "# Exact batched body" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    });
+
+    expect(repositoryMocks.create).toHaveBeenLastCalledWith(expect.objectContaining({
+      title: "Batched title",
+      bodyMarkdown: "# Exact batched body",
+    }));
   });
 });

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { JournalCalendar } from "./components/JournalCalendar";
 import { JournalEditor } from "./components/JournalEditor";
@@ -89,6 +89,7 @@ export function JournalNewRoute() {
     peopleIds: linkedPersonId ? [linkedPersonId] : [],
     projectId: linkedProjectId,
   });
+  const draftRef = useRef(draft);
   const [status, setStatus] = useState<JournalSaveStatus>("clean");
   const [createdEntryId, setCreatedEntryId] = useState<string | null>(null);
 
@@ -101,7 +102,7 @@ export function JournalNewRoute() {
   async function create() {
     setStatus("saving");
     try {
-      const entry = await journalRepository.create(draft);
+      const entry = await journalRepository.create(draftRef.current);
       setStatus("clean");
       setCreatedEntryId(entry.id);
     } catch {
@@ -116,7 +117,9 @@ export function JournalNewRoute() {
         draft={draft}
         status={status}
         cleanStatusText="Not saved yet"
-        onChange={(next) => {
+        onChange={(values) => {
+          const next = { ...draftRef.current, ...values };
+          draftRef.current = next;
           setDraft(next);
           setStatus("dirty");
         }}
@@ -140,6 +143,7 @@ export function JournalEntryRoute() {
   const { id = "" } = useParams();
   const { entry, error, setEntry } = useJournalEntry(journalRepository, id);
   const [draft, setDraft] = useState<JournalDraft | null>(null);
+  const draftRef = useRef<JournalDraft | null>(null);
 
   const persist = useCallback(async (next: JournalDraft) => {
     const saved = await journalRepository.update(id, next);
@@ -148,7 +152,11 @@ export function JournalEntryRoute() {
   const saveQueue = useSerializedJournalSave(persist);
 
   useEffect(() => {
-    if (entry) setDraft(draftFromEntry(entry));
+    if (entry) {
+      const next = draftFromEntry(entry);
+      draftRef.current = next;
+      setDraft(next);
+    }
   }, [entry]);
 
   if (entry === undefined && !error) {
@@ -166,7 +174,10 @@ export function JournalEntryRoute() {
         <JournalEditor
           draft={draft}
           status={saveQueue.status}
-          onChange={(next) => {
+          onChange={(values) => {
+            if (!draftRef.current) return;
+            const next = { ...draftRef.current, ...values };
+            draftRef.current = next;
             setDraft(next);
             saveQueue.queue(next);
           }}
