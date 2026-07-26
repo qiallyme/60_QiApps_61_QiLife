@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { relationResolver } from "../../features/qilife/relations/relationResolver";
+import { readRelationIds } from "../../features/qilife/relations/relationshipFields";
+import { listRecords } from "../../features/qilife/services/qilifeStore";
+import { MultiRelationSelector, RelationSelector } from "../../features/qilife/components/RelationSelector";
 import type { QiRecord } from "../../features/qilife/types";
 import { ProjectForm } from "./components/ProjectForm";
 import { projectRepository } from "./services/projectRepository";
 import type { Project } from "./types";
+import { projectQuickCreate } from "./services/projectQuickCreate";
 
 export function ProjectsIndexRoute() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -36,7 +40,7 @@ export function ProjectDetailRoute() {
   const completed = actions.filter((a) => a.status === "done").length;
   const nextDue = [...actions].filter((a) => a.due_date && a.status !== "done").sort((a, b) => String(a.due_date).localeCompare(String(b.due_date)))[0];
   const other = (entity: string) => related.filter((record) => record.entity_key === entity);
-  return <main className="qilife-page"><header className="qilife-page-header"><div><div className="qilife-eyebrow">PROJECT</div><h1>{project.name}</h1><p>{project.brief}</p></div><div className="qilife-actions"><Link className="qilife-btn" to={`/projects/${id}/edit`}>Edit</Link><Link className="qilife-btn primary" to={`/actions/new?projectId=${id}`}>Add Action</Link></div></header><div className="qilife-metric-grid"><div className="qilife-metric"><strong>{open}</strong><span>Open Actions</span></div><div className="qilife-metric"><strong>{blocked}</strong><span>Blocked</span></div><div className="qilife-metric"><strong>{completed}</strong><span>Completed</span></div><div className="qilife-metric"><strong>{nextDue?.due_date ?? "—"}</strong><span>Next due</span></div></div><div className="qilife-actions"><Link to={`/journal/new?projectId=${id}`}>Add Journal entry</Link><Link to={`/timeline?projectId=${id}`}>Add Event</Link><Link to={`/people?projectId=${id}`}>Link Person</Link><Link to={`/documents?projectId=${id}`}>Link Document</Link></div><div className="qilife-dashboard-grid"><RelatedList title="Actions" records={actions} route="/actions" /><RelatedList title="People" records={people} route="/people" /><RelatedList title="Journal entries" records={journal} route="/journal" /><RelatedList title="Threads" records={other("thread")} route="/threads" /><RelatedList title="Timeline events" records={other("event")} /><RelatedList title="Decisions" records={other("decision")} /><RelatedList title="Documents" records={other("document")} /><RelatedList title="Knowledge" records={other("knowledge_item")} /></div></main>;
+  return <main className="qilife-page"><header className="qilife-page-header"><div><div className="qilife-eyebrow">PROJECT</div><h1>{project.name}</h1><p>{project.brief}</p></div><div className="qilife-actions"><Link className="qilife-btn" to={`/projects/${id}/edit`}>Edit</Link><Link className="qilife-btn primary" to={`/actions/new?projectId=${id}`}>Add Action</Link></div></header><div className="qilife-metric-grid"><div className="qilife-metric"><strong>{open}</strong><span>Open Actions</span></div><div className="qilife-metric"><strong>{blocked}</strong><span>Blocked</span></div><div className="qilife-metric"><strong>{completed}</strong><span>Completed</span></div><div className="qilife-metric"><strong>{nextDue?.due_date ?? "—"}</strong><span>Next due</span></div></div><div className="qilife-actions"><Link to={`/journal/new?projectId=${id}`}>Add Journal entry</Link><Link to={`/events/new?projectId=${id}`}>Add Event</Link><Link to={`/projects/${id}/link-person`}>Link Person</Link><Link to={`/projects/${id}/link-document`}>Link Document</Link></div><div className="qilife-dashboard-grid"><RelatedList title="Actions" records={actions} route="/actions" /><RelatedList title="People" records={people} route="/people" /><RelatedList title="Journal entries" records={journal} route="/journal" /><RelatedList title="Threads" records={other("thread")} route="/threads" /><RelatedList title="Timeline events" records={other("event")} /><RelatedList title="Decisions" records={other("decision")} /><RelatedList title="Documents" records={other("document")} /><RelatedList title="Knowledge" records={other("knowledge_item")} /></div></main>;
 }
 
 export function ProjectEditRoute() {
@@ -46,4 +50,44 @@ export function ProjectEditRoute() {
   if (!project) return <main className="qilife-page">Project not found.</main>;
   const { id: _id, createdAt: _created, updatedAt: _updated, ...draft } = project;
   return <main className="qilife-page"><h1>Edit Project</h1><ProjectForm initial={draft} onCancel={() => navigate(`/projects/${id}`)} onSave={async (next) => { await projectRepository.update(id, next); navigate(`/projects/${id}`, { replace: true }); }} /></main>;
+}
+
+export function ProjectPersonLinkRoute() {
+  const { id = "" } = useParams();
+  const navigate = useNavigate();
+  const [peopleIds, setPeopleIds] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    listRecords("project").then((projects) => {
+      const project = projects.find((item) => item.id === id);
+      if (project) setPeopleIds(readRelationIds(project.data, "person", "person"));
+    }).finally(() => setLoading(false));
+  }, [id]);
+  return <main className="qilife-page"><h1>Link People to Project</h1><section className="qilife-panel"><label className="qilife-label" htmlFor="project-people">People</label>{!loading && <MultiRelationSelector id="project-people" name="people_ids" relationEntity="person" values={peopleIds} onChange={setPeopleIds} />}<div className="qilife-actions"><button className="qilife-btn" onClick={() => navigate(`/projects/${id}`)}>Cancel</button><button className="qilife-btn primary" onClick={() => void projectQuickCreate.linkPeople(id, peopleIds).then(() => navigate(`/projects/${id}`))}>Save links</button></div></section></main>;
+}
+
+export function ProjectDocumentLinkRoute() {
+  const { id = "" } = useParams();
+  const navigate = useNavigate();
+  const [documentId, setDocumentId] = useState("");
+  const [title, setTitle] = useState("");
+  const [notes, setNotes] = useState("");
+  async function save() {
+    if (documentId) await projectQuickCreate.linkDocument(documentId, id);
+    else if (title.trim()) await projectQuickCreate.createDocument(id, { title: title.trim(), notes });
+    else return;
+    navigate(`/projects/${id}`);
+  }
+  return <main className="qilife-page"><h1>Link Document to Project</h1><section className="qilife-panel"><label className="qilife-label" htmlFor="project-document">Existing document</label><RelationSelector id="project-document" name="document_id" relationEntity="document" value={documentId} onChange={setDocumentId} /><div className="qilife-divider">or create a document</div><label className="qilife-label" htmlFor="document-title">Title<input id="document-title" name="title" value={title} onChange={(e) => setTitle(e.target.value)} /></label><label className="qilife-label" htmlFor="document-notes">Notes<textarea id="document-notes" name="notes" value={notes} onChange={(e) => setNotes(e.target.value)} /></label><div className="qilife-actions"><button className="qilife-btn" onClick={() => navigate(`/projects/${id}`)}>Cancel</button><button className="qilife-btn primary" onClick={() => void save()}>Link document</button></div></section></main>;
+}
+
+export function ProjectEventNewRoute() {
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const projectId = params.get("projectId") ?? "";
+  const [title, setTitle] = useState("");
+  const [happenedAt, setHappenedAt] = useState(new Date().toISOString().slice(0, 10));
+  const [notes, setNotes] = useState("");
+  if (!projectId) return <main className="qilife-page"><div className="qilife-error">A Project is required to create this Event.</div></main>;
+  return <main className="qilife-page"><h1>Add Event</h1><form className="qilife-panel" onSubmit={(event) => { event.preventDefault(); void projectQuickCreate.createEvent(projectId, { title, happenedAt, notes }).then(() => navigate(`/projects/${projectId}`)); }}><label className="qilife-label" htmlFor="event-title">Title<input id="event-title" name="title" required value={title} onChange={(e) => setTitle(e.target.value)} /></label><label className="qilife-label" htmlFor="event-date">Date<input id="event-date" name="happened_at" type="date" value={happenedAt} onChange={(e) => setHappenedAt(e.target.value)} /></label><label className="qilife-label" htmlFor="event-notes">Notes<textarea id="event-notes" name="notes" value={notes} onChange={(e) => setNotes(e.target.value)} /></label><div className="qilife-actions"><button type="button" className="qilife-btn" onClick={() => navigate(`/projects/${projectId}`)}>Cancel</button><button className="qilife-btn primary">Create Event</button></div></form></main>;
 }

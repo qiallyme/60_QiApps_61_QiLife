@@ -8,6 +8,14 @@ interface RelationSelectorProps {
   onChange: (value: string) => void;
   disabled?: boolean;
   loadRecords?: (entityKey: string) => Promise<QiRecord[]>;
+  id?: string;
+  name?: string;
+}
+
+function relationLabel(entity: string) {
+  return entity === "person"
+    ? "People"
+    : `${entity[0]?.toUpperCase() ?? ""}${entity.slice(1)}s`;
 }
 
 export function RelationSelector({
@@ -16,6 +24,8 @@ export function RelationSelector({
   onChange,
   disabled = false,
   loadRecords = listRecords,
+  id,
+  name,
 }: RelationSelectorProps) {
   const [records, setRecords] = useState<QiRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,12 +48,17 @@ export function RelationSelector({
     return () => { active = false; };
   }, [loadRecords, relationEntity]);
 
-  const resolved = useMemo(() => records.some((record) => record.id === value), [records, value]);
-  const label = relationEntity === "person" ? "People" : `${relationEntity[0]?.toUpperCase() ?? ""}${relationEntity.slice(1)}s`;
+  const resolved = useMemo(
+    () => records.some((record) => record.id === value),
+    [records, value],
+  );
+  const label = relationLabel(relationEntity);
 
   return (
     <>
       <select
+        id={id}
+        name={name}
         value={value}
         disabled={disabled || loading}
         aria-busy={loading}
@@ -100,7 +115,7 @@ export function MultiRelationSelector({
 
   const byId = new Map(records.map((record) => [record.id, record]));
   const available = records.filter((record) => !values.includes(record.id));
-  const label = relationEntity === "person" ? "People" : `${relationEntity[0]?.toUpperCase() ?? ""}${relationEntity.slice(1)}s`;
+  const label = relationLabel(relationEntity);
 
   return (
     <div className="qilife-multi-relation">
