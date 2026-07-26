@@ -3,19 +3,14 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import { SidebarNav } from "./SidebarNav";
 
-describe("SidebarNav module navigation", () => {
-  it("renders registered modules as router-native links", () => {
+describe("SidebarNav operating hierarchy", () => {
+  it("renders group labels and router-native destination links", () => {
     render(
       <MemoryRouter>
         <SidebarNav
           activeWorkspaceKey={null}
           activeViewKey={null}
-          moduleNavigation={[{
-            id: "journal-nav",
-            label: "Journal",
-            to: "/journal",
-            icon: "✎",
-          }]}
+          moduleNavigation={[]}
           onSelectWorkspace={vi.fn()}
           onSelectView={vi.fn()}
           onHome={vi.fn()}
@@ -23,7 +18,11 @@ describe("SidebarNav module navigation", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("link", { name: /Journal/ }))
-      .toHaveAttribute("href", "/journal");
+    expect(screen.getByText("PLANNER")).not.toHaveAttribute("href");
+    expect(screen.queryByRole("link", { name: /^Planner$/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Actions/ })).toHaveAttribute("href", "/actions");
+    expect(screen.getByRole("link", { name: /Projects/ })).toHaveAttribute("href", "/projects");
+    expect(screen.getByRole("link", { name: /Journal/ })).toHaveAttribute("href", "/journal");
+    expect(screen.getByRole("link", { name: /People/ })).toHaveAttribute("href", "/people");
   });
 });

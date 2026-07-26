@@ -1,35 +1,70 @@
-import type { QiWorkspaceKey } from "./workspaceRegistry";
-
 export type QiSpecialViewKey = "assistant";
 
 export interface QiNavItem {
   id: string;
   label: string;
   icon: string;
-  workspaceKey?: QiWorkspaceKey;
-  home?: boolean;
+  to: string;
 }
 
-export const navGroups: Array<{ id: string; label: string; items: QiNavItem[] }> = [
+export interface QiNavGroup {
+  id: string;
+  label: string;
+  items: QiNavItem[];
+}
+
+export const homeNavigation: QiNavItem = {
+  id: "home",
+  label: "Home",
+  icon: "⌂",
+  to: "/",
+};
+
+export const navGroups: QiNavGroup[] = [
   {
-    id: "core",
-    label: "",
+    id: "planner",
+    label: "PLANNER",
     items: [
-      { id: "home", label: "Home", icon: "⌂", home: true },
-      { id: "today", label: "Today", icon: "◷", workspaceKey: "today" },
-      { id: "planner", label: "Planner", icon: "▦", workspaceKey: "planner" },
-      { id: "projects", label: "Projects", icon: "◇", workspaceKey: "projects" },
-      { id: "people", label: "People", icon: "◎", workspaceKey: "people" }
-    ]
+      { id: "today", label: "Today", icon: "◷", to: "/today" },
+      { id: "inbox", label: "Inbox", icon: "↓", to: "/inbox" },
+      { id: "actions", label: "Actions", icon: "✓", to: "/actions" },
+      { id: "calendar", label: "Calendar", icon: "□", to: "/calendar" },
+    ],
   },
   {
-    id: "library",
-    label: "Library",
+    id: "organize",
+    label: "ORGANIZE",
     items: [
-      { id: "life-record", label: "Life Record", icon: "≋", workspaceKey: "life_record" },
-      { id: "knowledge", label: "Knowledge", icon: "⌘", workspaceKey: "knowledge" },
-      { id: "reports", label: "Reports", icon: "▤", workspaceKey: "reports" },
-      { id: "apps", label: "Apps", icon: "⬡", workspaceKey: "apps" }
-    ]
-  }
+      { id: "projects", label: "Projects", icon: "◇", to: "/projects" },
+      { id: "threads", label: "Threads", icon: "≋", to: "/threads" },
+      { id: "people", label: "People", icon: "◎", to: "/people" },
+    ],
+  },
+  {
+    id: "record",
+    label: "RECORD",
+    items: [
+      { id: "journal", label: "Journal", icon: "✎", to: "/journal" },
+      { id: "timeline", label: "Timeline", icon: "↝", to: "/timeline" },
+      { id: "documents", label: "Documents", icon: "▤", to: "/documents" },
+      { id: "knowledge", label: "Knowledge", icon: "⌘", to: "/knowledge" },
+    ],
+  },
+  {
+    id: "review",
+    label: "REVIEW",
+    items: [
+      { id: "decisions", label: "Decisions", icon: "◆", to: "/decisions" },
+      { id: "reports", label: "Reports", icon: "▥", to: "/reports" },
+    ],
+  },
+  {
+    id: "system",
+    label: "SYSTEM",
+    items: [
+      { id: "apps", label: "Apps", icon: "⬡", to: "/apps" },
+      { id: "automations", label: "Automations", icon: "⚙", to: "/automations" },
+      { id: "settings", label: "Settings", icon: "◉", to: "/settings" },
+    ],
+  },
 ];
