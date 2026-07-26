@@ -1,4 +1,5 @@
 import type { QiEntityDefinition, QiField, QiRecord } from "../types";
+import { writeCanonicalRelation } from "../relations/relationshipFields";
 
 export function getRecordValue(record: QiRecord, key: string): unknown {
   if (key === "title") return record.title;
@@ -41,11 +42,18 @@ export function mapFormValuesToRecord(entity: QiEntityDefinition, values: Record
   const priorityValue = entity.priorityField ? values[entity.priorityField] : values.priority;
   const dueValue = entity.dueDateField ? values[entity.dueDateField] : values.due_date;
 
+  let data = { ...values };
+  for (const field of entity.fields) {
+    if (field.type === "relation" && field.relationEntity) {
+      data = writeCanonicalRelation(data, field.relationEntity, field.key, values[field.key] as string | null);
+    }
+  }
+
   return {
     title: String(titleValue || "Untitled"),
     status: statusValue ? String(statusValue) : null,
     priority: priorityValue ? String(priorityValue) : null,
     due_date: dueValue ? String(dueValue) : null,
-    data: values
+    data
   };
 }

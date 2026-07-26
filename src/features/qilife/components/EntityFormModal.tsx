@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import type { QiEntityDefinition, QiField, QiRecord } from "../types";
 import { getRecordValue } from "../utils/recordValues";
+import { readRelationIds } from "../relations/relationshipFields";
+import { RelationSelector } from "./RelationSelector";
 
 interface EntityFormModalProps {
   entity: QiEntityDefinition;
@@ -13,6 +15,9 @@ interface EntityFormModalProps {
 
 function defaultValueForField(field: QiField, record?: QiRecord) {
   if (record) {
+    if (field.type === "relation" && field.relationEntity) {
+      return readRelationIds(record.data, field.relationEntity, field.key)[0] ?? "";
+    }
     const value = getRecordValue(record, field.key);
     if (Array.isArray(value)) return value.join(", ");
     if (typeof value === "boolean") return value;
@@ -108,6 +113,15 @@ export function EntityFormModal({ entity, record, mode, onClose, onSubmit, onArc
                 </select>
               ) : field.type === "checkbox" ? (
                 <span className="qilife-checkbox-row"><input type="checkbox" checked={Boolean(values[field.key])} disabled={saving || archiving} onChange={(event) => setField(field, event.target.checked)} /><span>Yes</span></span>
+              ) : field.type === "relation" && field.relationEntity ? (
+                <RelationSelector
+                  relationEntity={field.relationEntity}
+                  value={String(values[field.key] ?? "")}
+                  disabled={saving || archiving}
+                  onChange={(value) => setField(field, value)}
+                />
+              ) : field.type === "relation" ? (
+                <span className="qilife-field-error" role="alert">Relation target is not configured.</span>
               ) : (
                 <input
                   type={field.type === "date" ? "date" : field.type === "datetime" ? "datetime-local" : field.type === "currency" || field.type === "number" ? "number" : field.type === "url" ? "url" : "text"}
