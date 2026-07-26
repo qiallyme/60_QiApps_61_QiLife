@@ -56,11 +56,14 @@ function StorageStatusIndicatorContent({ auth }: { auth: AuthContextType }) {
 
     void confirmCloud();
     const handleOnline = () => void confirmCloud();
-    const handleOffline = () => setStorageStatus({
-      kind: "offline",
-      detail: "Cloud account available but currently disconnected",
-      lastConfirmedAt: getStorageStatus().lastConfirmedAt,
-    });
+    const handleOffline = () => {
+      if (!user || localMode || !hasSupabaseConfig) return;
+      setStorageStatus({
+        kind: "offline",
+        detail: "Cloud account available but currently disconnected",
+        lastConfirmedAt: getStorageStatus().lastConfirmedAt,
+      });
+    };
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
     return () => {
