@@ -3,9 +3,11 @@ import { supabase, hasSupabaseConfig } from "../../../lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
 import { currentInternalDestination, sameOriginAuthRedirect } from "./authReturnPath";
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   loading: boolean;
+  localMode: boolean;
+  enableLocalMode: () => void;
   signInWithMagicLink: (email: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -16,6 +18,9 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(hasSupabaseConfig);
+  const [localMode, setLocalMode] = useState(
+    !hasSupabaseConfig || sessionStorage.getItem("qilife.local-mode") === "true",
+  );
 
   useEffect(() => {
     if (!hasSupabaseConfig || !supabase) {
@@ -83,11 +88,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   }
 
+  function enableLocalMode() {
+    sessionStorage.setItem("qilife.local-mode", "true");
+    setLocalMode(true);
+  }
+
   return (
     <AuthContext.Provider
       value={{
         user,
         loading,
+        localMode,
+        enableLocalMode,
         signInWithMagicLink,
         signInWithGoogle,
         signOut

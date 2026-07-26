@@ -9,7 +9,6 @@ import { Topbar } from "./Topbar";
 import { AssistantPage } from "./AssistantPage";
 import { WorkspacePage } from "./WorkspacePage";
 import { useAuth } from "../auth/useAuth";
-import { LoginPage } from "../auth/LoginPage";
 import type { QiRecord } from "../types";
 import type { QiSpecialViewKey } from "../data/navRegistry";
 import {
@@ -20,8 +19,7 @@ import {
 
 export function QiLifeShell() {
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
-  const [localBypass, setLocalBypass] = useState(false);
+  const { user, loading, localMode } = useAuth();
   const [activeWorkspaceKey, setActiveWorkspaceKey] = useState<QiWorkspaceKey | null>(null);
   const [activeEntityKey, setActiveEntityKey] = useState("task");
   const [activeViewKey, setActiveViewKey] = useState<QiSpecialViewKey | null>(null);
@@ -31,15 +29,13 @@ export function QiLifeShell() {
   const [booted, setBooted] = useState(false);
 
   const isConfigured = isSupabaseConfigured();
-  const showLogin = isConfigured && !user && !localBypass;
-
   useEffect(() => {
     setBooted(false);
-    const isLocal = !isConfigured || localBypass || !user;
+    const isLocal = !isConfigured || localMode || !user;
     if (isLocal) {
       seedDemoData().catch(console.warn).finally(() => setBooted(true));
     } else setBooted(true);
-  }, [isConfigured, user, localBypass]);
+  }, [isConfigured, user, localMode]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -87,9 +83,7 @@ export function QiLifeShell() {
   }
 
   if (loading) return <div className="qilife-app centered"><div className="qilife-empty">Connecting to QiLife...</div></div>;
-  if (showLogin) return <LoginPage showBypass onBypassLocal={() => setLocalBypass(true)} />;
-
-  const storeMode = getStoreMode(!!user && !localBypass);
+  const storeMode = getStoreMode(!!user && !localMode);
   const activeLabel = activeViewKey === "assistant"
     ? "Ask QiLife"
     : activeWorkspaceKey

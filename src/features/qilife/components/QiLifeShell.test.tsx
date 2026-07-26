@@ -10,6 +10,7 @@ vi.mock("../services/qilifeStore", () => ({
   seedDemoData: vi.fn().mockResolvedValue(undefined),
   isSupabaseConfigured: () => false,
   listRecords: vi.fn().mockResolvedValue([]),
+  listAllRecords: vi.fn().mockResolvedValue([]),
   createRecord: vi.fn(),
   updateRecord: vi.fn(),
 }));
