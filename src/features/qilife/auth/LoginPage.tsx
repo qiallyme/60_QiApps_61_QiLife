@@ -62,7 +62,7 @@ export function LoginPage({ onBypassLocal, showBypass = false }: LoginPageProps)
             Welcome to QiLife
           </h2>
           <p style={{ color: "var(--qi-muted)", margin: 0, fontSize: "14px" }}>
-            Personal life command center shell
+            Personal life operating system
           </p>
         </div>
 

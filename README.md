@@ -156,9 +156,17 @@ unresolved values.
 ## Authentication and persistence
 
 `AuthenticationBoundary` wraps both module and compatibility routes. When
-Supabase is configured, unauthenticated users see one login experience. Magic-link
-and Google sign-in return only to same-origin internal destinations while
-preserving pathname, query parameters, hash, and Supabase callback parameters.
+Supabase is configured, unauthenticated users see one login experience. QiLife
+constructs only same-origin internal callback destinations and includes the
+current pathname, query parameters, and hash in the requested redirect.
+
+The production Supabase magic-link email template currently hardcodes
+`https://qially.com/` instead of using the requested QiLife redirect. As a
+result, normal email sign-in does not yet return automatically to the requested
+QiLife deep route. The persistence proof used a manual callback transfer after
+the email link established a valid session. Fixing and retesting that external
+template is required before the authentication return flow is considered
+production-ready.
 
 Persistence follows one path:
 
@@ -197,11 +205,14 @@ workflow, cloud/local guarantees, and failure behavior.
 
 ### Controlled trial boundary
 
-Until the complete authenticated cross-browser procedure has been verified with
-the intended production account, use QiLife only for noncritical test Projects,
-Actions, limited People details, and replaceable Journal entries. Do not use it
-as the sole record for legal deadlines, medical appointments, credentials,
-financial evidence, irreplaceable evidence, or other consequential obligations.
+Owner-scoped cloud records, refresh persistence, reauthentication, isolated
+browser retrieval, cross-session editing, complete export, and reviewed restore
+were verified with the production account on 2026-07-26. The normal email
+magic-link return is still blocked by the external template configuration, so
+the controlled trial remains limited to noncritical Projects, Actions, limited
+People details, and replaceable Journal entries. Do not use QiLife as the sole
+record for legal deadlines, medical appointments, credentials, financial
+evidence, irreplaceable evidence, or other consequential obligations.
 
 ## Local development
 

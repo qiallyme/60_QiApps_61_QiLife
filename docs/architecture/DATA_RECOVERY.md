@@ -100,12 +100,19 @@ browser. Changes become visible in another open session after that session
 refreshes its data. QiLife does not yet provide real-time subscription updates
 or multi-writer merge resolution.
 
+The cloud persistence and recovery sequence was verified with the production
+account on 2026-07-26, including refresh, reauthentication, isolated-browser
+retrieval, cross-session editing, export, duplicate restore, and record creation
+through restore. The production Supabase magic-link email template nevertheless
+hardcodes `https://qially.com/`; a manual callback transfer was required to
+complete reauthentication in QiLife. Normal email sign-in return paths remain
+unverified until that external template is corrected.
+
 Local records remain in one browser profile. Export and reviewed restore are the
 current bridge between local and cloud workspaces; there is no background
 local-first sync engine.
 
-Until authenticated creation, reauthentication, isolated-browser retrieval,
-cross-session editing, export, and restore have been manually verified with the
-intended production account, use QiLife only for noncritical trial data. Do not
-make it the sole record for legal deadlines, medical appointments, credentials,
-financial evidence, irreplaceable evidence, or other consequential obligations.
+Until the authentication callback blocker is corrected and retested, use QiLife
+only for noncritical trial data. Do not make it the sole record for legal
+deadlines, medical appointments, credentials, financial evidence, irreplaceable
+evidence, or other consequential obligations.

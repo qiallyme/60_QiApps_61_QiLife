@@ -28,9 +28,14 @@ navigation.
 ## Authentication
 
 `AuthenticationBoundary` is the single enforcement boundary for both module and
-compatibility routes. Internal return paths are same-origin and preserve
-pathname, search parameters, and hash without prematurely rewriting Supabase
-callback parameters. Local fallback mode is explicit and session-scoped.
+compatibility routes. QiLife only requests same-origin internal return paths and
+includes pathname, search parameters, and hash without rewriting callback
+parameters. Local fallback mode is explicit and session-scoped.
+
+The production Supabase email template currently ignores that requested
+destination and emits a link with `redirect_to=https://qially.com/`. This is an
+external authentication configuration blocker: normal magic-link completion
+does not yet return to QiLife or prove automatic deep-link restoration.
 
 ## Shared records and relationships
 
