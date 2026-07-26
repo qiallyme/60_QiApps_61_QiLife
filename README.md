@@ -1,93 +1,249 @@
-# QiLife App MVP
+# QiLife
 
-QiLife is a Cadence-style life management shell: one sidebar, one command center, one entity registry, and generic entity pages for daily action, people, care, finance, legal, home, documents, projects, and reminders.
+QiLife is a modular personal Life OS: one navigation system and one shared record
+model for planning work, managing projects and relationships, recording a
+journal, and projecting what needs attention today.
 
-This is intentionally **not** a giant finished life OS. It is the first clean slice that lets you move fast without building a cathedral in the fog.
+Production: https://qilife.qilife.workers.dev
 
-## What is included
+## Implementation status
 
-- Vite + React + TypeScript app
-- QiLife shell with sidebar and topbar
-- Home dashboard
-- Quick capture modal
-- Generic entity registry
-- Generic entity table/card views
-- Create/edit/archive records
-- Supabase migration for `qilife.records`
-- localStorage fallback when Supabase env vars are missing
-- Starter demo data in local mode
+### Working today
 
-## Run locally
+- URL-first Today, Actions, Projects, People/Personal CRM, and Journal modules
+- Shared application shell, grouped navigation, command capture, and responsive
+  Qi Soft Surface design tokens
+- Supabase authentication with same-origin deep-route return paths
+- Explicit session-scoped local development fallback
+- Shared QiRecord persistence through the Qi API or browser local storage
+- Stable cross-module Project, Person, Thread, and owner relationships
+- Project dashboards with contextual Actions and related records
+- Journal editing, debounced persistence, raw-capture protection, navigation
+  protection, search, filters, and Markdown export
+- People dashboards, interactions, related records, follow-ups, and a
+  review-before-sync Google Contacts scaffold
+- Cloudflare Worker SPA fallback for direct navigation and refreshes
+
+### Partially implemented
+
+- The compatibility shell still serves working screens that are not URL-first.
+- Calendar, Threads, Timeline, Documents, Knowledge, Decisions, Reports, Apps,
+  Automations, and Settings are not all first-class modules yet.
+- Project activity and some legacy screen styling remain basic.
+- Local mode is a development fallback, not a full offline-first sync engine.
+- Google Contacts synchronization remains manual and review-first.
+
+### Planned next
+
+- Reliability hardening, production observability, performance, and code splitting
+- AI assistance grounded in shared QiRecords with explicit user control
+- Semantic memory and retrieval across relationships, journal entries, projects,
+  and activity
+- Calendar, contacts, documents, and communication integrations
+- Reviewable automation workflows, scheduling, and notifications
+
+### Experimental or deferred
+
+- Full local-first mutation queues and multi-device conflict resolution
+- Advanced calendar synchronization
+- Autonomous AI actions and relationship scoring
+- Production notification delivery
+- Broad finance redesign
+
+These deferred capabilities are not complete and are not represented as current
+production behavior.
+
+## Technology stack
+
+- React 19 and TypeScript
+- Vite and Vitest
+- React Router
+- Testing Library and jsdom
+- Supabase JavaScript client for authentication
+- Qi API for authenticated application records
+- PostgreSQL/Supabase `qilife.records`
+- Cloudflare Workers static assets and SPA routing
+- npm with a committed lockfile
+
+## Navigation
+
+```text
+Home
+
+PLANNER
+  Today
+  Inbox
+  Actions
+  Calendar
+
+ORGANIZE
+  Projects
+  Threads
+  People
+
+RECORD
+  Journal
+  Timeline
+  Documents
+  Knowledge
+
+REVIEW
+  Decisions
+  Reports
+
+SYSTEM
+  Apps
+  Automations
+  Settings
+```
+
+Group headings are organizational labels, not duplicate destinations. Today,
+follow-ups, Project Actions, and Timeline are projections of shared records rather
+than separate storage systems.
+
+## URL-first modules
+
+| Module | Routes | Current behavior |
+| --- | --- | --- |
+| Today | `/today` | Overdue, due today, upcoming, waiting and blocked Actions; at-risk Projects; follow-ups; activity; Inbox |
+| Actions | `/actions`, `/actions/new`, `/actions/:id` | Search, filters, status, priority, due date, Project, People, Thread, context, and notes |
+| Projects | `/projects`, `/projects/new`, `/projects/:id`, `/projects/:id/edit` | Project identity, outcomes, Action summary/list, relationships, and Project-aware quick creation |
+| People | `/people`, `/people/new`, `/people/:id`, `/people/:id/edit`, `/people/:id/sync` | Personal CRM, contact methods, interactions, insights, follow-ups, and related records |
+| Journal | `/journal`, `/journal/new`, `/journal/:id` | Markdown entries, search/filter, dates, tags, pinning, autosave, export, and safe navigation |
+
+Projects also register focused linking and creation routes for People, Documents,
+and Events. Module routes are registered before the explicitly temporary
+compatibility catch-all.
+
+## Shared QiRecord model
+
+All modules use `qilife.records`; no active module has its own database or
+Supabase client.
+
+```text
+id
+owner_id
+entity_key
+title
+status
+priority
+due_date
+data jsonb
+source
+created_at
+updated_at
+archived_at
+```
+
+Domain-specific fields live in `data` while common sortable fields remain
+top-level. Journal preserves `raw_capture` independently from editable
+`body_markdown`.
+
+### Canonical relationship fields
+
+- `data.project_id` — one related Project
+- `data.people_ids` — zero or more related People
+- `data.thread_id` — one related Thread
+- `data.owner_id` — a Project owner/Person
+- `data.lead_person_id` — a lead Person where a field declares that role
+
+Relation controls display titles but persist stable IDs. The relationship layer
+reads legacy scalar and array aliases without destructively migrating or dropping
+unresolved values.
+
+## Authentication and persistence
+
+`AuthenticationBoundary` wraps both module and compatibility routes. When
+Supabase is configured, unauthenticated users see one login experience. Magic-link
+and Google sign-in return only to same-origin internal destinations while
+preserving pathname, query parameters, hash, and Supabase callback parameters.
+
+Persistence follows one path:
+
+```text
+Module UI
+  -> module repository
+  -> qilifeStore
+  -> authenticated Qi API
+  -> qilife.records
+```
+
+If Supabase is not configured, or a developer explicitly chooses local mode,
+`qilifeStore` uses browser local storage. Local mode is session-scoped and is not
+an offline sync implementation.
+
+## Local development
+
+Requirements: Node `>=22.12 <25` and npm `>=11`.
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
-Open the URL Vite prints, usually:
+Vite normally serves the application at `http://localhost:5173`.
 
-```txt
-http://localhost:5173
-```
-
-## Optional Supabase setup
-
-Copy `.env.example` to `.env`:
-
-```bash
-cp .env.example .env
-```
-
-Fill in:
+Create `.env` from `.env.example`:
 
 ```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_QI_API_URL=https://api.qially.com
+VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
 ```
 
-Run the migration in Supabase SQL editor or with the Supabase CLI:
+`VITE_SUPABASE_ANON_KEY` is accepted as a compatibility fallback. Never commit
+local secrets or service-role credentials.
 
-```sql
-supabase/migrations/0001_qilife_records.sql
+## Tests, build, and deployment
+
+```bash
+npm run test:ci
+npm run build
+git diff --check
 ```
 
-If `.env` is missing or blank, the app uses localStorage so you can still test the UI immediately.
+`npm run check` runs the test suite and production build. Deploy the current
+production Worker only after a successful build:
 
-## Main files
-
-```txt
-src/features/qilife/types.ts
-src/features/qilife/data/entityRegistry.ts
-src/features/qilife/data/navRegistry.ts
-src/features/qilife/services/qilifeStore.ts
-src/features/qilife/components/QiLifeShell.tsx
-src/features/qilife/components/HomeDashboard.tsx
-src/features/qilife/components/EntityPage.tsx
-src/features/qilife/components/EntityFormModal.tsx
-src/features/qilife/styles/qilife.css
-src/lib/supabaseClient.ts
-supabase/migrations/0001_qilife_records.sql
+```bash
+npm run build
+npx wrangler deploy
 ```
 
-## Current entities
+Root `wrangler.jsonc` is authoritative and serves `dist/` with
+`not_found_handling: "single-page-application"`.
 
-- People
-- Tasks
-- Projects
-- Care Notes
-- Appointments
-- Expenses
-- Documents
-- Legal Matters
-- Home Items
-- Reminders
+## Active source-code map
 
-## Next sane steps
+- `src/main.tsx` — application entry point and global providers
+- `src/app/` — router, module contract, registry, route frame, compatibility route
+- `src/features/qilife/auth/` — shared authentication boundary and return paths
+- `src/features/qilife/components/` — shared shell and compatibility components
+- `src/features/qilife/data/` — navigation and generic entity definitions
+- `src/features/qilife/relations/` — canonical relationship fields and resolver
+- `src/features/qilife/services/qilifeStore.ts` — shared QiRecord persistence
+- `src/modules/` — Today, Actions, Projects, People, and Journal
+- `src/lib/qiApiClient.ts` — authenticated Qi API client
+- `src/lib/supabaseClient.ts` — the single Supabase client
+- `src/test/` and colocated `*.test.*` files — test setup and focused tests
+- `public/` — active manifest, service worker, and icons
+- `supabase/migrations/` — the only database migration directory
 
-1. Confirm the shell layout feels right.
-2. Use local mode to add real sample records.
-3. Run the Supabase migration.
-4. Connect the `.env` values.
-5. Decide which module gets real depth first: Care, Finance, or Documents.
+See [ACTIVE_CODE_MAP.md](docs/architecture/ACTIVE_CODE_MAP.md) for the concise
+architecture index.
 
-Do not add AI, graph, or complex automations until the record shape proves itself. Fancy on top of mush is still mush.
+## Supabase migrations
+
+- `0001_qilife_records.sql` — creates the `qilife.records` shared-record table,
+  indexes, and updated-at trigger
+- `0002_qilife_auth_rls.sql` — adds record ownership, enables RLS, and defines
+  authenticated owner policies
+
+No migration in a documentation, reference, or module directory is authoritative.
+
+## Repository boundary
+
+Production implementation exists only in the root application directories.
+Historical implementations, copied reference applications, generated databases,
+and runnable prototypes are not retained. Git history and rollback tags provide
+historical recovery.

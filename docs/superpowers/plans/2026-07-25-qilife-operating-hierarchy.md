@@ -12,7 +12,7 @@
 
 - Preserve Journal and People routes, data behavior, tests, and production functionality.
 - Do not add databases, module-specific Supabase clients, queues, or sync engines.
-- Do not edit `codex.md`, `docs/legacy.qilife`, reference applications, prototypes, or generated artifacts.
+- Preserve repository instructions and do not recreate removed reference applications, prototypes, or generated artifacts.
 - Use test-first red-green cycles for behavior changes.
 - Use router-native links and declarative module routes before the temporary compatibility catch-all.
 - Do not perform a destructive relationship migration.

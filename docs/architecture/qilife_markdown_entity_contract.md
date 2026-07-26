@@ -1,7 +1,7 @@
 # QiLife Markdown Entity Contract
 
 > **Version**: 0.1.0-draft
-> **Branch**: `alpha/qicadence`
+> **Status**: Current shared record contract
 > **Date**: 2026-06-16
 > **Status**: Prototype — not wired into production
 

@@ -1333,7 +1333,7 @@ npm run test:ci
 npm run build
 npm run check
 git diff --check
-rg -n "legacy\\.qilife|docs/reference|docs/prototypes|gemini-timelineapp" src
+rg -n "legacy implementation|copied reference|prototype application" src
 rg -n "createClient\\(" src
 rg -n "journal_entries|journal_tags|journal_people|journal_attachments|journal_timeline|Dexie" src supabase
 ```

@@ -18,7 +18,7 @@ The active application is the repository root:
 - `src/` contains the production React application.
 - `public/` contains production static assets and Cloudflare routing configuration.
 - `supabase/` contains the active shared-record migrations.
-- `docs/legacy.qilife/`, reference material, prototypes, and `gemini-timelineapp/` are not imported by active source code.
+- Historical implementation and reference trees were not imported by active source code and have since been removed.
 
 The current application has:
 
@@ -39,7 +39,7 @@ No active shared pin, favorite, starred, bookmark, or record-metadata convention
 
 Cloudflare already supports deep-link refreshes:
 
-- `public/_redirects` contains `/* /index.html 200`.
+- Cloudflare SPA fallback is configured by root `wrangler.jsonc`.
 - `wrangler.jsonc` uses `"not_found_handling": "single-page-application"`.
 
 ## 3. Routing Architecture

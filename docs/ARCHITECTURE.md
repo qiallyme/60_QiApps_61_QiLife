@@ -1,121 +1,62 @@
-# QiLife MVP Architecture
+# QiLife architecture
 
-## Pattern
+QiLife is one React/TypeScript application deployed as a Cloudflare Worker with
+static SPA assets. Root configuration is authoritative.
 
-QiLife borrows the useful pattern from the Cadence Obsidian plugin:
+## Startup and routing
 
-- single app shell
-- internal sidebar navigation
-- registry-driven entities
-- generic table/card/detail surfaces
-- quick capture
-- settings/config first
+`src/main.tsx` creates the browser router and mounts the shared `AuthProvider` and
+`AuthenticationBoundary`. `src/app/AppRouter.tsx` renders routes aggregated by
+`src/app/moduleRegistry.ts` before the temporary compatibility catch-all.
 
-QiLife does **not** copy Cadence's Obsidian plugin structure. This app is modular React/TypeScript with a Supabase-ready storage layer.
+Registered modules own declarative manifests and URL-first routes. Manifests may
+declare routes, navigation, commands, widgets, and supported record types; they
+do not contain persistence logic or instantiate stateful services.
 
-## Data model
+Current modules:
 
-MVP uses one generic table:
+- Today: `/today`
+- Actions: `/actions`, `/actions/new`, `/actions/:id`
+- Projects: `/projects`, `/projects/new`, `/projects/:id`, `/projects/:id/edit`
+- People: `/people`, `/people/new`, `/people/:id`, `/people/:id/edit`, `/people/:id/sync`
+- Journal: `/journal`, `/journal/new`, `/journal/:id`
 
-```txt
-qilife.records
-```
+The compatibility route is explicitly temporary. It remains only for specific
+working screens that have not migrated. New modules must not add state-only
+navigation.
 
-Each record has:
+## Authentication
 
-```txt
-id
-entity_key
-title
-status
-priority
-due_date
-data jsonb
-source
-created_at
-updated_at
-archived_at
-```
+`AuthenticationBoundary` is the single enforcement boundary for both module and
+compatibility routes. Internal return paths are same-origin and preserve
+pathname, search parameters, and hash without prematurely rewriting Supabase
+callback parameters. Local fallback mode is explicit and session-scoped.
 
-This is intentionally flexible. Later, stable domains can graduate into dedicated tables.
+## Shared records and relationships
 
-## Entity registry
+The canonical persisted model is `qilife.records`. Module repositories map
+domain-specific drafts to shared QiRecords and call
+`src/features/qilife/services/qilifeStore.ts`.
 
-The registry defines what a domain means to the UI:
+Authenticated persistence flows through `src/lib/qiApiClient.ts`. Development
+without an authenticated Supabase session uses the existing local-storage
+fallback. Modules must not create their own Supabase clients, tables, databases,
+queues, or sync engines.
 
-```txt
-key
-label
-plural
-section
-description
-defaultLayout
-titleField
-fields
-columns
-```
+Canonical relationship fields store stable record IDs in QiRecord `data`.
+`src/features/qilife/relations/relationshipFields.ts` normalizes current and
+legacy values; `relationResolver.ts` supplies shared contextual queries used by
+Projects and People.
 
-The generic `EntityPage`, `EntityTable`, `EntityCards`, and `EntityFormModal` read this registry and render the correct surface.
+## Database and deployment
 
-## Store layer
+The only migration location is `supabase/migrations/`. The only Cloudflare
+configuration is root `wrangler.jsonc`; its SPA asset fallback serves
+`index.html` for application deep links.
 
-`qilifeStore.ts` routes to:
+## Documentation boundary
 
-- Supabase when `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are configured
-- localStorage when they are missing
-
-This lets Cody test immediately without getting blocked by database setup.
-
-## Do not overbuild yet
-
-Not in MVP:
-
-- AI classification
-- graph database
-- multi-user auth
-- advanced permissions
-- file uploads
-- automations
-- calendar sync
-
-Those come after the shell and core record engine are stable.
-
-## Module registry and routing
-
-QiLife modules declare routes, navigation, commands, widgets, and supported
-record types through the typed registry in `src/app/`. Manifests describe
-capabilities only; persistence and stateful behavior remain inside module
-hooks and services.
-
-The application router renders registered module routes before
-`CompatibilityShellRoute`. That catch-all is a temporary bridge for the
-pre-module, state-driven QiLife workspaces. New modules must use URL-first
-routing and must not add state-only screens to the compatibility shell.
-
-Journal is the first registered module:
-
-```txt
-/journal
-/journal/new
-/journal/:id
-```
-
-The URL is the sole source of truth for the active Journal view and selected
-entry. Cloudflare direct refreshes are supported by `public/_redirects` and
-the SPA asset fallback in `wrangler.jsonc`.
-
-## Journal persistence boundary
-
-Journal uses shared QiLife records:
-
-```txt
-Journal UI
-  -> journalRepository
-  -> qilifeStore
-  -> authenticated Qi API or existing localStorage fallback
-  -> qilife.records
-```
-
-Journal has no separate table, Supabase client, local database, or sync
-engine. See `docs/architecture/qilife_journal_module.md` for its complete
-record mapping and save semantics.
+Current documentation lives in `README.md`, this file, `docs/architecture/`,
+`docs/decisions/`, and `docs/superpowers/`. Runnable copies of external projects,
+historical application trees, generated databases, and experiments do not belong
+in documentation directories.
