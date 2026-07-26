@@ -3,6 +3,7 @@ import { journalModule } from "../modules/journal/manifest";
 import { peopleModule } from "../modules/people/manifest";
 import { actionsModule } from "../modules/actions/manifest";
 import { projectsModule } from "../modules/projects/manifest";
+import { todayModule } from "../modules/today/manifest";
 
 function assertUnique(values: readonly string[], label: string) {
   const seen = new Set<string>();
@@ -29,4 +30,10 @@ export function createModuleRegistry(
   });
 }
 
-export const moduleRegistry = createModuleRegistry([journalModule, peopleModule, actionsModule, projectsModule]);
+export const moduleRegistry = createModuleRegistry([
+  todayModule,
+  journalModule,
+  peopleModule,
+  actionsModule,
+  projectsModule,
+]);

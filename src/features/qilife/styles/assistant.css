@@ -217,6 +217,19 @@ textarea:disabled {
 .qilife-metric span,
 .qilife-muted { color: var(--qi-muted); }
 .qilife-related-list { padding-left: 20px; }
+.today-section .qilife-section-heading,
+.today-section li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.today-section .qilife-section-heading span,
+.today-section time {
+  color: var(--qi-muted);
+  font-size: 12px;
+}
+.today-section li + li { margin-top: 9px; }
 .qilife-field-error { color: var(--qi-danger); font-size: 12px; }
 
 @media (max-width: 760px) {
