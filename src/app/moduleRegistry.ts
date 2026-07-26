@@ -1,5 +1,6 @@
 import type { QiLifeModule, QiLifeModuleRegistry } from "./moduleTypes";
 import { journalModule } from "../modules/journal/manifest";
+import { peopleModule } from "../modules/people/manifest";
 
 function assertUnique(values: readonly string[], label: string) {
   const seen = new Set<string>();
@@ -26,4 +27,4 @@ export function createModuleRegistry(
   });
 }
 
-export const moduleRegistry = createModuleRegistry([journalModule]);
+export const moduleRegistry = createModuleRegistry([journalModule, peopleModule]);

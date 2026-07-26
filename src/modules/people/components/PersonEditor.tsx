@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import type { ContactMethod, Person, RelationshipCategory, RelationshipStatus, UpdatePersonInput } from "../types";
+import type { ContactMethod, Person, PersonName, RelationshipCategory, RelationshipStatus, UpdatePersonInput } from "../types";
 import { ContactMethodsPanel } from "./ContactMethodsPanel";
 
 interface PersonEditorProps {
   person?: Person | null;
-  onSave: (input: UpdatePersonInput) => Promise<unknown>;
+  onSave: (input: UpdatePersonInput & { name: PersonName }) => Promise<unknown>;
   onCancel?: () => void;
 }
 

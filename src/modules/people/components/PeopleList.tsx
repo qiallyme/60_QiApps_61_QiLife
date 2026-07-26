@@ -1,33 +1,14 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { usePeople } from "../hooks/usePeople";
 import type { Person } from "../types";
 import { calculateAttentionPulse } from "../services/relationshipService";
 import { PeopleFilters } from "./PeopleFilters";
-import { PersonDashboard } from "./PersonDashboard";
-import { PersonEditor } from "./PersonEditor";
 
 export const PeopleList: React.FC = () => {
-  const { people, loading, error, query, setQuery, refetch } = usePeople();
-  const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
-  const [isCreating, setIsCreating] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const { people, loading, error, query, setQuery } = usePeople();
   const [layoutMode, setLayoutMode] = useState<"table" | "cards">("cards");
-
-  if (selectedPersonId) {
-    return <PersonDashboard personId={selectedPersonId} onBack={() => setSelectedPersonId(null)} />;
-  }
-
-  if (isCreating) {
-    return (
-      <PersonEditor
-        onSave={async (input) => {
-          // Handled via repository in hook
-          setIsCreating(false);
-          refetch();
-        }}
-        onCancel={() => setIsCreating(false)}
-      />
-    );
-  }
 
   const getPulseBadge = (person: Person) => {
     const pulse = calculateAttentionPulse(person.relationship, []);
@@ -85,7 +66,7 @@ export const PeopleList: React.FC = () => {
           <button
             type="button"
             className="qilife-mini-btn"
-            onClick={() => setIsCreating(true)}
+            onClick={() => navigate("/people/new")}
             style={{ background: "#c084fc", color: "#000", fontWeight: "bold" }}
           >
             + Add Person
@@ -116,7 +97,7 @@ export const PeopleList: React.FC = () => {
               <div
                 key={person.id}
                 className="qilife-card"
-                onClick={() => setSelectedPersonId(person.id)}
+                onClick={() => navigate(`/people/${person.id}`)}
                 style={{
                   cursor: "pointer",
                   display: "flex",
@@ -178,7 +159,7 @@ export const PeopleList: React.FC = () => {
                 return (
                   <tr
                     key={person.id}
-                    onClick={() => setSelectedPersonId(person.id)}
+                    onClick={() => navigate(`/people/${person.id}`)}
                     style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.05)", cursor: "pointer" }}
                   >
                     <td style={{ padding: "10px 12px", fontWeight: 600, color: "var(--qi-text, #fff)" }}>

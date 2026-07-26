@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import type { RelatedRecordReference } from "../types";
 
 interface RelatedRecordsPanelProps {
@@ -47,9 +48,15 @@ export const RelatedRecordsPanel: React.FC<RelatedRecordsPanelProps> = ({ record
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <span style={{ fontSize: "14px" }}>{getEntityIcon(rec.entityType)}</span>
                 <div>
-                  <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--qi-text, #fff)" }}>
-                    {rec.title}
-                  </div>
+                  {rec.targetRoute ? (
+                    <Link to={rec.targetRoute} style={{ fontSize: "12px", fontWeight: 600, color: "var(--qi-text, #fff)" }}>
+                      {rec.title}
+                    </Link>
+                  ) : (
+                    <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--qi-text, #fff)" }}>
+                      {rec.title}
+                    </div>
+                  )}
                   {rec.summary && (
                     <div style={{ fontSize: "11px", color: "var(--qi-muted, #aaa)" }}>{rec.summary}</div>
                   )}

@@ -1,28 +1,36 @@
-/**
- * QiLife People Module Local Manifest Seam
- *
- * Designed for immediate compilation and seamless replacement with the shared `QiLifeModule`
- * type once the router & module registry foundation branch is rebased.
- */
+import type { QiLifeModule } from "../../app/moduleTypes";
+import {
+  PeopleDetailRoute,
+  PeopleEditRoute,
+  PeopleIndexRoute,
+  PeopleNewRoute,
+  PeopleSyncRoute,
+} from "./routes";
+import { FollowUpsWidget } from "./widgets/FollowUpsWidget";
+import { RecentContactsWidget } from "./widgets/RecentContactsWidget";
+import { RelationshipPulseWidget } from "./widgets/RelationshipPulseWidget";
 
-export interface TemporaryQiLifeModuleManifest {
-  id: string;
-  name: string;
-  version: string;
-  description: string;
-  icon: string;
-  routes: string[];
-  widgets: string[];
-  entityKeys: string[];
-}
-
-export const peopleModuleManifest: TemporaryQiLifeModuleManifest = {
-  id: "people",
-  name: "People / Personal CRM",
-  version: "0.1.0",
-  description: "Personal contact management, relationship cadence tracking, interaction timeline, and evidence-backed insights.",
-  icon: "👥",
-  routes: ["/people", "/people/new", "/people/:id", "/people/:id/edit", "/people/:id/sync"],
-  widgets: ["RecentContactsWidget", "FollowUpsWidget", "RelationshipPulseWidget"],
-  entityKeys: ["person"],
+export const peopleModule: QiLifeModule = {
+  key: "people",
+  name: "People",
+  routes: [
+    { id: "people-index", path: "/people", Component: PeopleIndexRoute },
+    { id: "people-new", path: "/people/new", Component: PeopleNewRoute },
+    { id: "people-detail", path: "/people/:id", Component: PeopleDetailRoute },
+    { id: "people-edit", path: "/people/:id/edit", Component: PeopleEditRoute },
+    { id: "people-sync", path: "/people/:id/sync", Component: PeopleSyncRoute },
+  ],
+  navigation: [{ id: "people-nav", label: "People", to: "/people", icon: "◎" }],
+  commands: [{
+    id: "people-new",
+    label: "Add person",
+    to: "/people/new",
+    keywords: ["people", "contact", "crm"],
+  }],
+  widgets: [
+    { id: "people-recent", label: "Recent contacts", to: "/people", Component: RecentContactsWidget },
+    { id: "people-followups", label: "People follow-ups", to: "/people", Component: FollowUpsWidget },
+    { id: "people-pulse", label: "Relationship pulse", to: "/people", Component: RelationshipPulseWidget },
+  ],
+  recordTypes: ["person", "interaction"],
 };

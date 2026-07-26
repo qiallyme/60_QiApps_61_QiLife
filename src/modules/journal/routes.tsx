@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { JournalCalendar } from "./components/JournalCalendar";
 import { JournalEditor } from "./components/JournalEditor";
 import { JournalFilters } from "./components/JournalFilters";
@@ -25,6 +25,7 @@ function draftFromEntry(entry: JournalEntry): JournalDraft {
     bodyMarkdown: entry.bodyMarkdown,
     tags: entry.tags,
     pinned: entry.pinned,
+    peopleIds: entry.peopleIds,
   };
 }
 
@@ -75,12 +76,15 @@ export function JournalIndexRoute() {
 
 export function JournalNewRoute() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const linkedPersonId = searchParams.get("personId");
   const [draft, setDraft] = useState<JournalDraft>({
     title: "",
     entryDate: today(),
     bodyMarkdown: "",
     tags: [],
     pinned: false,
+    peopleIds: linkedPersonId ? [linkedPersonId] : [],
   });
   const [status, setStatus] = useState<JournalSaveStatus>("clean");
   const [createdEntryId, setCreatedEntryId] = useState<string | null>(null);

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { useGoogleContactSync } from "../hooks/useGoogleContactSync";
 import { usePerson } from "../hooks/usePerson";
 import { usePersonInteractions } from "../hooks/usePersonInteractions";
@@ -13,11 +14,13 @@ import { RelationshipSummary } from "./RelationshipSummary";
 
 interface PersonDashboardProps {
   personId: string;
+  defaultTab?: "overview" | "interactions" | "followups" | "related" | "insights" | "sync";
   onBack?: () => void;
+  onEdit?: () => void;
 }
 
-export const PersonDashboard: React.FC<PersonDashboardProps> = ({ personId, onBack }) => {
-  const [activeTab, setActiveTab] = useState<"overview" | "interactions" | "followups" | "related" | "insights" | "sync">("overview");
+export const PersonDashboard: React.FC<PersonDashboardProps> = ({ personId, defaultTab = "overview", onBack, onEdit }) => {
+  const [activeTab, setActiveTab] = useState<"overview" | "interactions" | "followups" | "related" | "insights" | "sync">(defaultTab);
   const [isEditing, setIsEditing] = useState(false);
 
   const { person, insights, relatedRecords, loading, error, updatePerson, archivePerson, refetch } = usePerson(personId);
@@ -86,7 +89,10 @@ export const PersonDashboard: React.FC<PersonDashboardProps> = ({ personId, onBa
         </div>
 
         <div style={{ display: "flex", gap: "8px" }}>
-          <button type="button" onClick={() => setIsEditing(true)} className="qilife-mini-btn">
+          <Link className="qilife-mini-btn" to={`/journal/new?personId=${encodeURIComponent(person.id)}`}>
+            New journal entry
+          </Link>
+          <button type="button" onClick={() => onEdit ? onEdit() : setIsEditing(true)} className="qilife-mini-btn">
             ✏ Edit Person
           </button>
           <button

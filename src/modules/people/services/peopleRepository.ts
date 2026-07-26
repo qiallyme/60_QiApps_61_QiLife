@@ -1,7 +1,5 @@
 import { archiveRecord, createRecord, listAllRecords, listRecords, updateRecord } from "../../../features/qilife/services/qilifeStore";
-import type { QiRecord } from "../../../features/qilife/types";
 import type { CreatePersonInput, Interaction, PeopleQuery, Person, PersonInsight, RelatedRecordReference, UpdatePersonInput } from "../types";
-import { mockInteractionsFixtures, mockPeopleFixtures, mockRelatedRecordsFixtures } from "../fixtures";
 import { generateDerivedInsights } from "./insightService";
 import { INTERACTION_ENTITY_KEY, toInteraction, toQiInteractionRecordInput } from "./interactionService";
 import { PERSON_ENTITY_KEY, toPerson, toQiCreateRecordInput, toQiUpdateRecordInput } from "./personRecordMapper";
@@ -22,12 +20,7 @@ export interface PeopleRepository {
 export class QiLifePeopleRepository implements PeopleRepository {
   async list(query?: PeopleQuery): Promise<Person[]> {
     const rawRecords = await listRecords(PERSON_ENTITY_KEY);
-    let people = rawRecords.map(toPerson);
-
-    // If local store has no people records yet, return fixtures for rich preview
-    if (people.length === 0) {
-      people = mockPeopleFixtures;
-    }
+    const people = rawRecords.map(toPerson);
 
     if (!query) return people;
 
@@ -55,9 +48,9 @@ export class QiLifePeopleRepository implements PeopleRepository {
   }
 
   async getById(id: string): Promise<Person | null> {
-    const all = await this.list();
-    const person = all.find((p) => p.id === id);
-    return person || null;
+    const records = await listRecords(PERSON_ENTITY_KEY);
+    const record = records.find((item) => item.id === id);
+    return record ? toPerson(record) : null;
   }
 
   async create(input: CreatePersonInput): Promise<Person> {
@@ -86,8 +79,10 @@ export class QiLifePeopleRepository implements PeopleRepository {
   }
 
   async update(id: string, patch: UpdatePersonInput): Promise<Person> {
-    const existing = await this.getById(id);
-    if (!existing) throw new Error(`Person with id ${id} not found.`);
+    const records = await listRecords(PERSON_ENTITY_KEY);
+    const existingRecord = records.find((item) => item.id === id);
+    if (!existingRecord) throw new Error(`Person with id ${id} not found.`);
+    const existing = toPerson(existingRecord);
 
     const updatedPerson: Person = {
       ...existing,
@@ -101,15 +96,7 @@ export class QiLifePeopleRepository implements PeopleRepository {
       updatedAt: new Date().toISOString(),
     };
 
-    // Synthesize existing QiRecord structure for mapper
-    const fakeExistingRecord: QiRecord = {
-      id: existing.id,
-      entity_key: PERSON_ENTITY_KEY,
-      title: existing.name.formattedName,
-      data: existing._unknownFields || {},
-    };
-
-    const qiPatch = toQiUpdateRecordInput(updatedPerson, fakeExistingRecord);
+    const qiPatch = toQiUpdateRecordInput(updatedPerson, existingRecord);
     const savedRecord = await updateRecord(id, qiPatch);
     return toPerson(savedRecord);
   }
@@ -120,11 +107,7 @@ export class QiLifePeopleRepository implements PeopleRepository {
 
   async listInteractions(personId: string): Promise<Interaction[]> {
     const records = await listRecords(INTERACTION_ENTITY_KEY);
-    const interactions = records.map(toInteraction).filter((int) => int.personId === personId);
-    if (interactions.length === 0) {
-      return mockInteractionsFixtures.filter((int) => int.personId === personId);
-    }
-    return interactions;
+    return records.map(toInteraction).filter((interaction) => interaction.personId === personId);
   }
 
   async addInteraction(interaction: Omit<Interaction, "id">): Promise<Interaction> {
@@ -134,9 +117,45 @@ export class QiLifePeopleRepository implements PeopleRepository {
   }
 
   async listRelatedRecords(personId: string): Promise<RelatedRecordReference[]> {
-    // In future phases, this queries shared records linked to personId.
-    // For scaffold preview, return rich mock cross-module links.
-    return mockRelatedRecordsFixtures;
+    const records = await listAllRecords();
+    return records
+      .filter((record) => (
+        record.entity_key !== PERSON_ENTITY_KEY
+        && Array.isArray(record.data.people_ids)
+        && record.data.people_ids.includes(personId)
+      ))
+      .map((record) => {
+        const entityType = record.entity_key === "journal_entry"
+          ? "journal"
+          : record.entity_key;
+        const routePrefix: Record<string, string> = {
+          journal_entry: "/journal",
+          task: "/tasks",
+          thread: "/threads",
+          document: "/documents",
+        };
+        const summaryValue = record.data.summary
+          ?? record.data.body_markdown
+          ?? record.data.description;
+
+        return {
+          id: record.id,
+          entityType,
+          title: record.title,
+          timestamp:
+            (typeof record.data.entry_date === "string" && record.data.entry_date)
+            || record.updated_at
+            || record.created_at
+            || new Date(0).toISOString(),
+          ...(typeof summaryValue === "string" ? { summary: summaryValue } : {}),
+          sourceModule: entityType,
+          relationshipType: record.entity_key === "journal_entry" ? "mentioned_in" : "linked_to",
+          ...(routePrefix[record.entity_key]
+            ? { targetRoute: `${routePrefix[record.entity_key]}/${record.id}` }
+            : {}),
+        };
+      })
+      .sort((left, right) => right.timestamp.localeCompare(left.timestamp));
   }
 
   async getInsights(personId: string): Promise<PersonInsight[]> {

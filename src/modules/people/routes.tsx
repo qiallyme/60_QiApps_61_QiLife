@@ -1,59 +1,79 @@
-import React from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { PeopleList } from "./components/PeopleList";
 import { PersonDashboard } from "./components/PersonDashboard";
 import { PersonEditor } from "./components/PersonEditor";
+import { usePerson } from "./hooks/usePerson";
 
-export interface PeopleRouteDefinition {
-  path: string;
-  element: React.ReactNode;
-  label: string;
-  exact?: boolean;
+export function PeopleIndexRoute() {
+  return <main className="qilife-page"><PeopleList /></main>;
 }
 
-/**
- * Route declarations for the QiLife People CRM module.
- * Ready to mount into the shared router shell after rebasing with the Journal/router foundation branch.
- */
-export const peopleRoutes: PeopleRouteDefinition[] = [
-  {
-    path: "/people",
-    element: <PeopleList />,
-    label: "People List",
-    exact: true,
-  },
-  {
-    path: "/people/new",
-    element: <PersonEditorSeam />,
-    label: "New Person",
-  },
-  {
-    path: "/people/:id",
-    element: <PersonDashboardWrapper />,
-    label: "Person Profile",
-  },
-  {
-    path: "/people/:id/edit",
-    element: <PersonDashboardWrapper isEdit />,
-    label: "Edit Person",
-  },
-  {
-    path: "/people/:id/sync",
-    element: <PersonDashboardWrapper defaultTab="sync" />,
-    label: "Google Contact Sync",
-  },
-];
+export function PeopleNewRoute() {
+  const navigate = useNavigate();
+  const { createPerson } = usePerson();
 
-function PersonEditorSeam() {
-  return <PersonListWrapperSeam />;
+  return (
+    <main className="qilife-page">
+      <PersonEditor
+        onSave={async (input) => {
+          const person = await createPerson(input);
+          navigate(`/people/${person.id}`, { replace: true });
+        }}
+        onCancel={() => navigate("/people")}
+      />
+    </main>
+  );
 }
 
-function PersonListWrapperSeam() {
-  return <PeopleList />;
+export function PeopleDetailRoute() {
+  const navigate = useNavigate();
+  const { id = "" } = useParams();
+  return (
+    <main className="qilife-page">
+      <PersonDashboard
+        personId={id}
+        onBack={() => navigate("/people")}
+        onEdit={() => navigate(`/people/${id}/edit`)}
+      />
+    </main>
+  );
 }
 
-function PersonDashboardWrapper({ isEdit, defaultTab }: { isEdit?: boolean; defaultTab?: string }) {
-  // Simple url helper seam for route integration
-  const urlParams = typeof window !== "undefined" ? window.location.pathname.split("/") : [];
-  const id = urlParams[2] || "person-101";
-  return <PersonDashboard personId={id} />;
+export function PeopleEditRoute() {
+  const navigate = useNavigate();
+  const { id = "" } = useParams();
+  const { person, loading, error, updatePerson } = usePerson(id);
+
+  if (loading) return <main className="qilife-page">Loading person…</main>;
+  if (error || !person) {
+    return <main className="qilife-page">Person record not found.</main>;
+  }
+
+  return (
+    <main className="qilife-page">
+      <PersonEditor
+        person={person}
+        onSave={async (patch) => {
+          await updatePerson(patch);
+          navigate(`/people/${id}`, { replace: true });
+        }}
+        onCancel={() => navigate(`/people/${id}`)}
+      />
+    </main>
+  );
+}
+
+export function PeopleSyncRoute() {
+  const navigate = useNavigate();
+  const { id = "" } = useParams();
+  return (
+    <main className="qilife-page">
+      <PersonDashboard
+        personId={id}
+        defaultTab="sync"
+        onBack={() => navigate(`/people/${id}`)}
+        onEdit={() => navigate(`/people/${id}/edit`)}
+      />
+    </main>
+  );
 }
