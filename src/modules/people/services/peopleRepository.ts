@@ -1,4 +1,5 @@
-import { archiveRecord, createRecord, listAllRecords, listRecords, updateRecord } from "../../../features/qilife/services/qilifeStore";
+import { archiveRecord, createRecord, listRecords, updateRecord } from "../../../features/qilife/services/qilifeStore";
+import { relationResolver } from "../../../features/qilife/relations/relationResolver";
 import type { CreatePersonInput, Interaction, PeopleQuery, Person, PersonInsight, RelatedRecordReference, UpdatePersonInput } from "../types";
 import { generateDerivedInsights } from "./insightService";
 import { INTERACTION_ENTITY_KEY, toInteraction, toQiInteractionRecordInput } from "./interactionService";
@@ -117,20 +118,15 @@ export class QiLifePeopleRepository implements PeopleRepository {
   }
 
   async listRelatedRecords(personId: string): Promise<RelatedRecordReference[]> {
-    const records = await listAllRecords();
+    const records = await relationResolver.getRecordsForPerson(personId);
     return records
-      .filter((record) => (
-        record.entity_key !== PERSON_ENTITY_KEY
-        && Array.isArray(record.data.people_ids)
-        && record.data.people_ids.includes(personId)
-      ))
       .map((record) => {
         const entityType = record.entity_key === "journal_entry"
           ? "journal"
           : record.entity_key;
         const routePrefix: Record<string, string> = {
           journal_entry: "/journal",
-          task: "/tasks",
+          task: "/actions",
           thread: "/threads",
           document: "/documents",
         };
