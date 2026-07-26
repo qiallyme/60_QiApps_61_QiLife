@@ -26,6 +26,7 @@ function draftFromEntry(entry: JournalEntry): JournalDraft {
     tags: entry.tags,
     pinned: entry.pinned,
     peopleIds: entry.peopleIds,
+    projectId: entry.projectId,
   };
 }
 
@@ -78,6 +79,7 @@ export function JournalNewRoute() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const linkedPersonId = searchParams.get("personId");
+  const linkedProjectId = searchParams.get("projectId");
   const [draft, setDraft] = useState<JournalDraft>({
     title: "",
     entryDate: today(),
@@ -85,6 +87,7 @@ export function JournalNewRoute() {
     tags: [],
     pinned: false,
     peopleIds: linkedPersonId ? [linkedPersonId] : [],
+    projectId: linkedProjectId,
   });
   const [status, setStatus] = useState<JournalSaveStatus>("clean");
   const [createdEntryId, setCreatedEntryId] = useState<string | null>(null);

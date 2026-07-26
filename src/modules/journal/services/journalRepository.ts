@@ -46,6 +46,14 @@ export function mapRecordToJournalEntry(record: QiRecord): JournalEntry {
     tags: strings(record.data.tags),
     pinned: record.data.pinned === true,
     peopleIds: strings(record.data.people_ids),
+    ...(Object.prototype.hasOwnProperty.call(record.data, "project_id")
+      || typeof record.data.project === "string"
+      ? {
+          projectId: typeof record.data.project_id === "string"
+            ? record.data.project_id
+            : typeof record.data.project === "string" ? record.data.project : null,
+        }
+      : {}),
     createdAt: record.created_at,
     updatedAt: record.updated_at,
   };
@@ -81,6 +89,7 @@ export function createJournalRepository(store: JournalRecordStore): JournalRepos
             tags: draft.tags,
             pinned: draft.pinned,
             people_ids: draft.peopleIds ?? [],
+            project_id: draft.projectId ?? null,
           },
         }),
       );
@@ -104,6 +113,9 @@ export function createJournalRepository(store: JournalRecordStore): JournalRepos
             tags: draft.tags,
             pinned: draft.pinned,
             people_ids: draft.peopleIds ?? strings(existing.data.people_ids),
+            ...(draft.projectId !== undefined || Object.prototype.hasOwnProperty.call(existing.data, "project_id")
+              ? { project_id: draft.projectId ?? null }
+              : {}),
           },
         }),
       );

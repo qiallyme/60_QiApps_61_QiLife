@@ -13,6 +13,7 @@ export interface JournalEntry {
   tags: string[];
   pinned: boolean;
   peopleIds?: string[];
+  projectId?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -24,6 +25,7 @@ export interface JournalDraft {
   tags: string[];
   pinned: boolean;
   peopleIds?: string[];
+  projectId?: string | null;
 }
 
 export type JournalSaveStatus = "clean" | "dirty" | "saving" | "failed";
