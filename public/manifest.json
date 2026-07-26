@@ -1,7 +1,7 @@
 {
   "short_name": "QiLife",
-  "name": "QiLife - Life Management Shell",
-  "description": "A Cadence-style life management shell: daily action, people, care, finance, legal, home, documents, projects, and reminders.",
+  "name": "QiLife - Life Management OS",
+  "description": "A life management OS: daily action, people, care, finance, legal, home, documents, projects, and reminders.",
   "icons": [
     {
       "src": "/logo-192.png",
