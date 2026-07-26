@@ -231,6 +231,37 @@ textarea:disabled {
 }
 .today-section li + li { margin-top: 9px; }
 .qilife-field-error { color: var(--qi-danger); font-size: 12px; }
+.qilife-multi-relation,
+.qilife-relation-chips {
+  display: grid;
+  gap: 8px;
+}
+.qilife-relation-chips {
+  grid-template-columns: repeat(auto-fit, minmax(130px, max-content));
+}
+.qilife-relation-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-height: 34px;
+  padding: 4px 6px 4px 10px;
+  color: #244170;
+  background: #edf3ff;
+  border: 1px solid #bfd0ef;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.qilife-relation-chip button {
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--qi-muted);
+  cursor: pointer;
+}
+.qilife-relation-chip button:hover { background: #dce8ff; color: var(--qi-danger); }
 
 @media (max-width: 760px) {
   .qilife-metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { RelationSelector } from "../../../features/qilife/components/RelationSelector";
+import { MultiRelationSelector, RelationSelector } from "../../../features/qilife/components/RelationSelector";
 import type { ActionDraft } from "../types";
 
 export const emptyAction: ActionDraft = {
@@ -57,8 +57,8 @@ export function ActionForm({
         <label className="qilife-label">Project
           <RelationSelector relationEntity="project" value={draft.projectId ?? ""} onChange={(value) => set("projectId", value || null)} />
         </label>
-        <label className="qilife-label">Person
-          <RelationSelector relationEntity="person" value={draft.peopleIds[0] ?? ""} onChange={(value) => set("peopleIds", value ? [value] : [])} />
+        <label className="qilife-label">People
+          <MultiRelationSelector relationEntity="person" values={draft.peopleIds} onChange={(values) => set("peopleIds", values)} />
         </label>
         <label className="qilife-label">Thread
           <RelationSelector relationEntity="thread" value={draft.threadId ?? ""} onChange={(value) => set("threadId", value || null)} />
