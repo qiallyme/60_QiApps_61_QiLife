@@ -7,7 +7,7 @@
   gap: 10px;
   border: 1px solid var(--qi-border-strong);
   border-radius: 13px;
-  background: #0e0d16;
+  background: var(--qi-surface-raised);
   padding: 10px 11px;
   margin-bottom: 10px;
 }
@@ -53,4 +53,184 @@
   .qilife-assistant-search { grid-template-columns: auto minmax(0, 1fr); }
   .qilife-assistant-search .qilife-btn { grid-column: span 1; }
   .qilife-assistant-layout { grid-template-columns: 1fr; }
+}
+
+/* Qi Soft Surface: final shared-layer overrides, loaded after legacy feature CSS. */
+.qilife-content,
+.qilife-page,
+.qilife-workspace {
+  color: var(--qi-text);
+}
+
+.qilife-topbar-page-title {
+  font-size: 18px;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+}
+
+.qilife-panel,
+.qilife-card,
+.qilife-table-wrap,
+.qilife-modal,
+.drawer,
+.journal-list-item {
+  background: var(--qi-surface-raised) !important;
+  color: var(--qi-text) !important;
+  border: 1px solid var(--qi-border-primary) !important;
+  border-radius: var(--qi-radius-lg);
+  box-shadow: var(--qi-shadow-soft);
+}
+
+.qilife-card,
+.journal-list-item {
+  text-decoration: none;
+}
+
+.qilife-card:hover,
+.journal-list-item:hover {
+  border-color: #9eb5dc !important;
+  box-shadow: var(--qi-shadow-medium);
+  transform: translateY(-1px);
+}
+
+.qilife-page input:not([type="checkbox"]):not([type="radio"]),
+.qilife-page textarea,
+.qilife-page select,
+.qilife-modal input:not([type="checkbox"]):not([type="radio"]),
+.qilife-modal textarea,
+.qilife-modal select,
+.qilife-search,
+.qilife-capture-bar {
+  min-height: 40px;
+  background: var(--qi-surface-interactive) !important;
+  color: var(--qi-text) !important;
+  border: 1px solid var(--qi-border-strong) !important;
+  border-radius: var(--qi-radius-sm) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--qi-faint);
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  transition: border-color 140ms ease, background-color 140ms ease, color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--qi-primary);
+  outline-offset: 2px;
+  box-shadow: var(--qi-focus-ring);
+}
+
+.qilife-btn,
+.qilife-mini-btn {
+  min-height: 40px;
+  border: 1px solid var(--qi-border-strong);
+  border-radius: var(--qi-radius-sm);
+  background: var(--qi-surface-raised);
+  color: var(--qi-text);
+}
+
+.qilife-btn.primary,
+.qilife-mini-btn.primary {
+  background: var(--qi-primary) !important;
+  border-color: var(--qi-primary) !important;
+  color: #fff !important;
+}
+
+.qilife-btn.primary:hover,
+.qilife-mini-btn.primary:hover {
+  background: var(--qi-primary-hover) !important;
+}
+
+.qilife-btn.danger {
+  color: var(--qi-danger);
+  border-color: #e8aab2;
+  background: #fff7f8;
+}
+
+.qilife-btn:disabled,
+.qilife-mini-btn:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.qilife-table th,
+.qilife-table td {
+  border-color: var(--qi-border-primary) !important;
+}
+
+.qilife-table th {
+  background: #eef3f9 !important;
+  color: var(--qi-muted) !important;
+}
+
+.qilife-filter-row,
+.qilife-metric-grid,
+.qilife-dashboard-grid,
+.qilife-card-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.qilife-filter-row {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  margin-bottom: 18px;
+}
+
+.qilife-card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+.qilife-dashboard-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  margin-top: 18px;
+}
+
+.qilife-metric-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 18px 0;
+}
+
+.qilife-metric {
+  display: grid;
+  gap: 4px;
+  padding: 16px;
+  background: var(--qi-surface-raised);
+  border: 1px solid var(--qi-border-primary);
+  border-radius: var(--qi-radius-md);
+}
+
+.qilife-metric strong { font-size: 24px; }
+.qilife-metric span,
+.qilife-muted { color: var(--qi-muted); }
+.qilife-related-list { padding-left: 20px; }
+.qilife-field-error { color: var(--qi-danger); font-size: 12px; }
+
+@media (max-width: 760px) {
+  .qilife-metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .qilife-page { padding: 18px 14px 28px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

@@ -1,21 +1,44 @@
 :root {
-  color-scheme: dark;
-  --qi-bg: #09090f;
-  --qi-bg-2: #0d0c14;
-  --qi-bg-3: #12111d;
-  --qi-panel: #13111f;
-  --qi-panel-2: #0e0d16;
-  --qi-border: rgba(255, 255, 255, 0.08);
-  --qi-border-strong: rgba(255, 255, 255, 0.14);
-  --qi-text: #f3f2fa;
-  --qi-muted: #a6a4c2;
-  --qi-faint: #716f94;
-  --qi-green: #c084fc;       /* Brand Primary: Pastel Purple */
-  --qi-green-2: #60a5fa;     /* Brand Secondary: Light Blue */
-  --qi-green-dark: #251a3d;  /* Brand Primary Dark background */
-  --qi-status-green: #4ade80; /* Actual green only for status indicators */
-  --qi-danger: #f87171;
-  --qi-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  color-scheme: light;
+  --qi-canvas: #f4f7fb;
+  --qi-surface-raised: #ffffff;
+  --qi-surface-interactive: #f8faff;
+  --qi-surface-overlay: #ffffff;
+  --qi-border-primary: #dce3ee;
+  --qi-border-strong: #b9c5d6;
+  --qi-shadow-soft: 0 4px 16px rgba(25, 42, 70, 0.07);
+  --qi-shadow-medium: 0 16px 40px rgba(25, 42, 70, 0.13);
+  --qi-focus-ring: 0 0 0 3px rgba(20, 91, 255, 0.25);
+  --qi-primary: #145bff;
+  --qi-primary-hover: #0849db;
+  --qi-secondary: #7137d8;
+  --qi-info: #168a8a;
+  --qi-attention: #b98514;
+  --qi-success: #24835a;
+  --qi-danger: #c73b4c;
+  --qi-text: #152238;
+  --qi-muted: #5f6f85;
+  --qi-faint: #8190a4;
+  --qi-sidebar: #0b1730;
+  --qi-sidebar-raised: #142344;
+  --qi-sidebar-text: #dce6f6;
+  --qi-sidebar-muted: #8fa2bf;
+  --qi-radius-sm: 10px;
+  --qi-radius-md: 12px;
+  --qi-radius-lg: 14px;
+
+  /* Temporary compatibility aliases for released components. */
+  --qi-bg: var(--qi-canvas);
+  --qi-bg-2: #edf2f8;
+  --qi-bg-3: #e7edf5;
+  --qi-panel: var(--qi-surface-raised);
+  --qi-panel-2: var(--qi-surface-interactive);
+  --qi-border: var(--qi-border-primary);
+  --qi-green: var(--qi-primary);
+  --qi-green-2: var(--qi-secondary);
+  --qi-green-dark: #e8efff;
+  --qi-status-green: var(--qi-success);
+  --qi-shadow: var(--qi-shadow-medium);
 }
 
 .journal-filter-row,
@@ -91,7 +114,7 @@ button { color: inherit; }
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(circle at top left, rgba(192, 132, 252, 0.08), transparent 34%), var(--qi-bg);
+  background: var(--qi-canvas);
   color: var(--qi-text);
 }
 
@@ -103,7 +126,7 @@ button { color: inherit; }
   justify-content: space-between;
   gap: 16px;
   padding: 14px 24px;
-  background: rgba(9, 9, 15, 0.92);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(14px);
   flex-shrink: 0;
 }
@@ -137,8 +160,9 @@ button { color: inherit; }
 .qilife-sidebar {
   width: 250px;
   flex-shrink: 0;
-  background: rgba(9, 9, 15, 0.95);
-  border-right: 1px solid var(--qi-border);
+  background: var(--qi-sidebar);
+  border-right: 1px solid #203153;
+  color: var(--qi-sidebar-text);
   padding: 16px 12px;
   overflow-y: auto;
 }
@@ -156,7 +180,8 @@ button { color: inherit; }
   background: transparent;
   text-align: left;
 }
-.qilife-brand:hover { background: rgba(255, 255, 255, 0.05); }
+.qilife-brand { color: var(--qi-sidebar-text); text-decoration: none; }
+.qilife-brand:hover { background: rgba(255, 255, 255, 0.07); }
 .qilife-brand-mark {
   width: 36px;
   height: 36px;
@@ -169,14 +194,14 @@ button { color: inherit; }
   box-shadow: inset 0 0 0 1px rgba(192, 132, 252, 0.18);
 }
 .qilife-brand-title { font-size: 15px; font-weight: 850; }
-.qilife-brand-subtitle { font-size: 11px; color: var(--qi-faint); }
+.qilife-brand-subtitle { font-size: 11px; color: var(--qi-sidebar-muted); }
 
 .qilife-nav-group { margin-bottom: 18px; }
 .qilife-nav-group-label {
   padding: 8px 10px;
   font-size: 10px;
   font-weight: 850;
-  color: #68736c;
+  color: var(--qi-sidebar-muted);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -184,7 +209,7 @@ button { color: inherit; }
   width: 100%;
   border: 0;
   background: transparent;
-  color: #cbd5ce;
+  color: var(--qi-sidebar-text);
   text-align: left;
   padding: 9px 10px;
   border-radius: 9px;
@@ -194,8 +219,8 @@ button { color: inherit; }
   gap: 10px;
   align-items: center;
 }
-.qilife-nav-item:hover { background: rgba(255, 255, 255, 0.06); }
-.qilife-nav-item.active { background: var(--qi-green-dark); color: var(--qi-green); }
+.qilife-nav-item:hover { background: rgba(255, 255, 255, 0.08); }
+.qilife-nav-item.active { background: #204b9c; color: #ffffff; }
 .qilife-nav-icon { width: 20px; display: inline-flex; justify-content: center; }
 
 .qilife-content { flex: 1; min-width: 0; overflow-y: auto; }
@@ -203,7 +228,7 @@ button { color: inherit; }
 
 .qilife-hero {
   border: 1px solid var(--qi-border);
-  background: linear-gradient(135deg, #1f1437, #0e0d16);
+  background: linear-gradient(135deg, #ffffff, #eef4ff);
   border-radius: 20px;
   padding: 28px;
   margin-bottom: 18px;

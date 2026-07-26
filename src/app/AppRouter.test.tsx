@@ -44,6 +44,7 @@ describe("AppRouter", () => {
     );
 
     expect(screen.getByText("Journal route")).toBeInTheDocument();
+    expect(screen.getByText("PLANNER")).toBeInTheDocument();
     expect(screen.queryByText("Compatibility QiLife shell")).not.toBeInTheDocument();
   });
 
