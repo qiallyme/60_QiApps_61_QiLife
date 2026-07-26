@@ -1,8 +1,8 @@
 import { useAuth } from "../auth/useAuth";
+import { StorageStatusIndicator } from "../reliability/StorageStatusIndicator";
 
 interface TopbarProps {
   activeLabel: string;
-  storeMode: "api" | "localStorage";
   userEmail?: string;
   onQuickCapture: () => void;
   onQuickJournal?: () => void;
@@ -10,7 +10,6 @@ interface TopbarProps {
 
 export function Topbar({
   activeLabel,
-  storeMode,
   userEmail,
   onQuickCapture,
   onQuickJournal,
@@ -36,10 +35,8 @@ export function Topbar({
             Quick journal
           </button>
         )}
-        <div className={`qilife-store-pill ${storeMode === "api" ? "online" : "local"}`} title={userEmail}>
-          {storeMode === "api" ? "Qi API" : "Local"}
-        </div>
-        {storeMode === "api" && userEmail && (
+        <StorageStatusIndicator />
+        {userEmail && (
           <button className="qilife-mini-btn" type="button" onClick={() => signOut().catch(console.error)}>
             Sign out
           </button>

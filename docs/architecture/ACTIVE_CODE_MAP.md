@@ -16,6 +16,7 @@ this repository.
 | Current modules | `src/modules/today/`, `actions/`, `projects/`, `people/`, `journal/` |
 | Relationship contract and resolver | `src/features/qilife/relations/` |
 | Shared QiRecord store | `src/features/qilife/services/qilifeStore.ts` |
+| Storage status and recovery | `src/features/qilife/reliability/` |
 | Authenticated API client | `src/lib/qiApiClient.ts` |
 | Supabase client | `src/lib/supabaseClient.ts` |
 | Database migrations | `supabase/migrations/` |

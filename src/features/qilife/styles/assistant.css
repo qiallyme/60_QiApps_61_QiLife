@@ -384,6 +384,77 @@ textarea:disabled {
   grid-template-columns: 110px 1fr auto;
 }
 
+button.qilife-store-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 280px;
+  min-height: 38px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.qilife-store-pill strong { white-space: nowrap; }
+.qilife-store-pill span {
+  overflow: hidden;
+  color: inherit;
+  opacity: 0.82;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.qilife-store-pill.storage-cloud { color: var(--qi-success); background: #f1fbf6; border-color: #a8d7bd; }
+.qilife-store-pill.storage-local { color: #775a13; background: #fff9e9; border-color: #dfc878; }
+.qilife-store-pill.storage-offline { color: #775a13; background: #fff7de; border-color: #d8b84b; }
+.qilife-store-pill.storage-sync_error { color: var(--qi-danger); background: #fff3f5; border-color: #e6a6af; }
+
+.reliability-panel { width: min(720px, 100%); }
+.reliability-panel .qilife-modal-header h2 { margin: 12px 0 0; }
+.reliability-section {
+  padding: 18px 0;
+  border-top: 1px solid var(--qi-border-primary);
+}
+.reliability-section h3,
+.restore-preview h4 { margin: 0 0 7px; }
+.reliability-section p { margin: 0 0 14px; color: var(--qi-muted); line-height: 1.55; }
+.restore-preview {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--qi-surface-interactive);
+  border: 1px solid var(--qi-border-primary);
+  border-radius: var(--qi-radius-md);
+}
+.restore-preview dl {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+.restore-preview dl div {
+  padding: 10px;
+  background: var(--qi-surface-raised);
+  border: 1px solid var(--qi-border-primary);
+  border-radius: var(--qi-radius-sm);
+}
+.restore-preview dt { color: var(--qi-muted); font-size: 11px; }
+.restore-preview dd { margin: 4px 0 0; font-size: 20px; font-weight: 750; }
+.restore-preview ul { padding: 0; list-style: none; }
+.restore-preview li {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--qi-border-primary);
+}
+.qilife-warning,
+.qilife-success {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid;
+  border-radius: var(--qi-radius-sm);
+}
+.qilife-warning { color: #775a13; background: #fff9e9; border-color: #dfc878; }
+.qilife-success { color: var(--qi-success); background: #f1fbf6; border-color: #a8d7bd; }
+
 @media (max-width: 760px) {
   .qilife-metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .qilife-page { padding: 18px 14px 28px; }
@@ -391,6 +462,8 @@ textarea:disabled {
   .qilife-form-grid.three { grid-template-columns: 1fr; }
   .people-contact-row,
   .people-contact-row.read-only { grid-template-columns: 1fr; }
+  .restore-preview dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  button.qilife-store-pill { max-width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -16,6 +16,8 @@ Production: https://qilife.qilife.workers.dev
 - Supabase authentication with same-origin deep-route return paths
 - Explicit session-scoped local development fallback
 - Shared QiRecord persistence through the Qi API or browser local storage
+- Persistent Cloud, Local, Offline, or Sync error status throughout the app
+- Versioned complete JSON export and preview-first, conflict-aware restore
 - Stable cross-module Project, Person, Thread, and owner relationships
 - Project dashboards with contextual Actions and related records
 - Journal editing, debounced persistence, raw-capture protection, navigation
@@ -170,7 +172,36 @@ Module UI
 
 If Supabase is not configured, or a developer explicitly chooses local mode,
 `qilifeStore` uses browser local storage. Local mode is session-scoped and is not
-an offline sync implementation.
+an offline sync implementation. Authenticated cloud failures never silently
+fall back to local storage.
+
+### Storage status and recovery
+
+The top bar always identifies the active condition:
+
+- **Cloud** means an authenticated, owner-scoped Qi API operation succeeded.
+- **Local** means data exists only in the current browser.
+- **Offline** means a cloud account is available but the browser is disconnected.
+- **Sync error** means synchronization could not be confirmed or a write may
+  not have reached storage.
+
+Select the indicator to download a complete, versioned JSON recovery export or
+review a restore file. Restore validates the file before any write, previews
+counts by entity and conflict outcome, creates missing records, updates only
+when the import is newer, skips equal/newer records, and never deletes records
+omitted by the file. Stable IDs, relationships, archive state, Journal Markdown,
+and `raw_capture` are preserved.
+
+See [DATA_RECOVERY.md](docs/architecture/DATA_RECOVERY.md) for the schema,
+workflow, cloud/local guarantees, and failure behavior.
+
+### Controlled trial boundary
+
+Until the complete authenticated cross-browser procedure has been verified with
+the intended production account, use QiLife only for noncritical test Projects,
+Actions, limited People details, and replaceable Journal entries. Do not use it
+as the sole record for legal deadlines, medical appointments, credentials,
+financial evidence, irreplaceable evidence, or other consequential obligations.
 
 ## Local development
 
@@ -215,6 +246,8 @@ Root `wrangler.jsonc` is authoritative and serves `dist/` with
 
 ## Active source-code map
 
+- `src/features/qilife/reliability/` - storage state, export, restore, and recovery UI
+
 - `src/main.tsx` — application entry point and global providers
 - `src/app/` — router, module contract, registry, route frame, compatibility route
 - `src/features/qilife/auth/` — shared authentication boundary and return paths
@@ -238,6 +271,8 @@ architecture index.
   indexes, and updated-at trigger
 - `0002_qilife_auth_rls.sql` — adds record ownership, enables RLS, and defines
   authenticated owner policies
+- `0003_qilife_authenticated_grants.sql` - grants the authenticated API client
+  the minimum table access required for PostgreSQL to enforce those RLS policies
 
 No migration in a documentation, reference, or module directory is authoritative.
 

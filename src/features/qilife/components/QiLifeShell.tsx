@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { moduleRegistry } from "../../../app/moduleRegistry";
-import { getStoreMode, seedDemoData, isSupabaseConfigured } from "../services/qilifeStore";
+import { seedDemoData, isSupabaseConfigured } from "../services/qilifeStore";
 import { HomeDashboard } from "./HomeDashboard";
 import { QuickCaptureModal } from "./QuickCaptureModal";
 import { SidebarNav } from "./SidebarNav";
@@ -83,7 +83,6 @@ export function QiLifeShell() {
   }
 
   if (loading) return <div className="qilife-app centered"><div className="qilife-empty">Connecting to QiLife...</div></div>;
-  const storeMode = getStoreMode(!!user && !localMode);
   const activeLabel = activeViewKey === "assistant"
     ? "Ask QiLife"
     : activeWorkspaceKey
@@ -94,7 +93,6 @@ export function QiLifeShell() {
     <div className="qilife-app">
       <Topbar
         activeLabel={activeLabel}
-        storeMode={storeMode}
         userEmail={user?.email}
         onQuickCapture={() => setCaptureOpen(true)}
         onQuickJournal={() => navigate("/journal/new")}

@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { QuickCaptureModal } from "../features/qilife/components/QuickCaptureModal";
 import { SidebarNav } from "../features/qilife/components/SidebarNav";
+import { StorageStatusIndicator } from "../features/qilife/reliability/StorageStatusIndicator";
 
 export function ModuleRouteFrame({ label, children }: { label: string; children: ReactNode }) {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ export function ModuleRouteFrame({ label, children }: { label: string; children:
         </button>
         <div className="qilife-topbar-actions">
           <button className="qilife-mini-btn" type="button" onClick={() => navigate("/journal/new")}>Quick journal</button>
+          <StorageStatusIndicator />
         </div>
       </header>
       <div className="qilife-body">

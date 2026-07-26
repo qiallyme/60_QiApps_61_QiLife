@@ -38,10 +38,19 @@ The canonical persisted model is `qilife.records`. Module repositories map
 domain-specific drafts to shared QiRecords and call
 `src/features/qilife/services/qilifeStore.ts`.
 
-Authenticated persistence flows through `src/lib/qiApiClient.ts`. Development
-without an authenticated Supabase session uses the existing local-storage
-fallback. Modules must not create their own Supabase clients, tables, databases,
+Authenticated persistence flows through `src/lib/qiApiClient.ts`. When cloud
+configuration exists, a missing session or failed cloud operation is an explicit
+error and never selects local storage. Development without Supabase
+configuration, or a user-selected session-scoped local mode, uses browser
+storage. Modules must not create their own Supabase clients, tables, databases,
 queues, or sync engines.
+
+`src/features/qilife/reliability/` owns the app-wide storage condition and the
+versioned recovery contract. Complete export includes active and archived
+QiRecords. Restore validates and previews before writing, updates only from a
+newer import, never deletes omitted records, and uses the same shared store and
+owner-scoped Qi API path as normal module writes. See
+`docs/architecture/DATA_RECOVERY.md`.
 
 Canonical relationship fields store stable record IDs in QiRecord `data`.
 `src/features/qilife/relations/relationshipFields.ts` normalizes current and

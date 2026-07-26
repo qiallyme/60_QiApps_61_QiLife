@@ -6,7 +6,6 @@ vi.mock("../auth/useAuth", () => ({
   useAuth: () => ({ user: null, loading: false }),
 }));
 vi.mock("../services/qilifeStore", () => ({
-  getStoreMode: () => "localStorage",
   seedDemoData: vi.fn().mockResolvedValue(undefined),
   isSupabaseConfigured: () => false,
   listRecords: vi.fn().mockResolvedValue([]),
