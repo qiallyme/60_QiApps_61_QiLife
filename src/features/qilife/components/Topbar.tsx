@@ -1,4 +1,5 @@
-import { useAuth } from "../auth/useAuth";
+import { useContext } from "react";
+import { AuthContext } from "../auth/AuthProvider";
 import { StorageStatusIndicator } from "../reliability/StorageStatusIndicator";
 
 interface TopbarProps {
@@ -6,21 +7,37 @@ interface TopbarProps {
   userEmail?: string;
   onQuickCapture: () => void;
   onQuickJournal?: () => void;
+  onToggleMobileNav?: () => void;
 }
 
 export function Topbar({
   activeLabel,
-  userEmail,
+  userEmail: propUserEmail,
   onQuickCapture,
   onQuickJournal,
+  onToggleMobileNav,
 }: TopbarProps) {
-  const { signOut } = useAuth();
+  const auth = useContext(AuthContext);
+  const signOut = auth?.signOut;
+  const userEmail = propUserEmail ?? auth?.user?.email;
 
   return (
     <header className="qilife-topbar">
-      <div className="qilife-topbar-title">
-        <div className="qilife-eyebrow">QILIFE</div>
-        <h1>{activeLabel}</h1>
+      <div className="qilife-topbar-left">
+        {onToggleMobileNav && (
+          <button
+            className="qilife-mobile-toggle"
+            type="button"
+            aria-label="Toggle navigation menu"
+            onClick={onToggleMobileNav}
+          >
+            ☰
+          </button>
+        )}
+        <div className="qilife-topbar-title">
+          <div className="qilife-eyebrow">QILIFE</div>
+          <div className="qilife-topbar-page-title">{activeLabel}</div>
+        </div>
       </div>
 
       <button className="qilife-capture-bar" type="button" onClick={onQuickCapture}>
@@ -36,7 +53,7 @@ export function Topbar({
           </button>
         )}
         <StorageStatusIndicator />
-        {userEmail && (
+        {userEmail && signOut && (
           <button className="qilife-mini-btn" type="button" onClick={() => signOut().catch(console.error)}>
             Sign out
           </button>

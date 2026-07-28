@@ -2,11 +2,12 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { QuickCaptureModal } from "../features/qilife/components/QuickCaptureModal";
 import { SidebarNav } from "../features/qilife/components/SidebarNav";
-import { StorageStatusIndicator } from "../features/qilife/reliability/StorageStatusIndicator";
+import { Topbar } from "../features/qilife/components/Topbar";
 
 export function ModuleRouteFrame({ label, children }: { label: string; children: ReactNode }) {
   const navigate = useNavigate();
   const [captureOpen, setCaptureOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -21,24 +22,28 @@ export function ModuleRouteFrame({ label, children }: { label: string; children:
 
   return (
     <div className="qilife-app">
-      <header className="qilife-topbar">
-        <div className="qilife-topbar-title"><div className="qilife-eyebrow">QILIFE</div><div className="qilife-topbar-page-title">{label}</div></div>
-        <button className="qilife-capture-bar" type="button" onClick={() => setCaptureOpen(true)}>
-          <span>＋</span><strong>Capture anything</strong><kbd>Ctrl K</kbd>
-        </button>
-        <div className="qilife-topbar-actions">
-          <button className="qilife-mini-btn" type="button" onClick={() => navigate("/journal/new")}>Quick journal</button>
-          <StorageStatusIndicator />
-        </div>
-      </header>
+      <Topbar
+        activeLabel={label}
+        onQuickCapture={() => setCaptureOpen(true)}
+        onQuickJournal={() => navigate("/journal/new")}
+        onToggleMobileNav={() => setMobileNavOpen((open) => !open)}
+      />
       <div className="qilife-body">
         <SidebarNav
           activeWorkspaceKey={null}
           activeViewKey={null}
           moduleNavigation={[]}
+          mobileOpen={mobileNavOpen}
+          onCloseMobileNav={() => setMobileNavOpen(false)}
           onSelectWorkspace={() => undefined}
-          onSelectView={() => navigate("/")}
-          onHome={() => navigate("/")}
+          onSelectView={() => {
+            setMobileNavOpen(false);
+            navigate("/");
+          }}
+          onHome={() => {
+            setMobileNavOpen(false);
+            navigate("/");
+          }}
         />
         <div className="qilife-content">{children}</div>
       </div>

@@ -40,16 +40,20 @@ export function WorkspacePage({
       </header>
 
       <nav className="qilife-workspace-tabs" aria-label={`${workspace.label} views`}>
-        {workspace.tabs.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            className={tab.entityKey === selectedTab.entityKey ? "active" : ""}
-            onClick={() => onSelectEntity(tab.entityKey)}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {workspace.tabs.map((tab) => {
+          const tabIcon = entityRegistry[tab.entityKey]?.icon;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              className={tab.entityKey === selectedTab.entityKey ? "active" : ""}
+              onClick={() => onSelectEntity(tab.entityKey)}
+            >
+              {tabIcon && <span aria-hidden="true">{tabIcon}</span>}
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
       </nav>
 
       <EntityPage

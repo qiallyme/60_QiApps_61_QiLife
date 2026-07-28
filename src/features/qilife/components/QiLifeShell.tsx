@@ -25,6 +25,7 @@ export function QiLifeShell() {
   const [activeViewKey, setActiveViewKey] = useState<QiSpecialViewKey | null>(null);
   const [autoEditRecord, setAutoEditRecord] = useState<QiRecord | null>(null);
   const [captureOpen, setCaptureOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [refreshToken, setRefreshToken] = useState(0);
   const [booted, setBooted] = useState(false);
 
@@ -61,6 +62,7 @@ export function QiLifeShell() {
     setActiveWorkspaceKey(workspaceForEntity(entityKey));
     setActiveEntityKey(entityKey);
     if (record) setAutoEditRecord(record);
+    setMobileNavOpen(false);
   }
 
   function handleOpenWorkspace(workspaceKey: QiWorkspaceKey) {
@@ -68,18 +70,21 @@ export function QiLifeShell() {
     setActiveWorkspaceKey(workspaceKey);
     setActiveEntityKey(workspaceRegistry[workspaceKey].tabs[0].entityKey);
     setAutoEditRecord(null);
+    setMobileNavOpen(false);
   }
 
   function handleOpenView(viewKey: QiSpecialViewKey) {
     setActiveWorkspaceKey(null);
     setAutoEditRecord(null);
     setActiveViewKey(viewKey);
+    setMobileNavOpen(false);
   }
 
   function handleHome() {
     setActiveWorkspaceKey(null);
     setActiveViewKey(null);
     setAutoEditRecord(null);
+    setMobileNavOpen(false);
   }
 
   if (loading) return <div className="qilife-app centered"><div className="qilife-empty">Connecting to QiLife...</div></div>;
@@ -96,12 +101,15 @@ export function QiLifeShell() {
         userEmail={user?.email}
         onQuickCapture={() => setCaptureOpen(true)}
         onQuickJournal={() => navigate("/journal/new")}
+        onToggleMobileNav={() => setMobileNavOpen((open) => !open)}
       />
       <div className="qilife-body">
         <SidebarNav
           activeWorkspaceKey={activeWorkspaceKey}
           activeViewKey={activeViewKey}
           moduleNavigation={moduleRegistry.navigation}
+          mobileOpen={mobileNavOpen}
+          onCloseMobileNav={() => setMobileNavOpen(false)}
           onSelectWorkspace={handleOpenWorkspace}
           onSelectView={handleOpenView}
           onHome={handleHome}
