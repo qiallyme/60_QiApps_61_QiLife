@@ -1,5 +1,5 @@
-import type { QiCreateRecordInput, QiRecord } from "../../features/qilife/types";
-import type { ObjectDraft, ObjectQiRecord, ObjectType } from "./types";
+import type { QiRecord } from "../../features/qilife/types";
+import type { ObjectDraft, ObjectQiRecord, ObjectType, QiCreateRecordWithData } from "./types";
 
 export const OBJECT_ENTITY_KEYS = [
   "object",
@@ -23,7 +23,7 @@ export const OBJECT_TYPES = [
   "other",
 ] as const satisfies readonly ObjectType[];
 
-export function toObjectCreateInput(draft: ObjectDraft): QiCreateRecordInput {
+export function toObjectCreateInput(draft: ObjectDraft): QiCreateRecordWithData {
   return {
     entity_key: "object",
     title: draft.title.trim(),

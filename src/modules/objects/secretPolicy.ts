@@ -1,5 +1,4 @@
-import type { QiCreateRecordInput } from "../../features/qilife/types";
-import type { SecretReferenceDraft } from "./types";
+import type { QiCreateRecordWithData, SecretReferenceDraft } from "./types";
 
 const FORBIDDEN_KEYS = new Set([
   "secret",
@@ -20,7 +19,7 @@ export function assertSafeSecretReference(value: Record<string, unknown>) {
   }
 }
 
-export function toSecretReferenceCreateInput(draft: SecretReferenceDraft): QiCreateRecordInput {
+export function toSecretReferenceCreateInput(draft: SecretReferenceDraft): QiCreateRecordWithData {
   const data = {
     object_id: draft.objectId,
     secret_type: draft.secretType.trim(),

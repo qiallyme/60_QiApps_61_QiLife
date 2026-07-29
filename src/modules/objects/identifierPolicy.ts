@@ -1,5 +1,4 @@
-import type { QiCreateRecordInput } from "../../features/qilife/types";
-import type { IdentifierDraft } from "./types";
+import type { IdentifierDraft, QiCreateRecordWithData } from "./types";
 
 function normalizedPart(value: string) {
   return value.trim().toLocaleLowerCase().replace(/[\s-]+/g, "_");
@@ -28,7 +27,7 @@ export function maskIdentifier(value: string) {
   return normalized.length >= 4 ? `••••${normalized.slice(-4)}` : "••••";
 }
 
-export function toIdentifierCreateInput(draft: IdentifierDraft): QiCreateRecordInput {
+export function toIdentifierCreateInput(draft: IdentifierDraft): QiCreateRecordWithData {
   if (!draft.objectId) throw new Error("Identifier requires an object ID.");
   if (!draft.provider.trim() || !draft.identifierType.trim() || !draft.identifierValue.trim()) {
     throw new Error("Provider, identifier type, and identifier value are required.");

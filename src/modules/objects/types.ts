@@ -1,4 +1,8 @@
-import type { QiRecord } from "../../features/qilife/types";
+import type { QiCreateRecordInput, QiRecord } from "../../features/qilife/types";
+
+export type QiCreateRecordWithData = QiCreateRecordInput & {
+  data: Record<string, unknown>;
+};
 
 export type ObjectSensitivity = "public" | "private" | "sensitive" | "restricted";
 

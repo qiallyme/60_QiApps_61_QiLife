@@ -28,6 +28,24 @@ const journal: RecoveryQiRecord = {
 };
 
 describe("QiLife recovery export", () => {
+  it("preserves Object Registry identifiers relationships history and secret references", () => {
+    const objectRecords: RecoveryQiRecord[] = [
+      { ...journal, id: "object-1", entity_key: "object", data: { object_type: "software_account", schema_version: 1 } },
+      { ...journal, id: "identifier-1", entity_key: "object_identifier", data: { object_id: "object-1", provider: "Cloudflare", identifier_value: "fake-123" } },
+      { ...journal, id: "relationship-1", entity_key: "object_relationship", data: { from_object_id: "object-1", to_object_id: "object-2", relationship_type: "supports" } },
+      { ...journal, id: "history-1", entity_key: "object_record", data: { object_id: "object-1", raw_capture: "Original fake evidence." } },
+      { ...journal, id: "secret-reference-1", entity_key: "secret_reference", data: { object_id: "object-1", vault_item_reference: "item://fake-reference" } },
+    ];
+    const exported = createRecoveryExport({ records: objectRecords, exportedAt: "2026-07-29T12:00:00.000Z" });
+    const restored = applyRecoveryToLocalRecords(exported.records, []);
+
+    expect(restored.records).toEqual(objectRecords);
+    expect(restored.records.find((record) => record.id === "history-1")?.data.raw_capture)
+      .toBe("Original fake evidence.");
+    expect(restored.records.find((record) => record.id === "relationship-1")?.data.to_object_id)
+      .toBe("object-2");
+  });
+
   it("preserves complete QiRecords and Journal source fields exactly", () => {
     const exported = createRecoveryExport({
       records: [journal],
