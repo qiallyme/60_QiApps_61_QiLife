@@ -13,6 +13,10 @@ const records: QiRecord[] = [
   { id: "journal", entity_key: "journal_entry", title: "Recent note", updated_at: "2026-07-25T12:00:00Z", data: {} },
   { id: "inbox", entity_key: "qibit", title: "Process me", status: "inbox", data: {} },
   { id: "done", entity_key: "task", title: "Done", status: "done", due_date: "2026-07-24", data: {} },
+  { id: "software-renewal", entity_key: "object", title: "Cloudflare", status: "active", data: { object_type: "software_account", renewal_date: "2026-08-01", last_verified_at: "2026-07-20" } },
+  { id: "software-stale", entity_key: "object", title: "Supabase", status: "active", data: { object_type: "software_account", last_verified_at: "2025-01-01" } },
+  { id: "stale-identifier", entity_key: "object_identifier", title: "Account ID", status: "active", data: { object_id: "software-stale", verified_at: "2025-01-01" } },
+  { id: "support-open", entity_key: "object_record", title: "Support request", status: "open", data: { object_id: "software-stale", record_type: "support_request" } },
 ];
 
 describe("projectToday", () => {
@@ -27,5 +31,8 @@ describe("projectToday", () => {
     expect(result.peopleNeedingFollowUp.map((r) => r.id)).toEqual(["person"]);
     expect(result.recentActivity.map((r) => r.id)).toContain("journal");
     expect(result.inboxItems.map((r) => r.id)).toEqual(["inbox"]);
+    expect(result.softwareAttention.map((r) => r.id)).toEqual(["software-renewal", "software-stale"]);
+    expect(result.staleIdentifiers.map((r) => r.id)).toEqual(["stale-identifier"]);
+    expect(result.unresolvedSupport.map((r) => r.id)).toEqual(["support-open"]);
   });
 });

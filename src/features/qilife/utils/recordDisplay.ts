@@ -11,7 +11,11 @@ export function recordRoute(record: QiRecord): string | null {
       return `/people/${record.id}`;
     case "journal_entry":
       return `/journal/${record.id}`;
+    case "object":
+      return record.data.object_type === "software_account" ? `/software/${record.id}` : null;
     default: {
+      const objectId = typeof record.data.object_id === "string" ? record.data.object_id : "";
+      if (objectId) return `/software/${objectId}`;
       const projectId = readRelationIds(record.data, "project", "project")[0];
       if (projectId) return `/projects/${projectId}`;
       const personId = readRelationIds(record.data, "person", "person")[0] ?? readRelationIds(record.data, "person", "owner")[0];

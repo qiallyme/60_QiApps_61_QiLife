@@ -82,6 +82,9 @@ export function TodayRoute() {
           <Section title="Blocked Actions" records={projection.blockedActions} allRecords={records} />
           <Section title="Blocked or at-risk Projects" records={projection.atRiskProjects} allRecords={records} />
           <Section title="People needing follow-up" records={projection.peopleNeedingFollowUp} allRecords={records} />
+          <Section title="Software renewals and verification" records={projection.softwareAttention} allRecords={records} />
+          <Section title="Stale identifiers" records={projection.staleIdentifiers} allRecords={records} />
+          <Section title="Unresolved support" records={projection.unresolvedSupport} allRecords={records} />
           <Section title="Recent meaningful activity" records={projection.recentActivity} allRecords={records} />
           <Section title="Unprocessed Inbox" records={projection.inboxItems} allRecords={records} />
         </div>
