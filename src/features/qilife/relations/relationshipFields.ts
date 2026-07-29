@@ -2,6 +2,7 @@ const canonicalByEntity: Record<string, string> = {
   project: "project_id",
   person: "people_ids",
   thread: "thread_id",
+  object: "object_ids",
 };
 
 export function relationStorageKey(entity: string, fieldKey: string): string {
@@ -45,7 +46,7 @@ export function writeCanonicalRelation(
 ): Record<string, unknown> {
   const key = relationStorageKey(entity, fieldKey);
   const next = { ...data };
-  next[key] = entity === "person" && fieldKey === "person"
+  next[key] = (entity === "person" && fieldKey === "person") || entity === "object"
     ? strings(value)
     : strings(value)[0] ?? null;
   return next;

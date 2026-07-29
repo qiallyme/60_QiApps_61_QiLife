@@ -4,7 +4,7 @@ import { readRelationIds } from "./relationshipFields";
 
 type LoadRecords = () => Promise<QiRecord[]>;
 
-function linkedTo(record: QiRecord, entity: "project" | "person" | "thread", id: string): boolean {
+function linkedTo(record: QiRecord, entity: "project" | "person" | "thread" | "object", id: string): boolean {
   const field = entity === "person" ? "person" : entity;
   return readRelationIds(record.data, entity, field).includes(id)
     || (entity === "person" && readRelationIds(record.data, entity, "owner").includes(id));
@@ -25,9 +25,11 @@ export function createRelationResolver(loadRecords: LoadRecords) {
         if (target.entity_key === "project" && linkedTo(record, "project", recordId)) return true;
         if (target.entity_key === "person" && linkedTo(record, "person", recordId)) return true;
         if (target.entity_key === "thread" && linkedTo(record, "thread", recordId)) return true;
+        if (target.entity_key === "object" && linkedTo(record, "object", recordId)) return true;
         return linkedTo(target, "project", record.id)
           || linkedTo(target, "person", record.id)
-          || linkedTo(target, "thread", record.id);
+          || linkedTo(target, "thread", record.id)
+          || linkedTo(target, "object", record.id);
       });
     },
 
@@ -55,6 +57,19 @@ export function createRelationResolver(loadRecords: LoadRecords) {
 
     async getRecordsForPerson(personId: string) {
       return (await activeRecords()).filter((record) => record.entity_key !== "person" && linkedTo(record, "person", personId));
+    },
+
+    async getObjectsForRecord(recordId: string) {
+      const records = await activeRecords();
+      const target = records.find((record) => record.id === recordId);
+      if (!target) return [];
+      const ids = new Set(readRelationIds(target.data, "object", "object"));
+      return records.filter((record) => record.entity_key === "object" && ids.has(record.id));
+    },
+
+    async getRecordsForObject(objectId: string) {
+      return (await activeRecords()).filter((record) =>
+        record.entity_key !== "object" && linkedTo(record, "object", objectId));
     },
   };
 }
