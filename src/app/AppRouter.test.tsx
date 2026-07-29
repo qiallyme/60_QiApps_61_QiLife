@@ -75,4 +75,16 @@ describe("AppRouter", () => {
 
     expect(screen.getByText("Guarded route")).toBeInTheDocument();
   });
+
+  it("renders a copied Software & Services deep route before compatibility", () => {
+    render(
+      <MemoryRouter initialEntries={["/software/new"]}>
+        <AppRouter />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole("heading", { name: "New Software & Service" })).toBeVisible();
+    expect(screen.getByLabelText("Provider/software name")).toBeVisible();
+    expect(screen.queryByText("Compatibility QiLife shell")).not.toBeInTheDocument();
+  });
 });
