@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { QuickCaptureModal } from "../features/qilife/components/QuickCaptureModal";
 import { SidebarNav } from "../features/qilife/components/SidebarNav";
 import { Topbar } from "../features/qilife/components/Topbar";
+import { MobileBottomNav } from "../features/qilife/components/MobileBottomNav";
 
 export function ModuleRouteFrame({ label, children }: { label: string; children: ReactNode }) {
   const navigate = useNavigate();
@@ -48,6 +49,7 @@ export function ModuleRouteFrame({ label, children }: { label: string; children:
         <div className="qilife-content">{children}</div>
       </div>
       {captureOpen && <QuickCaptureModal onClose={() => setCaptureOpen(false)} onSaved={() => setCaptureOpen(false)} />}
+      <MobileBottomNav />
     </div>
   );
 }

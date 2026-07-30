@@ -6,6 +6,7 @@ import { HomeDashboard } from "./HomeDashboard";
 import { QuickCaptureModal } from "./QuickCaptureModal";
 import { SidebarNav } from "./SidebarNav";
 import { Topbar } from "./Topbar";
+import { MobileBottomNav } from "./MobileBottomNav";
 import { AssistantPage } from "./AssistantPage";
 import { WorkspacePage } from "./WorkspacePage";
 import { useAuth } from "../auth/useAuth";
@@ -148,6 +149,7 @@ export function QiLifeShell() {
           }}
         />
       )}
+      <MobileBottomNav />
     </div>
   );
 }
