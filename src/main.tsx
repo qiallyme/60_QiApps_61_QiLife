@@ -2,11 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createAppRoutes } from "./app/createAppRoutes";
-import { AuthProvider } from "./features/qilife/auth/AuthProvider";
-import { AuthenticationBoundary } from "./features/qilife/auth/AuthenticationBoundary";
+import { AuthProvider } from "./features/qilife/components/auth/AuthProvider";
+import { AuthenticationBoundary } from "./features/qilife/components/auth/AuthenticationBoundary";
 import "./features/qilife/styles/qilife.css";
-import "./features/qilife/styles/cadence.css";
 import "./features/qilife/styles/assistant.css";
+import "./features/qilife/styles/visual-system.css";
 
 const router = createBrowserRouter(createAppRoutes());
 
