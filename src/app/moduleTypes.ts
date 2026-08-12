@@ -27,6 +27,14 @@ export interface DashboardWidgetDefinition {
   Component?: ComponentType<{ to: string }>;
 }
 
+export interface AgentCapabilityDefinition {
+  name: string;
+  description: string;
+  consequential: boolean; // Requires human confirmation before execution
+  parameters: Record<string, unknown>; // JSON Schema parameters
+  handler: (args: Record<string, unknown>) => Promise<unknown>;
+}
+
 export interface QiLifeModule {
   key: string;
   name: string;
@@ -35,6 +43,7 @@ export interface QiLifeModule {
   commands?: CommandDefinition[];
   widgets?: DashboardWidgetDefinition[];
   recordTypes?: string[];
+  capabilities?: AgentCapabilityDefinition[];
 }
 
 export interface QiLifeModuleRegistry {
@@ -44,4 +53,5 @@ export interface QiLifeModuleRegistry {
   commands: readonly CommandDefinition[];
   widgets: readonly DashboardWidgetDefinition[];
   recordTypes: readonly string[];
+  capabilities: readonly AgentCapabilityDefinition[];
 }

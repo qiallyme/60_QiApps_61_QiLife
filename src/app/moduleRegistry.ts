@@ -28,6 +28,7 @@ export function createModuleRegistry(
     commands: Object.freeze(modules.flatMap((module) => module.commands ?? [])),
     widgets: Object.freeze(modules.flatMap((module) => module.widgets ?? [])),
     recordTypes: Object.freeze(modules.flatMap((module) => module.recordTypes ?? [])),
+    capabilities: Object.freeze(modules.flatMap((module) => module.capabilities ?? [])),
   });
 }
 
