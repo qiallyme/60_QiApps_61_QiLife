@@ -1,5 +1,9 @@
+import { lazy } from "react";
 import type { QiLifeModule } from "../../app/moduleTypes";
-import { QiFiEmbeddedView } from "./components/QiFiEmbeddedView";
+
+const LazyQiFiEmbeddedView = lazy(() =>
+  import("./components/QiFiEmbeddedView").then((m) => ({ default: m.QiFiEmbeddedView })),
+);
 
 export const financeModule: QiLifeModule = {
   key: "finance",
@@ -8,22 +12,22 @@ export const financeModule: QiLifeModule = {
     {
       id: "finance-index",
       path: "/finance",
-      Component: QiFiEmbeddedView,
+      Component: LazyQiFiEmbeddedView,
     },
     {
       id: "finance-ledger",
       path: "/finance/ledger",
-      Component: QiFiEmbeddedView,
+      Component: LazyQiFiEmbeddedView,
     },
     {
       id: "finance-receipts",
       path: "/finance/receipts",
-      Component: QiFiEmbeddedView,
+      Component: LazyQiFiEmbeddedView,
     },
     {
       id: "finance-accounts",
       path: "/finance/accounts",
-      Component: QiFiEmbeddedView,
+      Component: LazyQiFiEmbeddedView,
     },
   ],
   navigation: [

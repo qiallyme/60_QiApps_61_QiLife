@@ -1,3 +1,4 @@
+import { qiApiRequest } from "../../../lib/qiApiClient";
 import type { EntityLink, MemoryState, QiBit, QiBitType } from "../types";
 
 export interface MemoryQueryOptions {
@@ -5,6 +6,7 @@ export interface MemoryQueryOptions {
   memoryState?: MemoryState;
   queryText?: string;
   limit?: number;
+  useVectorSearch?: boolean;
 }
 
 /**
@@ -24,7 +26,6 @@ export class OpenBrainService {
    * Register or update a QiBit in the Open Brain
    */
   public registerBit(bit: QiBit): QiBit {
-    const existing = this.bits.get(bit.id);
     const updated: QiBit = {
       ...bit,
       updatedAt: new Date().toISOString(),
@@ -140,6 +141,23 @@ export class OpenBrainService {
     }
 
     return results;
+  }
+
+  /**
+   * Performs vector semantic retrieval against centralized 251_QiApi with local fallback
+   */
+  public async searchMemoryVector(queryText: string, limit = 5): Promise<QiBit[]> {
+    try {
+      const remoteResults = await qiApiRequest<QiBit[]>(
+        `/v1/brain/search?query=${encodeURIComponent(queryText)}&limit=${limit}`,
+      );
+      if (Array.isArray(remoteResults) && remoteResults.length > 0) {
+        return remoteResults;
+      }
+    } catch {
+      // Fallback to in-memory search if offline or remote API unconfigured
+    }
+    return this.searchMemory({ queryText, limit });
   }
 
   /**
