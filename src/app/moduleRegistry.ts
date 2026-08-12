@@ -5,6 +5,7 @@ import { actionsModule } from "../modules/actions/manifest";
 import { projectsModule } from "../modules/projects/manifest";
 import { todayModule } from "../modules/today/manifest";
 import { softwareModule } from "../modules/software/manifest";
+import { financeModule } from "../modules/finance/manifest";
 
 function assertUnique(values: readonly string[], label: string) {
   const seen = new Set<string>();
@@ -39,4 +40,5 @@ export const moduleRegistry = createModuleRegistry([
   actionsModule,
   projectsModule,
   softwareModule,
+  financeModule,
 ]);
