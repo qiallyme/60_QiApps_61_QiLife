@@ -6,6 +6,7 @@ import { projectsModule } from "../modules/projects/manifest";
 import { todayModule } from "../modules/today/manifest";
 import { softwareModule } from "../modules/software/manifest";
 import { financeModule } from "../modules/finance/manifest";
+import { inboxModule } from "../modules/inbox/manifest";
 
 function assertUnique(values: readonly string[], label: string) {
   const seen = new Set<string>();
@@ -35,6 +36,7 @@ export function createModuleRegistry(
 
 export const moduleRegistry = createModuleRegistry([
   todayModule,
+  inboxModule,
   journalModule,
   peopleModule,
   actionsModule,

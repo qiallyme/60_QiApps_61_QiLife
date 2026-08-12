@@ -1,45 +1,69 @@
 :root {
-  color-scheme: dark;
-  --qi-canvas: #090a10;
-  --qi-surface-raised: #121524;
-  --qi-surface-interactive: #181c30;
-  --qi-surface-overlay: #1e233d;
-  --qi-border-primary: rgba(255, 255, 255, 0.08);
-  --qi-border-strong: rgba(255, 255, 255, 0.16);
-  --qi-shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.35);
-  --qi-shadow-medium: 0 16px 48px rgba(0, 0, 0, 0.5);
-  --qi-focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.35);
-  --qi-primary: #6366f1;
-  --qi-primary-hover: #4f46e5;
-  --qi-secondary: #a855f7;
-  --qi-info: #38bdf8;
-  --qi-attention: #f59e0b;
-  --qi-success: #10b981;
-  --qi-danger: #ef4444;
-  --qi-text: #f1f5f9;
-  --qi-muted: #94a3b8;
-  --qi-faint: #64748b;
-  --qi-sidebar: #0a0c16;
-  --qi-sidebar-raised: #12162a;
-  --qi-sidebar-text: #e2e8f0;
+  color-scheme: light;
+  --qi-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --qi-font-display: 'Outfit', 'Inter', system-ui, sans-serif;
+
+  --qi-canvas: #f8fafc;
+  --qi-surface-raised: #ffffff;
+  --qi-surface-interactive: #f1f5f9;
+  --qi-surface-overlay: #ffffff;
+  
+  --qi-border-primary: #e2e8f0;
+  --qi-border-strong: #cbd5e1;
+  
+  --qi-shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
+  --qi-shadow-medium: 0 10px 30px -4px rgba(0, 0, 0, 0.08);
+  
+  --qi-focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.25);
+  --qi-primary: #4f46e5;
+  --qi-primary-hover: #4338ca;
+  --qi-secondary: #9333ea;
+  --qi-info: #0284c7;
+  --qi-attention: #d97706;
+  --qi-success: #16a34a;
+  --qi-danger: #dc2626;
+  
+  --qi-text: #0f172a;
+  --qi-muted: #475569;
+  --qi-faint: #94a3b8;
+  
+  --qi-sidebar: #ffffff;
+  --qi-sidebar-raised: #f8fafc;
+  --qi-sidebar-text: #1e293b;
   --qi-sidebar-muted: #64748b;
-  --qi-radius-sm: 10px;
-  --qi-radius-md: 16px;
-  --qi-radius-lg: 20px;
+  
+  --qi-radius-sm: 8px;
+  --qi-radius-md: 12px;
+  --qi-radius-lg: 16px;
   --qi-radius-pill: 9999px;
 
   /* Compatibility aliases */
   --qi-bg: var(--qi-canvas);
-  --qi-bg-2: #0f1220;
-  --qi-bg-3: #181d33;
+  --qi-bg-2: #f1f5f9;
+  --qi-bg-3: #e2e8f0;
   --qi-panel: var(--qi-surface-raised);
   --qi-panel-2: var(--qi-surface-interactive);
   --qi-border: var(--qi-border-primary);
   --qi-green: var(--qi-primary);
   --qi-green-2: var(--qi-secondary);
-  --qi-green-dark: rgba(99, 102, 241, 0.15);
+  --qi-green-dark: #e0e7ff;
   --qi-status-green: var(--qi-success);
-  --qi-shadow: var(--qi-shadow-medium);
+  --qi-shadow: var(--qi-shadow-soft);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--qi-font-sans);
+  background-color: var(--qi-canvas);
+  color: var(--qi-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--qi-font-display);
+  letter-spacing: -0.02em;
 }
 
 .journal-filter-row,
@@ -65,20 +89,20 @@
 .journal-list-item {
   display: grid;
   gap: 6px;
-  padding: 16px 20px;
+  padding: 18px 22px;
   color: inherit;
   text-decoration: none;
   border: 1px solid var(--qi-border);
   border-radius: var(--qi-radius-md);
   background: var(--qi-panel);
-  backdrop-filter: blur(12px);
+  box-shadow: var(--qi-shadow-soft);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .journal-list-item:hover {
   border-color: var(--qi-primary);
   transform: translateY(-2px);
-  box-shadow: 0 10px 28px -6px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 10px 24px -4px rgba(79, 70, 229, 0.12);
 }
 
 .journal-editor {
@@ -97,583 +121,37 @@
   width: 100%;
   min-height: 360px;
   resize: vertical;
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-}
-
-.journal-pin {
-  display: flex !important;
-  align-items: center !important;
-}
-
-.journal-editor-actions {
-  justify-content: flex-end;
-}
-
-* { box-sizing: border-box; }
-html, body, #root { height: 100%; margin: 0; }
-body {
-  background: var(--qi-bg);
-  color: var(--qi-text);
-  font-family: 'Outfit', Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-button, input, textarea, select { font: inherit; }
-button { color: inherit; }
-
-.qilife-app {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: var(--qi-canvas);
-  color: var(--qi-text);
-}
-
-.qilife-topbar {
-  min-height: 72px;
-  border-bottom: 1px solid var(--qi-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px 24px;
-  background: rgba(10, 12, 22, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  flex-shrink: 0;
-  z-index: 10;
-}
-
-.qilife-topbar-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.qilife-mobile-toggle {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: var(--qi-radius-md);
-  border: 1px solid var(--qi-border-strong);
-  background: var(--qi-surface-interactive);
-  color: var(--qi-text);
-  font-size: 18px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.qilife-mobile-toggle:hover {
-  border-color: var(--qi-primary);
-  background: var(--qi-surface-overlay);
-  color: #ffffff;
-}
-
-.qilife-topbar h1,
-.qilife-page h2,
-.qilife-modal h2 {
-  margin: 0;
-  font-size: 24px;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
-  font-weight: 750;
-  color: #ffffff;
-}
-
-.qilife-page h3,
-.qilife-panel h3 {
-  margin: 0;
-  letter-spacing: -0.02em;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.qilife-eyebrow {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--qi-secondary);
-  font-weight: 800;
-  margin-bottom: 5px;
-}
-
-.qilife-body { flex: 1; min-height: 0; display: flex; }
-
-.qilife-sidebar {
-  width: 256px;
-  flex-shrink: 0;
-  background: var(--qi-sidebar);
-  border-right: 1px solid var(--qi-border);
-  color: var(--qi-sidebar-text);
-  padding: 18px 14px;
-  overflow-y: auto;
-}
-
-.qilife-sidebar-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.qilife-sidebar-close {
-  display: none;
-  background: transparent;
-  border: 0;
-  color: var(--qi-muted);
-  font-size: 20px;
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: var(--qi-radius-md);
-}
-.qilife-sidebar-close:hover { color: #ffffff; background: rgba(255, 255, 255, 0.08); }
-
-.qilife-sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  z-index: 99;
-}
-
-.qilife-brand {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px;
-  margin-bottom: 18px;
-  border: 0;
-  border-radius: var(--qi-radius-md);
-  cursor: pointer;
-  background: transparent;
-  text-align: left;
-  transition: all 0.2s ease;
-}
-.qilife-brand { color: var(--qi-sidebar-text); text-decoration: none; }
-.qilife-brand:hover { background: rgba(255, 255, 255, 0.05); transform: translateY(-1px); }
-.qilife-brand-mark {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--qi-primary), var(--qi-secondary));
-  color: #ffffff;
-  display: grid;
-  place-items: center;
-  font-weight: 900;
-  font-size: 18px;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
-}
-.qilife-brand-title { font-size: 16px; font-weight: 850; letter-spacing: -0.02em; }
-.qilife-brand-subtitle { font-size: 11px; color: var(--qi-sidebar-muted); }
-
-.qilife-nav-group { margin-bottom: 20px; }
-.qilife-nav-group-label {
-  padding: 8px 10px;
-  font-size: 10px;
-  font-weight: 850;
-  color: var(--qi-sidebar-muted);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-.qilife-nav-item {
-  width: 100%;
-  border: 0;
-  background: transparent;
-  color: var(--qi-sidebar-text);
-  text-align: left;
-  padding: 10px 14px;
-  border-radius: var(--qi-radius-pill);
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 550;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  transition: all 0.2s ease;
-}
-.qilife-nav-item:hover { background: rgba(255, 255, 255, 0.06); color: #ffffff; }
-.qilife-nav-item.active {
-  background: linear-gradient(135deg, var(--qi-primary), #4f46e5);
-  color: #ffffff;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
-}
-.qilife-nav-icon { width: 20px; display: inline-flex; justify-content: center; }
-
-.qilife-content { flex: 1; min-width: 0; overflow-y: auto; }
-.qilife-page { padding: 28px; }
-
-.qilife-hero {
+  font-family: var(--qi-font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
   border: 1px solid var(--qi-border);
-  background: linear-gradient(135deg, rgba(24, 28, 48, 0.9), rgba(15, 18, 32, 0.9));
-  border-radius: var(--qi-radius-lg);
-  padding: 32px;
-  margin-bottom: 22px;
-  backdrop-filter: blur(16px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-.qilife-hero p,
-.qilife-page-header p { color: var(--qi-muted); margin: 8px 0 0; max-width: 760px; font-size: 14px; line-height: 1.6; }
-
-.qilife-page-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
-}
-.qilife-title-icon { margin-right: 10px; }
-.qilife-actions,
-.qilife-topbar-actions { display: flex; align-items: center; gap: 10px; }
-.qilife-actions.end { justify-content: flex-end; }
-.qilife-actions.wrap { flex-wrap: wrap; justify-content: flex-end; }
-
-/* Rounded Modern Buttons */
-.qilife-btn,
-.qilife-mini-btn {
-  border: 1px solid var(--qi-border-strong);
-  background: var(--qi-surface-interactive);
-  color: var(--qi-text);
-  border-radius: var(--qi-radius-pill);
-  padding: 10px 18px;
-  cursor: pointer;
-  font-weight: 650;
-  font-size: 13px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  outline: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-.qilife-btn:hover,
-.qilife-mini-btn:hover {
-  border-color: var(--qi-primary);
-  background: var(--qi-surface-overlay);
-  color: #ffffff;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px -2px rgba(99, 102, 241, 0.3);
-}
-.qilife-btn:active,
-.qilife-mini-btn:active { transform: translateY(0) scale(0.98); }
-.qilife-mini-btn { padding: 6px 12px; font-size: 12px; min-height: 32px; }
-.qilife-mini-btn.danger { color: var(--qi-danger); border-color: rgba(239, 68, 68, 0.4); }
-.qilife-mini-btn.danger:hover { background: rgba(239, 68, 68, 0.15); border-color: var(--qi-danger); }
-.qilife-btn.primary {
-  background: linear-gradient(135deg, var(--qi-primary), #4f46e5);
-  color: #ffffff;
-  border-color: transparent;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
-}
-.qilife-btn.primary:hover {
-  background: linear-gradient(135deg, #4f46e5, #4338ca);
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.5);
-  transform: translateY(-2px);
-}
-.qilife-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-
-.qilife-store-pill {
-  font-size: 12px;
-  border: 1px solid var(--qi-border);
-  border-radius: var(--qi-radius-pill);
-  padding: 6px 12px;
-  color: var(--qi-muted);
-  background: rgba(255, 255, 255, 0.03);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 600;
-}
-.qilife-store-pill.online { color: var(--qi-status-green); border-color: rgba(16, 185, 129, 0.35); background: rgba(16, 185, 129, 0.08); }
-.qilife-store-pill.local { color: var(--qi-attention); border-color: rgba(245, 158, 11, 0.35); background: rgba(245, 158, 11, 0.08); }
-
-/* Form Controls with Smooth Edges */
-.qilife-search,
-.qilife-label input,
-.qilife-label textarea,
-.qilife-label select {
   border-radius: var(--qi-radius-md);
-  border: 1px solid var(--qi-border-strong);
-  background: var(--qi-surface-interactive);
+  padding: 14px;
+  background: #ffffff;
   color: var(--qi-text);
-  padding: 10px 14px;
-  outline: none;
-  transition: all 0.2s ease;
 }
-.qilife-search:focus,
-.qilife-label input:focus,
-.qilife-label textarea:focus,
-.qilife-label select:focus {
-  border-color: var(--qi-primary);
-  box-shadow: var(--qi-focus-ring);
-  background: var(--qi-surface-overlay);
-}
-.qilife-search { min-width: min(280px, 100%); }
 
-/* Stat Grid & Cards */
-.qilife-stat-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  margin-bottom: 22px;
-}
-.qilife-stat-card {
-  border: 1px solid var(--qi-border);
-  background: var(--qi-panel);
-  border-radius: var(--qi-radius-lg);
-  padding: 20px;
-  backdrop-filter: blur(12px);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.qilife-stat-card:hover {
-  border-color: rgba(99, 102, 241, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.4);
-}
-.qilife-stat-card span {
-  display: block;
-  color: var(--qi-faint);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 800;
-}
-.qilife-stat-card strong { display: block; margin-top: 8px; font-size: 30px; letter-spacing: -0.04em; color: #ffffff; }
-
-.qilife-card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 16px;
-}
-.qilife-card {
-  text-align: left;
-  border: 1px solid var(--qi-border);
-  background: var(--qi-panel);
-  color: inherit;
-  border-radius: var(--qi-radius-lg);
-  padding: 22px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  backdrop-filter: blur(12px);
-}
-button.qilife-card:hover,
-.entity-card:hover,
-.qilife-card:hover {
-  border-color: var(--qi-primary);
-  transform: translateY(-3px);
-  box-shadow: 0 14px 32px -8px rgba(99, 102, 241, 0.3);
-}
-.qilife-card-icon { font-size: 26px; margin-bottom: 12px; }
-.qilife-card-title { font-size: 17px; font-weight: 850; margin-bottom: 6px; letter-spacing: -0.02em; color: #ffffff; }
-.qilife-card-desc { font-size: 13px; color: var(--qi-muted); line-height: 1.5; }
-.qilife-card-meta {
-  margin-top: 16px;
-  font-size: 11px;
-  color: var(--qi-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 850;
-}
-.qilife-card-fields { margin: 14px 0 0; display: grid; gap: 8px; }
-.qilife-card-fields div { display: grid; grid-template-columns: 90px 1fr; gap: 8px; }
-.qilife-card-fields dt { color: var(--qi-faint); font-size: 12px; }
-.qilife-card-fields dd { margin: 0; color: var(--qi-text); font-size: 12px; overflow-wrap: anywhere; }
-.qilife-card-actions { display: flex; gap: 8px; margin-top: 16px; }
-
-.qilife-split-section {
-  display: grid;
-  grid-template-columns: 1.3fr 0.7fr;
-  gap: 18px;
-  margin-top: 22px;
-}
 .qilife-panel {
+  background: #ffffff;
   border: 1px solid var(--qi-border);
-  background: var(--qi-panel);
-  border-radius: var(--qi-radius-lg);
-  padding: 22px;
-  backdrop-filter: blur(12px);
+  border-radius: var(--qi-radius-md);
+  padding: 20px;
+  box-shadow: var(--qi-shadow-soft);
 }
-.qilife-panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-.qilife-list { display: grid; gap: 10px; }
-.qilife-list-row {
-  border: 1px solid var(--qi-border);
-  background: var(--qi-panel-2);
-  color: var(--qi-text);
+
+.qilife-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--qi-muted);
+  font-size: 0.95rem;
+}
+
+.qilife-error {
+  background: #fef2f2;
+  border: 1px solid #fecdd3;
+  color: #991b1b;
   padding: 12px 16px;
   border-radius: var(--qi-radius-md);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.qilife-list-row:hover { border-color: var(--qi-primary); transform: translateX(2px); background: var(--qi-surface-overlay); }
-.qilife-list-row strong { display: block; color: #ffffff; }
-.qilife-list-row small { color: var(--qi-muted); }
-.qilife-chip-cloud { display: flex; gap: 8px; flex-wrap: wrap; }
-.qilife-chip-cloud button {
-  border: 1px solid var(--qi-border);
-  background: var(--qi-panel-2);
-  color: var(--qi-text);
-  border-radius: var(--qi-radius-pill);
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.qilife-chip-cloud button:hover { border-color: var(--qi-primary); background: var(--qi-primary-glow); transform: translateY(-1px); }
-
-.qilife-subbar {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  color: var(--qi-faint);
-  font-size: 12px;
+  font-weight: 500;
   margin-bottom: 16px;
-}
-.qilife-subbar span {
-  border: 1px solid var(--qi-border);
-  border-radius: var(--qi-radius-pill);
-  padding: 5px 12px;
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.qilife-table-wrap {
-  border: 1px solid var(--qi-border);
-  border-radius: var(--qi-radius-lg);
-  overflow: hidden;
-  background: var(--qi-panel);
-}
-.qilife-table { width: 100%; border-collapse: collapse; min-width: 760px; }
-.qilife-table th {
-  text-align: left;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--qi-faint);
-  padding: 14px 16px;
-  background: var(--qi-panel-2);
-  white-space: nowrap;
-}
-.qilife-table td {
-  padding: 14px 16px;
-  border-top: 1px solid var(--qi-border);
-  color: #e2e8f0;
-  vertical-align: middle;
-  overflow-wrap: anywhere;
-}
-.qilife-table tr:hover td { background: rgba(255, 255, 255, 0.03); }
-.qilife-primary-cell { font-weight: 750; color: #ffffff !important; }
-.qilife-action-col { text-align: right !important; }
-.qilife-row-actions { text-align: right; white-space: nowrap; display: flex; justify-content: flex-end; gap: 8px; }
-
-.qilife-empty,
-.qilife-error {
-  padding: 32px;
-  border: 1px dashed var(--qi-border-strong);
-  border-radius: var(--qi-radius-lg);
-  color: var(--qi-muted);
-  background: rgba(255, 255, 255, 0.02);
-  text-align: center;
-}
-.qilife-empty.compact,
-.qilife-error.compact { padding: 14px; margin-bottom: 14px; }
-.qilife-error { color: var(--qi-danger); border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05); }
-
-/* Modals with Ultra-Smooth Rounded Curvature */
-.qilife-modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
-  display: grid;
-  place-items: center;
-  padding: 20px;
-}
-.qilife-modal {
-  width: min(640px, 100%);
-  max-height: min(780px, calc(100vh - 40px));
-  overflow-y: auto;
-  background: var(--qi-bg-2);
-  border: 1px solid var(--qi-border-strong);
-  border-radius: var(--qi-radius-lg);
-  padding: 26px;
-  box-shadow: var(--qi-shadow);
-}
-.qilife-modal.large { width: min(880px, 100%); }
-.qilife-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 14px;
-  margin-bottom: 20px;
-}
-.qilife-label {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-  font-size: 13px;
-  color: var(--qi-muted);
-  font-weight: 700;
-}
-.qilife-label input,
-.qilife-label textarea,
-.qilife-label select { width: 100%; color: var(--qi-text); font-weight: 500; }
-.qilife-label textarea { resize: vertical; }
-.qilife-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
-.qilife-label.wide { grid-column: 1 / -1; }
-.qilife-checkbox-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; }
-.qilife-checkbox-row input { width: auto; }
-.modal-actions { margin-top: 12px; }
-
-/* Responsive Media Queries */
-@media (max-width: 900px) {
-  .qilife-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .qilife-split-section { grid-template-columns: 1fr; }
-  .qilife-page-header { align-items: stretch; flex-direction: column; }
-}
-
-@media (max-width: 760px) {
-  .qilife-topbar {
-    padding: 10px 14px;
-    gap: 10px;
-    align-items: center;
-    flex-direction: row;
-    min-height: 60px;
-  }
-  .qilife-mobile-toggle {
-    display: inline-flex;
-  }
-  .qilife-sidebar-close {
-    display: block;
-  }
-  .qilife-sidebar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: min(280px, 85vw);
-    height: 100vh;
-    z-index: 100;
-    transform: translateX(-100%);
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    background: var(--qi-surface-raised);
-    box-shadow: 0 0 32px rgba(0, 0, 0, 0.7);
-    border-right: 1px solid var(--qi-border-strong);
-    overflow-y: auto;
-  }
-  .qilife-sidebar.mobile-open {
-    transform: translateX(0);
-  }
-  .qilife-nav { display: flex; flex-direction: column; gap: 4px; }
-  .qilife-capture-bar { padding: 6px 12px; font-size: 12px; }
-  .qilife-capture-bar kbd { display: none; }
-  .qilife-form-grid { grid-template-columns: 1fr; }
-  .qilife-stat-grid { grid-template-columns: 1fr 1fr; }
-  .qilife-page { padding: 18px 14px; }
 }

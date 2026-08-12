@@ -5,11 +5,11 @@ import { moduleRegistry } from "./moduleRegistry";
 import type { QiLifeModuleRegistry } from "./moduleTypes";
 import { ModuleRouteFrame } from "./ModuleRouteFrame";
 
-export function AppRouter({
-  registry = moduleRegistry,
-}: {
+export interface AppRouterProps {
   registry?: QiLifeModuleRegistry;
-}) {
+}
+
+export function AppRouter({ registry = moduleRegistry }: AppRouterProps) {
   return (
     <Routes>
       {registry.routes.map(({ id, path, Component }) => (

@@ -9,13 +9,18 @@ export interface MemoryQueryOptions {
   useVectorSearch?: boolean;
 }
 
+export interface RelatedBitConnection {
+  link: EntityLink;
+  bit?: QiBit;
+}
+
 /**
  * Open Brain Memory Engine (ADR 0002 & ADR 0006)
  * Manages durable context, memory promotion, provenance graph traversal, and semantic search.
  */
 export class OpenBrainService {
-  private bits: Map<string, QiBit> = new Map();
-  private links: EntityLink[] = [];
+  private readonly bits: Map<string, QiBit> = new Map();
+  private readonly links: EntityLink[] = [];
 
   constructor(initialBits: QiBit[] = [], initialLinks: EntityLink[] = []) {
     initialBits.forEach((bit) => this.bits.set(bit.id, bit));
@@ -50,7 +55,9 @@ export class OpenBrainService {
    */
   public promoteMemory(id: string, reasoning?: string): QiBit {
     const bit = this.bits.get(id);
-    if (!bit) throw new Error(`QiBit with ID ${id} not found in Open Brain.`);
+    if (!bit) {
+      throw new Error(`QiBit with ID ${id} not found in Open Brain.`);
+    }
 
     const promoted: QiBit = {
       ...bit,
@@ -94,7 +101,7 @@ export class OpenBrainService {
   /**
    * Retrieve all graph connections for a given QiBit
    */
-  public getRelatedBits(bitId: string): { link: EntityLink; bit?: QiBit }[] {
+  public getRelatedBits(bitId: string): RelatedBitConnection[] {
     const relatedLinks = this.links.filter(
       (l) => l.sourceId === bitId || l.targetId === bitId,
     );
@@ -114,8 +121,9 @@ export class OpenBrainService {
   public searchMemory(options: MemoryQueryOptions = {}): QiBit[] {
     let results = Array.from(this.bits.values()).filter((b) => !b.archivedAt);
 
-    if (options.types && options.types.length > 0) {
-      results = results.filter((b) => options.types!.includes(b.type));
+    const filterTypes = options.types;
+    if (filterTypes && filterTypes.length > 0) {
+      results = results.filter((b) => filterTypes.includes(b.type));
     }
 
     if (options.memoryState) {
@@ -126,10 +134,9 @@ export class OpenBrainService {
       const q = options.queryText.toLowerCase();
       results = results.filter((b) => {
         const titleMatch = b.title.toLowerCase().includes(q);
-        const bodyMatch = b.body ? b.body.toLowerCase().includes(q) : false;
-        const tagMatch = Array.isArray(b.metadata.tags)
-          ? (b.metadata.tags as string[]).some((t) => t.toLowerCase().includes(q))
-          : false;
+        const bodyMatch = Boolean(b.body && b.body.toLowerCase().includes(q));
+        const tags = Array.isArray(b.metadata.tags) ? b.metadata.tags : [];
+        const tagMatch = tags.some((t) => typeof t === "string" && t.toLowerCase().includes(q));
         return titleMatch || bodyMatch || tagMatch;
       });
     }

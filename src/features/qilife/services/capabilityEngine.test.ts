@@ -1,11 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { CapabilityEngine } from "./capabilityEngine";
-import type { AgentCapabilityDefinition } from "../../../app/moduleTypes";
 
 describe("CapabilityEngine (Dual-Surface Contract)", () => {
   it("executes non-consequential capabilities without confirmation", async () => {
     const handler = vi.fn().mockResolvedValue({ id: "bit_123" });
-    const capability: AgentCapabilityDefinition = {
+    const capability = {
       name: "search_memory",
       description: "Search Open Brain memory",
       consequential: false,
@@ -23,7 +22,7 @@ describe("CapabilityEngine (Dual-Surface Contract)", () => {
 
   it("blocks consequential capabilities until human confirmation is provided", async () => {
     const handler = vi.fn().mockResolvedValue({ status: "sent" });
-    const capability: AgentCapabilityDefinition = {
+    const capability = {
       name: "send_external_email",
       description: "Send an email to a contact",
       consequential: true,
@@ -32,7 +31,7 @@ describe("CapabilityEngine (Dual-Surface Contract)", () => {
     };
 
     const engine = new CapabilityEngine([capability]);
-    
+
     // First attempt without bypass confirmation
     const res1 = await engine.executeCapability("send_external_email", { to: "user@example.com" });
     expect(res1.success).toBe(false);
