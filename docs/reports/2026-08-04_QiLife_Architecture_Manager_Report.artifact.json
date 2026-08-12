@@ -1,0 +1,161 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "QiLife Architecture Readiness Report",
+    "description": "Management assessment of the current QiLife ecosystem against the approved August 4, 2026 plugin and QiVault architecture decision.",
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "layout": "full",
+        "body": "# QiLife Architecture Readiness Report\n\n**Status: APPROVED — GOVERNING STABILIZATION GATE 0 REPORT**  \n**Decision owner: Cody J. Rice-Velasquez · August 4, 2026**\n\nThis report authorizes Stabilization Gate 0 only. It does not authorize a broad rewrite or deferred domain migrations."
+      },
+      {
+        "id": "executive-summary",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## Executive Summary\n\n- **Approve the temporary stabilization gate and reject a big-bang rewrite.** The architecture is approved, but execution must stop at Stabilization Gate 0 until verified green-check evidence and a privileged-access inventory are presented for approval.\n- **Contain QiSpark first.** A possible publishing leak outranks the broken frontend build. Production publishing must fail closed, unapproved content must be proven absent, and current generated output must be inspected before broader repairs proceed.\n- **Treat privileged Supabase access as an unresolved risk, not a proven vulnerability.** Server-side privilege can be legitimate, but every path needs verified identity, explicit authorization, ownership scoping, audit logs, and security tests; it must not replace normal user-scoped CRUD.\n- **Defer Directory, Activities, Vault, Memory, G.I.N.A., and plugin migrations until the baseline is green.** The stale July 2 housekeeping plan is invalid and must not be applied."
+      },
+      {
+        "id": "decision",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## Management Decision\n\n| Decision | Verdict |\n|---|---|\n| Temporary architecture gate | **Approve** |\n| Big-bang QiLife rewrite | **Reject** |\n| Immediate QiSpark containment | **Approve first** |\n| Directory, Vault, and Memory expansion | **Wait for green baseline** |\n| Saved July 2 housekeeping plan | **Invalidate; do not apply** |\n\nThe architecture remains the approved target. Execution is authorized only for **Stabilization Gate 0** and must preserve current records and behavior."
+      },
+      {
+        "id": "critical-findings",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## Immediate Release and Security Blockers\n\n| Priority | Finding | Evidence | Business consequence |\n|---|---|---|---|\n| Critical | QiSpark publication is fail-open unless `--strict-publish` is supplied | `10_QiSpark/build_site.py` lines 200–251 and 1594–1600 | Content lacking an explicit target or approved publication state can enter a build if it is not otherwise marked restricted |\n| Critical | QiSpark reads the local Vault directly instead of a sanitized QiApi projection | `10_QiSpark/10_site/source_map.qivault_to_qispark.md` and `00_config/sources.lock.json` | No selected immutable revision, projection record, per-field authorization, or reliable unpublish contract |\n| Critical | QiLife does not compile | Broken auth imports in `src/main.tsx`, shell, top bar, reliability components, and auth components | Current frontend cannot pass a release gate |\n| High | QiApi test suite is red | 10 failed finance tests; 69 passed | Posting, import, schedule, correction, and balance contracts are incomplete or out of sync |\n| Unresolved risk | Privileged Supabase access exists and documentation does not describe it accurately | `src/config/runtime.ts`, `src/supabase/client.ts`, and `wrangler.jsonc` | Privilege may be legitimate for controlled server work, but every caller and authorization boundary must be audited before approval |"
+      },
+      {
+        "id": "risk-visual-context",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## Gate 0 Is Deliberately Narrow\n\nThe approved sequence contains six Gate 0 actions before four deferred migration phases. The chart shows execution scope, not defect severity: containment and stabilization proceed now; all domain expansion waits for explicit approval after green checks and the privileged-access inventory."
+      },
+      {
+        "id": "risk-chart",
+        "type": "chart",
+        "layout": "full",
+        "chartId": "findings-by-area"
+      },
+      {
+        "id": "architecture-gap",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## The Current Product Model Does Not Yet Match the Approved Boundaries\n\n**Plugin registration is only a partial foundation.** The platform contract must support plugin identity/version, navigation, routes, commands, dashboard cards, record types, search providers, contextual panels, G.I.N.A. tools, permissions, dependencies, and feature flags. Each plugin declares **only the surfaces it needs**; no plugin is required to contribute every surface. The source tree also does not yet distinguish core, system, bridge, and optional plugins.\n\n**Directory and Activities ownership is not established.** The active `people` module owns person records and interactions. Organizations and typed relationships do not share the approved Directory model, and Activities is not an independent chronological service. Physical QiVault folders also retain overlapping People, Contacts, Companies, Partners, and numbered directory structures.\n\n**QiVault is not yet a revisioned document domain.** The generic `qilife.records` JSONB table has no first-class document, immutable revision, link, asset-reference, or publication records. It therefore cannot yet prove stable identity through rename, recoverable revision history, selected-revision publication, or conflict-safe device synchronization.\n\n**QiMemory and G.I.N.A. remain pre-foundation.** The current assistant performs client-side text matching across loaded QiRecords. Candidate confidence, provenance, scope, sensitive-memory confirmation, correction supersession, forgetting, retrieval authorization, and rebuildable embedding indexes are not implemented. These migrations are explicitly deferred until Gate 0 is approved complete."
+      },
+      {
+        "id": "documentation-drift",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## Documentation Drift Is Now an Operational Risk\n\n- QiSpark documentation calls the filesystem Vault canonical, contrary to the approved Postgres authority model.\n- QiLife documentation points to a nonexistent `src/features/qilife/auth/` directory and omits active Software and Objects work.\n- QiApi documentation says mutation bodies are limited to 1 MiB while runtime permits 12 MiB.\n- QiApi reports service version `0.1.0` while OpenAPI reports `0.2.0`.\n- QiApi documentation says normal operation never requires a secret/service-role credential, while runtime configuration requires one and implements a privileged client.\n\n**Implication:** the approved August 4 decision should be committed as the authoritative ADR, and conflicting material should be marked transitional or superseded. Without that step, teams can follow valid-looking documentation and still violate the intended architecture."
+      },
+      {
+        "id": "housekeeping-stop",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## July 2 Housekeeping Artifacts: SUPERSEDED — DO NOT EXECUTE\n\nThe attached artifacts record **2,453 planned actions, 1,177 renames, 86 conflicts, zero applied actions, and missing template/tag inputs** across QiSpark, QiServer, and QiVault. Their configuration belongs to the former filesystem-canonical model.\n\n**Do not run, resume, partially apply, or use these artifacts as an execution authority.** Retain them only as historical evidence. Any future housekeeping capability must become controlled legacy import, export, validation, or mirror tooling. It must not manage canonical QiVault identity or reorganize canonical records through bulk filesystem renames."
+      },
+      {
+        "id": "roadmap",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## Approved Execution Order\n\n1. **Commit and index the approved ADR** in the authoritative architecture location.\n2. **Freeze or fail-close production QiSpark publishing.** Make strict publication mandatory in CI and production, prove unapproved content cannot appear, and inspect current output.\n3. **Reproduce QiLife and QiApi failures from clean installs** and save the exact commands and results.\n4. **Restore QiLife build, typecheck, and frontend tests.**\n5. **Reconcile the ten QiApi finance failures** against the approved accounting contract.\n6. **Audit every privileged Supabase call**, recording caller, purpose, verified identity, authorization check, user-scoping mechanism, audit logging, and tests.\n7. **Establish the plugin kernel** only after Gate 0 approval.\n8. **Migrate People to Directory and extract Activities** incrementally.\n9. **Build canonical QiVault records and publication projections.** Replace the temporary filesystem publication path incrementally.\n10. **Add QiMemory and G.I.N.A.** only after authorization and provenance controls exist.\n\n**Stop point:** execute steps 1–6 only. Present verified green-check evidence and the privileged-access inventory for approval before starting step 7."
+      },
+      {
+        "id": "gates",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## Required Management Gates\n\n| Gate | Exit condition |\n|---|---|\n| ADR authority | Approved decision is committed and linked from active architecture indexes |\n| Temporary publishing containment | Strict publication is mandatory in CI/production, tests prove unapproved content is excluded, and current output has been inspected |\n| Release health | QiLife and QiApi checks pass from documented clean installs |\n| Privileged access | Every privileged Supabase path has a known caller and purpose plus verified identity, explicit authorization, ownership scope, audit logging, and security tests |\n| Plugin contract | The platform supports every approved contribution surface; each plugin declares only the subset it needs |\n| Canonical publication | Every published page maps to one approved immutable revision and sanitized projection; unpublish removes only the projection |\n| Directory and activity integrity | People and organizations share one Directory model; cross-domain chronology comes from Activities with no duplicate writable timeline |\n| Memory safety | Sensitive candidates require confirmation; retrieval is authorized before embedding search or prompt assembly; provenance and corrections are visible |"
+      },
+      {
+        "id": "guardrails",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## Gate 0 Execution Guardrails\n\n- **QiSpark containment is temporary.** It authorizes fail-closed controls, exclusion tests, and current-output inspection—not construction of the complete canonical publication system.\n- **Finance tests must follow the approved accounting contract.** Do not weaken assertions or implementation rules merely to make the suite green. Reconcile code and tests against the governing contract.\n- **The privileged-access inventory must trace real execution paths.** Identify actual callers, purpose, verified identity, authorization decision, ownership scope, logging, and tests; a list of service-key configuration is insufficient."
+      },
+      {
+        "id": "ide-instruction",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## Authorized IDE Instruction\n\n> Accept the architecture readiness report with the approved amendments. Execute Stabilization Gate 0 only. Do not begin Directory, Activities, Vault, Memory, G.I.N.A., or plugin migrations yet. First commit and index the approved ADR, fail-close QiSpark production publishing, reproduce all reported failures from clean installs, restore the QiLife build and frontend tests, reconcile the QiApi finance suite against the approved contract, and produce an inventory of every privileged Supabase access path with its caller, purpose, authorization check, user-scoping mechanism, and tests. Do not apply any July 2 housekeeping or rename plan. Stop after presenting verified green-check evidence and the privileged-access inventory for approval."
+      },
+      {
+        "id": "questions",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## Decision Register\n\n### Gate 0 decisions\n\n- **Approved:** Freeze or fail-close QiSpark production publishing before general repair work.\n- **Approved:** Reproduce failures from clean installs and preserve exact commands and results.\n- **Approved:** Reconcile finance behavior against the approved accounting contract; do not weaken the contract for green tests.\n- **Required for approval:** Determine which QiApi operations genuinely require privileged Supabase access from the complete caller and authorization-path inventory.\n- **Superseded:** July 2 housekeeping and rename artifacts; do not execute.\n\n### Deferred architecture decisions\n\n- Minimum canonical publication-projection schema, allowed properties, and individually authorized attachments.\n- Classification of existing filesystem Markdown as legacy import source, mirror, generated output, or archive.\n- Compatibility period for `/people` routes before Directory becomes visible product language.\n- Cadence datasets worth migrating and the evidence required to prove migration completeness.\n\nDeferred decisions do not expand Gate 0 authority."
+      },
+      {
+        "id": "caveats",
+        "type": "markdown",
+        "layout": "full",
+        "body": "## Evidence Boundary\n\nThe attached housekeeping materials verify the housekeeping findings only: 2,453 planned actions, 1,177 renames, 86 conflicts, zero applied actions, and missing template/tag inputs. They do **not** independently re-prove the QiLife or QiApi source findings.\n\nGate 0 must reproduce those findings from clean installs and return: (1) exact commands and green results; (2) QiSpark containment tests and current-output inspection; (3) QiLife build, typecheck, and frontend-test evidence; (4) QiApi finance-test evidence; and (5) the complete privileged Supabase access inventory.\n\nThis repository assessment does not certify deployed Cloudflare or Supabase configuration, production data, hidden secrets, or external authentication templates. The approved ADR must still be committed and linked before repository authority is established."
+      }
+    ],
+    "charts": [
+      {
+        "id": "findings-by-area",
+        "type": "bar",
+        "title": "Approved Gate 0 and deferred execution scope",
+        "description": "Ten approved sequence steps grouped into immediate Gate 0 work and explicitly deferred migration work.",
+        "dataset": "findings_by_area",
+        "encodings": {
+          "x": { "field": "area", "type": "nominal", "title": "Management area" },
+          "y": { "field": "findings", "type": "quantitative", "title": "Verified findings" }
+        },
+        "source": {
+          "id": "repository-audit",
+          "title": "QiLabs repository architecture audit",
+          "type": "query",
+            "description": "Approved execution steps classified by authorization phase.",
+          "query": {
+            "language": "sql",
+            "engine": "SQLite-compatible VALUES",
+            "description": "Materializes the approved execution-scope classification used by the chart.",
+            "sql": "SELECT area, findings FROM (VALUES ('ADR and publishing', 2), ('Baseline recovery', 3), ('Privilege audit', 1), ('Deferred migrations', 4)) AS plan(area, findings)",
+            "executed_at": "2026-08-04T14:05:00Z",
+            "metric_definitions": {
+              "findings": "Count of approved execution-order steps assigned to each authorization phase."
+            },
+            "filters": ["Read-only repository inspection completed August 4, 2026"]
+          }
+        }
+      }
+    ],
+    "sources": [
+      {
+        "id": "repository-audit",
+        "title": "QiLabs repository architecture audit",
+        "type": "file",
+        "description": "Read-only inspection and verification of the QiLife, QiApi, QiSpark, and QiVault repository areas on August 4, 2026."
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "status": "ready",
+    "generatedAt": "2026-08-04T14:05:00Z",
+    "datasets": {
+      "findings_by_area": [
+        { "area": "ADR and publishing", "findings": 2 },
+        { "area": "Baseline recovery", "findings": 3 },
+        { "area": "Privilege audit", "findings": 1 },
+        { "area": "Deferred migrations", "findings": 4 }
+      ]
+    },
+    "accessIssues": []
+  },
+  "sources": [
+    {
+      "id": "repository-audit",
+      "title": "QiLabs repository architecture audit",
+      "type": "file",
+      "description": "Read-only inspection and verification of the QiLife, QiApi, QiSpark, and QiVault repository areas on August 4, 2026."
+    }
+  ]
+}

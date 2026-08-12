@@ -9,7 +9,7 @@ import { Topbar } from "./Topbar";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { AssistantPage } from "./AssistantPage";
 import { WorkspacePage } from "./WorkspacePage";
-import { useAuth } from "../auth/useAuth";
+import { useAuth } from "./auth/useAuth";
 import type { QiRecord } from "../types";
 import type { QiSpecialViewKey } from "../data/navRegistry";
 import {

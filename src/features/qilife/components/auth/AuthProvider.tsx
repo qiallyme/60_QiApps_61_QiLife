@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
-import { supabase, hasSupabaseConfig } from "../../../lib/supabaseClient";
+import { supabase, hasSupabaseConfig } from "../../../../lib/supabaseClient";
 import type { User } from "@supabase/supabase-js";
 import { currentInternalDestination, sameOriginAuthRedirect } from "./authReturnPath";
 

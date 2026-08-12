@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { hasSupabaseConfig } from "../../../lib/supabaseClient";
+import { hasSupabaseConfig } from "../../../../lib/supabaseClient";
 import { LoginPage } from "./LoginPage";
 import { useAuth } from "./useAuth";
 

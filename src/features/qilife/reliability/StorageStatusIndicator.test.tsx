@@ -1,6 +1,6 @@
 import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { AuthContext, type AuthContextType } from "../auth/AuthProvider";
+import { AuthContext, type AuthContextType } from "../components/auth/AuthProvider";
 import { StorageStatusIndicator } from "./StorageStatusIndicator";
 
 const localAuth = {

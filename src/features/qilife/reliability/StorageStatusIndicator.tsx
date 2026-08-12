@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { hasSupabaseConfig } from "../../../lib/supabaseClient";
-import { AuthContext, type AuthContextType } from "../auth/AuthProvider";
+import { AuthContext, type AuthContextType } from "../components/auth/AuthProvider";
 import { listAllRecords } from "../services/qilifeStore";
 import { RecoveryPanel } from "./RecoveryPanel";
 import {

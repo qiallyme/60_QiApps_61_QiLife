@@ -13,7 +13,7 @@ const auth = vi.hoisted(() => ({
   signOut: vi.fn().mockResolvedValue({ error: null }),
 }));
 
-vi.mock("../../../lib/supabaseClient", () => ({
+vi.mock("../../../../lib/supabaseClient", () => ({
   hasSupabaseConfig: true,
   supabase: { auth },
 }));

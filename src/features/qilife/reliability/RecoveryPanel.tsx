@@ -1,5 +1,5 @@
 import { useId, useRef, useState } from "react";
-import { useAuth } from "../auth/useAuth";
+import { useAuth } from "../components/auth/useAuth";
 import {
   listAllRecords,
   restoreRecords,
