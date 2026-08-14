@@ -51,17 +51,19 @@ function writeLocalEvents(events: QiEvent[]) {
 }
 
 /**
- * Format canonical QiDecimal for a given QiBitType (ADR 0005)
+ * Format canonical QiDecimal for a given QiBitType or entity key (ADR 0005)
  */
-export function formatQiDecimal(type: QiBitType, index: number): string {
+export function formatQiDecimal(type: string, index: number): string {
   const categoryMap: Record<string, string> = {
     capture: "10",
     thought: "10",
+    qibit: "10",
     task: "20",
     action: "20",
     project: "30",
     person: "40",
     journal: "50",
+    journal_entry: "50",
     expense: "60",
     document: "70",
     notebook: "70",
@@ -69,7 +71,7 @@ export function formatQiDecimal(type: QiBitType, index: number): string {
     output: "70",
   };
 
-  const category = categoryMap[type] ?? "10";
+  const category = categoryMap[type.toLowerCase()] ?? "10";
   const formattedIndex = String(index).padStart(3, "0");
   return `61.${category}.${formattedIndex}`;
 }
