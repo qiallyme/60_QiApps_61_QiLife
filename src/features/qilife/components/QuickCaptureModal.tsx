@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { entityRegistry } from "../data/entityRegistry";
 import { createRecord } from "../services/qilifeStore";
+import { emitPipelineEvent } from "../services/eventPipelineService";
+import type { QiBit, QiBitType } from "../types";
 
 interface QuickCaptureModalProps {
   onClose: () => void;
@@ -30,7 +32,9 @@ export function QuickCaptureModal({ onClose, onSaved }: QuickCaptureModalProps) 
     try {
       setSaving(true);
       setError(null);
-      await createRecord({
+
+      // 1. Create underlying store record
+      const record = await createRecord({
         entity_key: entityKey,
         title: clean,
         status: defaultStatus,
@@ -38,9 +42,46 @@ export function QuickCaptureModal({ onClose, onSaved }: QuickCaptureModalProps) 
           [entity.titleField]: clean,
           notes,
           raw_content: entityKey === "qibit" ? notes || clean : undefined,
-          captured_at: new Date().toISOString()
-        }
+          captured_at: new Date().toISOString(),
+        },
       });
+
+      // 2. Execute Thin Vertical Slice: Event -> QiBit -> Provenance -> Open Brain -> Operational State
+      const bitTypeMap: Record<string, QiBitType> = {
+        qibit: "capture",
+        task: "task",
+        event: "event",
+        journal_entry: "journal",
+        person: "person",
+        document: "document",
+      };
+
+      const bit: QiBit = {
+        id: record.id,
+        type: bitTypeMap[entityKey] ?? "capture",
+        title: clean,
+        body: notes || clean,
+        metadata: { ...record.data, status: defaultStatus },
+        provenance: {
+          creator: "user",
+          sourceSystem: "qilife-quick-capture",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        memoryState: "transient",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      await emitPipelineEvent(
+        {
+          eventType: "bit.captured",
+          bitId: bit.id,
+          payload: { entityKey, title: clean },
+        },
+        bit,
+      );
+
       onSaved();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Capture failed.");
@@ -100,10 +141,10 @@ export function QuickCaptureModal({ onClose, onSaved }: QuickCaptureModalProps) 
           />
         </label>
 
-        <div className="qilife-actions end modal-actions">
-          <span className="qilife-shortcut-hint">Ctrl/⌘ + Enter</span>
-          <button className="qilife-btn primary" type="button" onClick={() => void handleSave()} disabled={saving}>
-            {saving ? "Saving..." : entityKey === "qibit" ? "Send to Inbox" : `Create ${entityRegistry[entityKey].label}`}
+        <div className="qilife-modal-actions">
+          <button className="qilife-btn-secondary" type="button" onClick={onClose}>Cancel</button>
+          <button className="qilife-btn-primary" type="button" onClick={() => void handleSave()} disabled={saving}>
+            {saving ? "Saving..." : "Save Capture"}
           </button>
         </div>
       </div>
