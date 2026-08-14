@@ -57,6 +57,11 @@ export function qiRecordToQiBit(record: QiRecord): QiBit {
     output: "output",
     notebook: "notebook",
     podcast: "podcast",
+    idea: "idea",
+    memory: "memory",
+    problem: "problem",
+    source: "source",
+    workflow: "workflow",
   };
 
   const mappedType: QiBitType = typeMap[record.entity_key.toLowerCase()] ?? "capture";
@@ -96,6 +101,11 @@ export function qiBitToQiRecord(bit: QiBit): QiRecord {
     output: "output",
     notebook: "notebook",
     podcast: "podcast",
+    idea: "qibit",
+    memory: "qibit",
+    problem: "qibit",
+    source: "document",
+    workflow: "task",
   };
 
   return {
